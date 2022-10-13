@@ -586,9 +586,15 @@ function ViewDataTable(props) {
             if ( p['net_contract_price'] !== null && p['cost_gmx_current_year'] !== null && p['net_contract_price'] < p['cost_gmx_current_year']) {
                 p['ncp_cogs'] = "Red"
             }
-            else if (p['net_contract_price'] === null || p['cost_gmx_current_year'] ===null || p['msp'] === null){
-                p['ncp_cogs'] = "Insufficient info"
+            else if (p['net_contract_price'] === null || p['net_contract_price'] ===0){
+                p['ncp_cogs'] = "Net Bid Price not defined"
             }
+            else if (p['cost_gmx_current_year'] ===null ){
+                p['ncp_cogs'] = "CoGS Not Found"
+            }
+            else if (p['msp'] === null){
+                p['ncp_cogs'] = "MSP Not Found"
+            }            
             else if (p['net_contract_price'] >= p['cost_gmx_current_year'] && p['net_contract_price'] < p['msp']) {
                 p['ncp_cogs'] = "Yellow"
             }
@@ -644,8 +650,14 @@ function ViewDataTable(props) {
             if ( upd[props.rowIndex]['net_contract_price'] !== null && upd[props.rowIndex]['cost_gmx_current_year'] !== null && upd[props.rowIndex]['net_contract_price'] < upd[props.rowIndex]['cost_gmx_current_year']) {
                 upd[props.rowIndex]['ncp_cogs'] = "Red"
             }
-            else if (upd[props.rowIndex]['net_contract_price'] === null || upd[props.rowIndex]['cost_gmx_current_year'] ===null || upd[props.rowIndex]['msp'] === null){
-                upd[props.rowIndex]['ncp_cogs'] = "Insufficient info"
+            else if (upd[props.rowIndex]['net_contract_price'] === null || upd[props.rowIndex]['net_contract_price'] ===0){
+                upd[props.rowIndex]['ncp_cogs'] = "Net Bid Price not defined"
+            }
+            else if (upd[props.rowIndex]['cost_gmx_current_year'] ===null ){
+                upd[props.rowIndex]['ncp_cogs'] = "CoGS Not Found"
+            }
+            else if (upd[props.rowIndex]['msp'] === null){
+                upd[props.rowIndex]['ncp_cogs'] = "MSP Not Found"
             }
             else if (upd[props.rowIndex]['net_contract_price'] >= upd[props.rowIndex]['cost_gmx_current_year'] && upd[props.rowIndex]['net_contract_price'] < upd[props.rowIndex]['msp']) {
                 upd[props.rowIndex]['ncp_cogs'] = "Yellow"
@@ -702,8 +714,14 @@ function ViewDataTable(props) {
             if ( upd[props.rowIndex]['net_contract_price'] !== null && upd[props.rowIndex]['cost_gmx_current_year'] !== null && upd[props.rowIndex]['net_contract_price'] < upd[props.rowIndex]['cost_gmx_current_year']) {
                 upd[props.rowIndex]['ncp_cogs'] = "Red"
             }
-            else if (upd[props.rowIndex]['net_contract_price'] === null || upd[props.rowIndex]['cost_gmx_current_year'] ===null || upd[props.rowIndex]['msp'] === null){
-                upd[props.rowIndex]['ncp_cogs'] = "Insufficient info"
+            else if (upd[props.rowIndex]['net_contract_price'] === null || upd[props.rowIndex]['net_contract_price'] ===0){
+                upd[props.rowIndex]['ncp_cogs'] = "Net Bid Price not defined"
+            }
+            else if (upd[props.rowIndex]['cost_gmx_current_year'] ===null ){
+                upd[props.rowIndex]['ncp_cogs'] = "CoGS Not Found"
+            }
+            else if (upd[props.rowIndex]['msp'] === null){
+                upd[props.rowIndex]['ncp_cogs'] = "MSP Not Found"
             }
             else if (upd[props.rowIndex]['net_contract_price'] >= upd[props.rowIndex]['cost_gmx_current_year'] && upd[props.rowIndex]['net_contract_price'] < upd[props.rowIndex]['msp']) {
                 upd[props.rowIndex]['ncp_cogs'] = "Yellow"
@@ -977,7 +995,7 @@ function ViewDataTable(props) {
                     'ngccongs-red': true
                 }
             }
-            else if (rowData === 'Insufficient info'){
+            else if (rowData === 'Net Bid Price not defined' || rowData === 'CoGS Not Found' || rowData === 'MSP Not Found'){
                 return {
                     'ngccongs-grey': true
                 }
