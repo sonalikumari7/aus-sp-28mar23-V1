@@ -1,0 +1,201 @@
+.datatable-editing-demo .editable-cells-table td.p-cell-editing {
+    padding-top   : 0;
+    padding-bottom: 0;
+}
+
+.ngccongs-yellow {
+    background-color: rgb(242, 226, 136) !important;
+    text-align      : center !important;
+    font-size       : 10px !important;
+    font-weight     : 600 !important;
+    color           : black !important;
+}
+
+.ngccongs-green {
+    background-color: rgb(146, 207, 137) !important;
+    text-align      : center !important;
+    font-size       : 10px !important;
+    font-weight     : 600 !important;
+    color           : black !important;
+}
+
+.ngccongs-grey {
+    background-color: rgb(211, 211, 211) !important;
+    text-align      : center !important;
+    font-size       : 10px !important;
+    font-weight     : 600 !important;
+    color           : black !important;
+}
+
+.ngccongs-yellow-no-text {
+    background-color: rgb(242, 226, 136) !important;
+    text-align      : center !important;
+    font-size       : 10px !important;
+    font-weight     : 600 !important;
+    color           : rgb(242, 226, 136) !important;
+}
+
+.ngccongs-green-no-text {
+    background-color: rgb(146, 207, 137) !important;
+    text-align      : center !important;
+    font-size       : 10px !important;
+    font-weight     : 600 !important;
+    color           : rgb(146, 207, 137) !important;
+}
+
+.ngccongs-red {
+    background-color: rgb(248, 138, 140) !important;
+    text-align      : center !important;
+    font-size       : 10px !important;
+    font-weight     : 600 !important;
+    color           : black !important;
+}
+
+.npc:nth-child(even) {
+    background-color: rgb(204, 232, 231) !important;
+}
+
+.npc:nth-child(odd) {
+    background-color: rgb(231, 244, 243) !important;
+}
+
+.error-show {
+    color      : rgb(248, 23, 26) !important;
+    text-align : right !important;
+    font-size  : 11px !important;
+    font-weight: 600 !important;
+}
+
+.right-text-align {
+    text-align : right !important;
+    color      : black !important;
+    font-size  : 10px !important;
+    font-weight: 600 !important;
+}
+
+.center-text-align {
+    text-align : center !important;
+    color      : black !important;
+    font-size  : 10px !important;
+    font-weight: 600 !important;
+}
+
+.left-text-align {
+    text-align : left !important;
+    color      : black !important;
+    font-size  : 10px !important;
+    font-weight: 600 !important;
+}
+
+.p-checkbox-box {
+    width : 16px !important;
+    height: 16px !important;
+}
+
+.p-datatable.p-datatable-sm .p-datatable-thead>tr>th {
+    color       : white;
+    font-size   : 14px;
+    text-align  : left;
+    border-left : 1px solid white;
+    border-right: 1px solid white;
+    padding     : 0px !important;
+}
+
+.p-datatable.p-datatable-sm .p-datatable-thead>tr>td {
+    text-align: center !important;
+}
+
+.pi-sort-alt:before {
+    content  : "\e99e";
+    color    : #ffffff !important;
+    font-size: 0.5rem !important;
+}
+
+.p-datatable .p-sortable-column.p-highlight .p-sortable-column-icon {
+    color    : white !important;
+    font-size: 0.5rem !important;
+}
+
+span.p-sortable-column-icon.pi.pi-fw.pi-sort-alt {
+    vertical-align: initial !important;
+}
+
+span.p-sortable-column-icon.pi.pi-fw.pi-sort-alt {
+    margin-left: 0px !important;
+}
+
+.p-inputtext.p-inputtext-sm {
+    width       : 94%;
+    /* font-size: 12px; */
+}
+
+.p-datatable .p-datatable-header {
+    border: none !important;
+}
+
+.p-inputtext {
+    padding: 1px;
+    margin : 1px;
+}
+
+.p-datatable.p-datatable-sm .p-datatable-tbody>tr>td {
+    padding  : 0.2rem !important;
+    word-wrap: break-word !important;
+}
+
+.product-detail-header {
+    background-color: rgb(13, 189, 186) !important;
+}
+
+.current-bid-header {
+    background-color: rgb(10, 142, 139) !important;
+}
+
+.user-input-header {
+    background-color: rgb(131, 131, 255) !important;
+}
+
+.calculated-field-header {
+    background-color: rgb(97, 29, 242) !important;
+}
+
+.comment-header {
+    background-color: rgb(157, 115, 247) !important;
+}
+
+
+.header-word-wrap {
+    word-wrap : break-word;
+    font-size : 10px !important;
+    text-align: center !important;
+    color     : white !important;
+}
+
+.input-dropdown .p-dropdown-label .p-inputtext {
+    font-size: 10px !important;
+}
+
+.filter-dropdown {
+    background-color: transparent !important;
+    color           : white !important;
+    border          : none !important;
+    margin-left     : 10px !important;
+    padding         : 0px !important;
+    max-width       : 190px !important;
+}
+
+.p-multiselect:not(.p-disabled).p-focus {
+    box-shadow: none !important;
+}
+
+input:focus {
+    box-shadow   : none !important;
+    /* font-size : 10px !important; */
+}
+
+.filter-dropdown .p-multiselect-trigger-icon.p-c.pi.pi-chevron-down {
+    position    : relative;
+    right       : 17px;
+    color    : white;
+    font-size   : 10px;
+}

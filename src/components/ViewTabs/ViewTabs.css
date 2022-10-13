@@ -1,0 +1,145 @@
+.MuiButton-root.Mui-disabled {
+    color           : white !important;
+    background-color: rgb(170, 166, 166) !important;
+}
+
+.username {
+    color                : white;
+    margin-right         : 5px;
+    margin-left          : 10px;
+    text-transform       : uppercase;
+    -webkit-touch-callout: none;
+    /* iOS Safari */
+    -webkit-user-select  : none;
+    /* Safari */
+    -khtml-user-select   : none;
+    /* Konqueror HTML */
+    -moz-user-select     : none;
+    /* Old versions of Firefox */
+    -ms-user-select      : none;
+    /* Internet Explorer/Edge */
+    user-select          : none;
+    /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
+}
+
+ul {
+    list-style-type: none;
+}
+li {
+    margin-left: 3rem;
+    margin-top: 1rem;
+}
+.info-section {
+    display        : flex;
+    padding        : 1rem;
+    justify-content: space-between;
+}
+
+.opportunity-info-section {
+    width        : 90%;
+    max-height   : 6rem;
+    border       : 1px solid lightgray;
+    border-radius: 10px;
+    line-height  : 2rem;
+    padding-left : 1rem;
+    box-shadow   : 7px 7px 5px 0px rgba(0, 0, 0, 0.05);
+}
+
+.product-info-section {
+    border       : 1px solid lightgray;
+    border-radius: 10px;
+    text-align   : center;
+    padding      : 10px;
+    width        : 90%;
+    margin-left  : 1rem;
+    box-shadow   : 7px 7px 5px 0px rgba(0, 0, 0, 0.05);
+}
+
+.product-info-number {
+    font-size: 18px;
+}
+
+.product-info-title {
+    font-size: 13px;
+    color    : #7f6c6c;
+}
+
+.product-info-container {
+    display        : flex;
+    justify-content: space-around;
+    max-height     : 4rem;
+    align-items    : center;
+}
+
+select {
+    min-height: 25px;
+    padding   : 8px;
+    border    : 1px solid lightgrey;
+}
+
+select:focus {
+    min-height: 25px;
+    padding   : 8px;
+    border    : 1px solid lightgrey;
+}
+
+.position-angle {
+    position: relative;
+    top     : 3px
+}
+
+.legends-item {
+    padding     : 0px 9px;
+    width       : 20px;
+    height      : 9px;
+    align-self  : center;
+    margin-right: 2px;
+    margin-left : 2px;
+}
+
+.loader {
+    position: absolute;
+    top     : calc(50% - 4em);
+    left    : calc(50% - 4em);
+    z-index : 9999;
+}
+
+
+
+@keyframes load8 {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+span.p-multiselect-trigger-icon.p-c.pi.pi-chevron-down {
+    position : relative;
+    right    : 17px;
+    color    : black;
+    font-size: 10px;
+}
+
+.main-filter-container {
+    text-align  : center;
+    margin-right: 1rem;
+}
+
+.main-filter-section {
+    display       : flex;
+    border        : 1px solid lightgray;
+    margin-top    : 1rem;
+    padding-bottom: 1rem;
+    padding-left  : 1rem;
+    align-items   : center;
+    vertical-align: middle;
+    flex-wrap     : wrap;
+}
+
+.main-filter-container .p-multiselect .p-multiselect-label {
+    padding: 0rem 0.5rem !important
+}

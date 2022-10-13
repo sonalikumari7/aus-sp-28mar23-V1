@@ -1,0 +1,278 @@
+{
+    "Tabs": [
+        {
+            "tab_name": "Scenario Planning",
+            "excel_name": "excel1.csv",
+            "excel_config": {
+                "product_details": {
+                    "list": [
+                        {
+                            "field": "business_unit_name",
+                            "header": "BU"
+                        },
+                        {
+                            "field": "market_status",
+                            "header": "Market Status"
+                        },
+                        {
+                            "field": "brand_manager",
+                            "header": "Brand Manager"
+                        },
+                        {
+                            "field": "intent_to_bid",
+                            "header": "Intent to Bid"
+                        },
+                        {
+                            "field": "local_item_code",
+                            "header": "F Code"
+                        },
+                        {
+                            "field": "local_product_description",
+                            "header": "Product Description",
+                            "sortable": true
+                        },
+                        {
+                            "field": "supply_status",
+                            "header": "Pfizer Global Quarterly Supply Constraint",
+                            "filterby": true
+                        },
+                        {
+                            "field": "shortage",
+                            "header": "TGA Shortages",
+                            "filterby": true
+                        }
+                    ],
+                    "selected_list": [
+                        {
+                            "field": "local_item_code",
+                            "header": "F Code"
+                        },
+                        {
+                            "field": "local_product_description",
+                            "header": "Product Description",
+                            "sortable": true
+                        },
+                        {
+                            "field": "supply_status",
+                            "header": "Pfizer Global Quarterly Supply Constraint",
+                            "filterby": true
+                        },
+                        {
+                            "field": "shortage",
+                            "header": "TGA Shortages",
+                            "filterby": true
+                        }
+                    ]
+                },
+                "current_bid_details": [
+                    {
+                        "field": "current_contract_price",
+                        "header": "Current Contract Price",
+                        "sortable": true
+                    },
+                    {
+                        "field": "list_price",
+                        "header": "Chemist List Price (CLP)",
+                        "sortable": true
+                    },
+                    {
+                        "field": "msp",
+                        "header": "MSP",
+                        "sortable": true
+                    },
+                    {
+                        "field": "leading_edge_price",
+                        "header": "GTCS Lowest Price",
+                        "sortable": true
+                    },
+                    {
+                        "field": "annual_usage_volume",
+                        "header": "Future RFT Annual QTY",
+                        "sortable": true
+                    },
+                    {
+                        "field": "total_cost_msp",
+                        "header": "Total Cost (MSP)",
+                        "sortable": true
+                    }
+                ],
+                "user_input": [
+                    {
+                        "field": "new_contract_price",
+                        "header": "Bid Price"
+                    },
+                    {
+                        "field": "product_rebate",
+                        "header": "Product rebate",
+                        "filterby": true
+
+                    },
+                    {
+                        "field": "rebate_type",
+                        "header": "Rebate Type"
+                    },
+                    {
+                        "field": "rebate_value",
+                        "header": "Rebate Value"
+                    },
+                    {
+                        "field": "rebate_percentage",
+                        "header": "Rebate (%)"
+                    }
+                ],
+                "calculated_fields": [
+                    {
+                        "field": "net_contract_price",
+                        "header": "Net Bid Price",
+                        "sortable": true
+                    },
+                    {
+                        "field": "total_revenue",
+                        "header": "Net Revenue",
+                        "sortable": true
+                    },
+                    {
+                        "field": "margin_msp",
+                        "header": "Margin from MSP (%)",
+                        "sortable": true
+                    },
+                    {
+                        "field": "total_margin",
+                        "header": "Net Margin",
+                        "sortable": true
+                    },
+                    {
+                        "field": "discount_to_clp",
+                        "header": "% Discount to CLP"
+                    },
+                    {
+                        "field": "fts_risk",
+                        "header": "FTS Risk (>40% Disc on CLP)",
+                        "filterby": true
+                    },
+                    {
+                        "field": "ncp_cogs",
+                        "header": "Net Bid Price vs COGS vs MSP",
+                        "filterby": true
+                    }
+                ],
+                "user_comments": [
+                    {
+                        "field": "comments",
+                        "header": "Comments"
+                    },
+                    {
+                        "field": "intent_to_bid",
+                        "header": "Intent to Bid"
+                    },
+                    {
+                        "field": "bid_category",
+                        "header": "Bid category"
+                    }
+                ]
+            }
+        },
+        {
+            "tab_name": "Finance Review",
+            "excel_name": "excel1.csv",
+            "excel_config": {
+                "product_details": {
+                    "selected_list": [
+                        {
+                            "field": "logility_item_code",
+                            "header": "Product Code"
+                        },
+                        {
+                            "field": "local_product_description",
+                            "header": "Product Description",
+                            "sortable": true
+                        },
+                        {
+                            "field": "standard_units_per_pack",
+                            "header": "Pack Size",
+                            "sortable": true
+                        }
+                    ]
+                },
+                "current_bid_details": [
+                    {
+                        "field": "bid_category",
+                        "header": "Bid category"
+                    },
+                    {
+                        "field": "annual_usage_volume",
+                        "header": "Future RFT Annual QTY",
+                        "sortable": true
+                    },
+                    {
+                        "field": "list_price",
+                        "header": "Chemist List Price (CLP)",
+                        "sortable": true
+                    },
+                    {
+                        "field": "msp",
+                        "header": "MSP",
+                        "sortable": true
+                    }
+                ],
+                "user_input": [
+                    {
+                        "field": "new_contract_price",
+                        "header": "Bid Price"
+                    },
+                    {
+                        "field": "product_rebate",
+                        "header": "Product rebate",
+                        "sortable": true
+                    },
+                    {
+                        "field": "rebate_type",
+                        "header": "Rebate Type",
+                        "sortable": true
+                    },
+                    {
+                        "field": "rebate_value",
+                        "header": "Rebate Value",
+                        "sortable": true
+                    },
+                    {
+                        "field": "rebate_percentage",
+                        "header": "Rebate (%)",
+                        "sortable": true
+                    }
+                ],
+                "calculated_fields": [
+                    {
+                        "field": "net_contract_price",
+                        "header": "Net Bid Price",
+                        "sortable": true
+                    },
+                    {
+                        "field": "total_revenue",
+                        "header": "Net Revenue",
+                        "sortable": true
+                    },
+                    {
+                        "field": "margin_msp",
+                        "header": "Margin from MSP (%)",
+                        "sortable": true
+                    },
+                    {
+                        "field": "fts_risk",
+                        "header": "FTS Risk (>40% Disc on CLP)"
+                    },
+                    {
+                        "field": "ncp_cogs",
+                        "header": "Net Bid Price vs COGS vs MSP"
+                    }
+                ],
+                "user_comments": [
+                    {
+                        "field": "comments",
+                        "header": "Comments"
+                    }
+                ]
+            }
+        }
+    ]
+}
