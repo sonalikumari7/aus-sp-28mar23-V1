@@ -693,7 +693,7 @@ function ViewTabs() {
                     <br></br>
                     <br></br>
                     <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                        <span>*</span>If Pfizer Global Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.
+                        <span>*</span>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.
                     </span>
                     <br></br>
                     <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
