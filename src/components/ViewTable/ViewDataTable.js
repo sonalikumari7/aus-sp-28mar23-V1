@@ -496,11 +496,11 @@ function ViewDataTable(props) {
         }
     }
 
-    const formatPriceCurrency = (value) => {
-        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' , maxFractionDigits: 2})
+    const formatPriceCurrency = (field) => {
+        return rowData.field.toLocaleString('en-US', { style: 'currency', currency: 'USD' , maxFractionDigits: 2})
     }
-    const formatRevenueCurrency = (value) => {
-        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' , maxFractionDigits: 0})
+    const formatRevenueCurrency = (field) => {
+        return rowData.field.toLocaleString('en-US', { style: 'currency', currency: 'USD' , maxFractionDigits: 0})
     }
     const formatVolume = (value) => {
         return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(value)
@@ -526,7 +526,7 @@ function ViewDataTable(props) {
                 headerClassName="header-word-wrap current-bid-header"
                 header={k.header.toUpperCase()}
                 sortable={k.sortable === undefined ? false : true}
-                body = {k.fmt === "price_currency" ? formatPriceCurrency : null }
+                body = {k.fmt === "price_currency" ? formatPriceCurrency(k.field) : null }
             />)
     }) : null
 
@@ -551,7 +551,7 @@ function ViewDataTable(props) {
                 header={k.header.toUpperCase()}
                 filter={k.filterby === undefined ? false : true}
                 filterElement={k.filterby === undefined ? null : customColumFilter(k)}
-                body = {k.fmt === "revenue_currency"? formatRevenueCurrency: null }
+                body = {k.fmt === "revenue_currency"? formatRevenueCurrency(k.field): null }
             />)
     }) : null
 
