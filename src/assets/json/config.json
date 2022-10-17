@@ -54,7 +54,7 @@
                         },
                         {
                             "field": "supply_status",
-                            "header": "Pfizer Global Quarterly Supply Constraint",
+                            "header": "Pfish Supply Constraint",
                             "filterby": true
                         },
                         {
