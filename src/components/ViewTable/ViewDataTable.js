@@ -496,6 +496,16 @@ function ViewDataTable(props) {
         }
     }
 
+    const formatPriceCurrency = (value) => {
+        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' , maxFractionDigits: 2})
+    }
+    const formatRevenueCurrency = (value) => {
+        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' , maxFractionDigits: 0})
+    }
+    const formatVolume = (value) => {
+        return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(value)
+    }
+
     const columnProductDetailList = value.length > 0 ? selectedColumns?.map(k => {
         return (
             <Column key={k.field} field={k.field}
@@ -516,6 +526,8 @@ function ViewDataTable(props) {
                 headerClassName="header-word-wrap current-bid-header"
                 header={k.header.toUpperCase()}
                 sortable={k.sortable === undefined ? false : true}
+                body = {k.fmt === "price_currency" ? (rowData => {return formatPriceCurrency(rowData.k)}) : 
+                (k.fmt === "revenue_currency"? (rowData => {return formatRevenueCurrency(rowData.k)}): null) }
             />)
     }) : null
 
@@ -540,6 +552,8 @@ function ViewDataTable(props) {
                 header={k.header.toUpperCase()}
                 filter={k.filterby === undefined ? false : true}
                 filterElement={k.filterby === undefined ? null : customColumFilter(k)}
+                body = {k.fmt === "price_currency" ? (rowData => {return formatPriceCurrency(rowData.k)}) : 
+                (k.fmt === "revenue_currency"? (rowData => {return formatRevenueCurrency(rowData.k)}): null) }
             />)
     }) : null
 
@@ -1122,8 +1136,6 @@ function ViewDataTable(props) {
             }
         }
     }
-
-
     return (
         <div>
             <div className="viewtable">
