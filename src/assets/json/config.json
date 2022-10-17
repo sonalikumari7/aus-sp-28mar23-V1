@@ -68,7 +68,8 @@
                     {
                         "field": "current_contract_price",
                         "header": "Current Contract Price",
-                        "sortable": true
+                        "sortable": true,
+                        "fmt": "price_currency"
                     },
                     {
                         "field": "list_price",
@@ -129,7 +130,8 @@
                     {
                         "field": "total_revenue",
                         "header": "Net Revenue",
-                        "sortable": true
+                        "sortable": true,
+                        "fmt": "revenue_currency"
                     },
                     {
                         "field": "margin_msp",
