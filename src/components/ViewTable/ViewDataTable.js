@@ -526,7 +526,7 @@ function ViewDataTable(props) {
                 headerClassName="header-word-wrap current-bid-header"
                 header={k.header.toUpperCase()}
                 sortable={k.sortable === undefined ? false : true}
-                body = {k.fmt === "price_currency" ? formatPriceCurrency(rowData.k) : null }
+                body = {k.fmt === "price_currency" ? formatPriceCurrency : null }
             />)
     }) : null
 
@@ -551,7 +551,7 @@ function ViewDataTable(props) {
                 header={k.header.toUpperCase()}
                 filter={k.filterby === undefined ? false : true}
                 filterElement={k.filterby === undefined ? null : customColumFilter(k)}
-                body = {k.fmt === "revenue_currency"? formatRevenueCurrency(rowData.k): null }
+                body = {k.fmt === "revenue_currency"? formatRevenueCurrency: null }
             />)
     }) : null
 
