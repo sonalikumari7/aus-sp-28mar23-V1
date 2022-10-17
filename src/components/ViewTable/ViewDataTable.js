@@ -574,7 +574,6 @@ function ViewDataTable(props) {
                 contractPrice = 0
             }
 
-
             p['net_contract_price'] = contractPrice === 0 ? 0: parseFloat((contractPrice - p['rebate_value']).toFixed(2))
             p['total_revenue'] = contractPrice === 0 ? 0: parseFloat((p['net_contract_price'] * p['annual_usage_volume']).toFixed(2))
             p['margin_msp'] = p['net_contract_price'] === 0 || p['msp'] === null ? null: parseFloat((((p['net_contract_price'] - p['msp']) / p['net_contract_price']) * 100).toFixed(2))
@@ -1011,7 +1010,7 @@ function ViewDataTable(props) {
                 }
             }
         }
-        else if (typeof (rowData) === 'number') {
+        if (typeof (rowData) === 'number') {
             return {
                 'right-text-align': true
             }
