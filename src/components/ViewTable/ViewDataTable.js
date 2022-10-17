@@ -496,11 +496,11 @@ function ViewDataTable(props) {
         }
     }
 
-    const formatPriceCurrency = (field) => {
-        return rowData.field.toLocaleString('en-US', { style: 'currency', currency: 'USD' , maxFractionDigits: 2})
+    const formatPriceCurrency = (value) => {
+        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' , maxFractionDigits: 2})
     }
-    const formatRevenueCurrency = (field) => {
-        return rowData.field.toLocaleString('en-US', { style: 'currency', currency: 'USD' , maxFractionDigits: 0})
+    const formatRevenueCurrency = (value) => {
+        return value.toLocaleString('en-US', { style: 'currency', currency: 'USD' , maxFractionDigits: 0})
     }
     const formatVolume = (value) => {
         return new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(value)
