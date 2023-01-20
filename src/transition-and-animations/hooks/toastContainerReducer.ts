@@ -1,4 +1,4 @@
-import { Id } from '../types';
+// import { Id } from '../types';
 
 import { isToastIdValid } from '../utils';
 
@@ -6,10 +6,14 @@ export const enum ActionType {
   ADD,
   REMOVE
 }
-export type State = Array<Id>;
+// export type State = Array<Id>;
+export type State = Array<any>;
+// export type Action =
+//   | { type: ActionType.ADD; toastId: Id; staleId?: Id }
+//   | { type: ActionType.REMOVE; toastId?: Id };
 export type Action =
-  | { type: ActionType.ADD; toastId: Id; staleId?: Id }
-  | { type: ActionType.REMOVE; toastId?: Id };
+  | { type: ActionType.ADD; toastId: any; staleId?: any }
+  | { type: ActionType.REMOVE; toastId?: any };
 
 export function reducer(state: State, action: Action) {
   switch (action.type) {

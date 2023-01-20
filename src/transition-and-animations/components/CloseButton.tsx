@@ -1,10 +1,11 @@
 import * as React from 'react';
 import { Default } from '../utils';
-import { TypeOptions } from '../types';
+// import { TypeOptions } from '../types';
 
 export interface CloseButtonProps {
   closeToast: (e: React.MouseEvent<HTMLElement>) => void;
-  type: TypeOptions;
+  // type: TypeOptions;
+  type: any;
   ariaLabel?: string;
 }
 

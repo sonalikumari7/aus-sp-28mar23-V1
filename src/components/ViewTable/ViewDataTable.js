@@ -1137,7 +1137,7 @@ function ViewDataTable(props) {
                         sortField={defaultSelectionSorting.sortField}
                         sortOrder={defaultSelectionSorting.sortOrder}
                         onSort={(e) => { onSorting(e) }}
-                        className="p-datatable-sm editable-cells-table" scrollable scrollHeight="65vh" showGridlines
+                        className="p-datatable-sm editable-cells-table" scrollHeight="65vh" showGridlines
                         headerColumnGroup={props.type.tab_name === "Finance Review" ? null : headerGroup}
                         cellClassName={cellStyleRow}
                         loading={isloading}

@@ -7,13 +7,15 @@ export const SET_ALL_LIST = "SET_ALL_LIST";
 export const CLEAR_UPDATE_DATA = "CLEAR_UPDATE_DATA"
 export const SET_KPI = "SET_KPI"
 
+const REACT_APP_URL = "http://localhost:5000";
+
 export const LoadUserRecord = (status, id) => (dispatch, getState) => {
     return new Promise((resolve, reject) => {
         // let url = process.env.REACT_APP_ENV === "dev" ? 'http://127.0.0.1:4005/app_start' : window.getWebAppBackendUrl('app_start');
 
         // fetch(`${process.env.REACT_APP_URL}/${status}/${id}`).
-        fetch(window.getWebAppBackendUrl('getData/' + id)).
-
+        // fetch(window.getWebAppBackendUrl('getData/' + id)).
+        fetch(`${REACT_APP_URL}/getData/${id}`).
             then(async (response) => {
                 if (response.ok) {
                     const json = await response.json()
@@ -32,8 +34,8 @@ export const LoadUserRecord = (status, id) => (dispatch, getState) => {
 export const LoadOpportunityClient = () => (dispatch, getState) => {
     return new Promise((resolve, reject) => {
         // fetch(`${process.env.REACT_APP_URL}/filterlist`).
-        fetch(window.getWebAppBackendUrl('filterlist')).
-
+        // fetch(window.getWebAppBackendUrl('filterlist')).
+        fetch(`${REACT_APP_URL}/filterlist`).
             then(async (response) => {
                 if (response.ok) {
                     const json = await response.json()
@@ -62,7 +64,8 @@ export const updateInfoRecords = (data) => (dispatch, getState) => {
         }
 
         // fetch(`${process.env.REACT_APP_URL}/update`, content)
-        fetch(window.getWebAppBackendUrl('update'), content)
+        // fetch(window.getWebAppBackendUrl('update'), content)
+        fetch(`${REACT_APP_URL}/update`, content)
             .then(async (response) => {
                 if (response.ok) {
                     const json = await response.json();
@@ -96,7 +99,8 @@ export const resetData = (data) => (dispatch, getState) => {
         }
 
         // fetch(`${process.env.REACT_APP_URL}/reset`, content)
-        fetch(window.getWebAppBackendUrl('reset'), content)
+        // fetch(window.getWebAppBackendUrl('reset'), content)
+        fetch(`${REACT_APP_URL}/reset`, content)
             .then(async (response) => {
                 if (response.ok) {
                     const json = await response.json();
@@ -115,7 +119,8 @@ export const resetData = (data) => (dispatch, getState) => {
 export const refreshData = (id) => (dispatch, getState) => {
     return new Promise((resolve, reject) => {
         // fetch(`${process.env.REACT_APP_URL}/refresh/${id}`).
-        fetch(window.getWebAppBackendUrl('refresh/' + id)).
+        // fetch(window.getWebAppBackendUrl('refresh/' + id)).
+        fetch(`${REACT_APP_URL}/refresh/${id}`).
             then(async (response) => {
                 if (response.ok) {
                     const json = await response.json()
@@ -135,7 +140,8 @@ export const getUserInfo = () => (dispatch, getState) => {
     return new Promise((resolve, reject) => {
 
         // fetch(`${process.env.REACT_APP_URL}/info`).
-        fetch(window.getWebAppBackendUrl('info')).
+        // fetch(window.getWebAppBackendUrl('info')).
+        fetch(`${REACT_APP_URL}/info`).
             then(async (response) => {
                 if (response.ok) {
                     const json = await response.json()
@@ -153,7 +159,8 @@ export const ExportGTCSTemplateFile = (id) => (dispatch, getState) => {
     return new Promise((resolve, reject) => {
 
         // fetch(`${process.env.REACT_APP_URL}/getcsv/${id}`).
-        fetch(window.getWebAppBackendUrl('getgtcstemplatecsv/' + id)).
+        // fetch(window.getWebAppBackendUrl('getgtcstemplatecsv/' + id)).
+        fetch(`${REACT_APP_URL}/getcsv/${id}`).
             then(response => response.blob()).then(blob => {
                 const url = window.URL.createObjectURL(blob)
                 const a = document.createElement('a')
@@ -174,7 +181,8 @@ export const ExportFinanceReviewFile = (id) => (dispatch, getState) => {
     return new Promise((resolve, reject) => {
 
         // fetch(`${process.env.REACT_APP_URL}/getcsv/${id}`).
-        fetch(window.getWebAppBackendUrl('getfinancereviewcsv/' + id)).
+        // fetch(window.getWebAppBackendUrl('getfinancereviewcsv/' + id)).
+        fetch(`${REACT_APP_URL}/getcsv/${id}`).
             then(response => response.blob()).then(blob => {
                 const url = window.URL.createObjectURL(blob)
                 const a = document.createElement('a')

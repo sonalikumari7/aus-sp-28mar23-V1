@@ -1,20 +1,22 @@
 import * as React from 'react';
-import cx from 'node_modules/clsx';
+import cx from 'clsx';
 
 import { Toast } from './Toast';
 import { CloseButton } from './CloseButton';
 import { Bounce } from './Transitions';
 import { POSITION, Direction, Default, parseClassName, isFn } from '../utils';
 import { useToastContainer } from '../hooks';
-import { ToastContainerProps, ToastPosition } from '../types';
+// import { ToastContainerProps, ToastPosition } from '../types';
 
-export const ToastContainer: React.FC<ToastContainerProps> = props => {
+// export const ToastContainer: React.FC<ToastContainerProps> = props => {
+  export const ToastContainer: React.FC<any> = props => {
   const { getToastToRender, containerRef, isToastActive } = useToastContainer(
     props
   );
   const { className, style, rtl, containerId } = props;
 
-  function getClassName(position: ToastPosition) {
+  // function getClassName(position: ToastPosition) {
+    function getClassName(position: any) {
     const defaultClassName = cx(
       `${Default.CSS_NAMESPACE}__toast-container`,
       `${Default.CSS_NAMESPACE}__toast-container--${position}`,
@@ -71,7 +73,8 @@ export const ToastContainer: React.FC<ToastContainerProps> = props => {
 };
 
 ToastContainer.defaultProps = {
-  position: POSITION.TOP_RIGHT as ToastPosition,
+  // position: POSITION.TOP_RIGHT as ToastPosition,
+  position: POSITION.TOP_RIGHT as any,
   transition: Bounce,
   rtl: false,
   autoClose: 5000,

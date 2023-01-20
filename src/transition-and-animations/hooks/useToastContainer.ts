@@ -19,39 +19,54 @@ import {
 } from '../utils';
 import { eventManager, Event } from '../core/eventManager';
 
-import {
-  Id,
-  ToastContainerProps,
-  ToastProps,
-  ToastContent,
-  Toast,
-  ToastPosition,
-  ClearWaitingQueueParams,
-  NotValidatedToastProps,
-  ToastTransition
-} from '../types';
+// import {
+//   Id,
+//   ToastContainerProps,
+//   ToastProps,
+//   ToastContent,
+//   Toast,
+//   ToastPosition,
+//   ClearWaitingQueueParams,
+//   NotValidatedToastProps,
+//   ToastTransition
+// } from '../types';
 import { useKeeper } from './useKeeper';
 import { ActionType, reducer } from './toastContainerReducer';
 
-type CollectionItem = Record<Id, Toast>;
-type ToastToRender = Partial<Record<ToastPosition, Toast[]>>;
+// type CollectionItem = Record<Id, Toast>;
+// type ToastToRender = Partial<Record<ToastPosition, Toast[]>>;
+type CollectionItem = Record<any, any>;
+type ToastToRender = Partial<Record<any, any[]>>;
 
 interface QueuedToast {
-  toastContent: ToastContent;
-  toastProps: ToastProps;
-  staleId?: Id;
+  // toastContent: ToastContent;
+  // toastProps: ToastProps;
+  // staleId?: Id;
+  toastContent: any;
+  toastProps: any;
+  staleId?: any;
 }
+
+// export interface ContainerInstance {
+//   toastKey: number;
+//   displayedToast: number;
+//   props: ToastContainerProps;
+//   containerId?: Id | null;
+//   isToastActive: (toastId: Id) => boolean;
+//   getToast: (id: Id) => Toast | null;
+// }
 
 export interface ContainerInstance {
   toastKey: number;
   displayedToast: number;
-  props: ToastContainerProps;
-  containerId?: Id | null;
-  isToastActive: (toastId: Id) => boolean;
-  getToast: (id: Id) => Toast | null;
+  props: any;
+  containerId?: any | null;
+  isToastActive: (toastId: any) => boolean;
+  getToast: (id: any) => any | null;
 }
 
-export function useToastContainer(props: ToastContainerProps) {
+// export function useToastContainer(props: ToastContainerProps) {
+  export function useToastContainer(props: any) {
   const [, forceUpdate] = useReducer(x => x + 1, 0);
   const [toast, dispatch] = useReducer(reducer, []);
   const containerRef = useRef(null);
@@ -89,11 +104,15 @@ export function useToastContainer(props: ToastContainerProps) {
     instance.props = props;
   });
 
-  function isToastActive(id: Id) {
+  // function isToastActive(id: Id) {
+  //   return toast.indexOf(id) !== -1;
+  // }
+  function isToastActive(id: any) {
     return toast.indexOf(id) !== -1;
   }
 
-  function clearWaitingQueue({ containerId }: ClearWaitingQueueParams) {
+  // function clearWaitingQueue({ containerId }: ClearWaitingQueueParams) {
+    function clearWaitingQueue({ containerId }: any) {
     const { limit } = instance.props;
     if (limit && (!containerId || instance.containerId === containerId)) {
       toastCount -= queue.length;
@@ -101,7 +120,10 @@ export function useToastContainer(props: ToastContainerProps) {
     }
   }
 
-  function removeToast(toastId?: Id) {
+  // function removeToast(toastId?: Id) {
+  //   dispatch({ type: ActionType.REMOVE, toastId });
+  // }
+  function removeToast(toastId?: any) {
     dispatch({ type: ActionType.REMOVE, toastId });
   }
 
@@ -119,7 +141,8 @@ export function useToastContainer(props: ToastContainerProps) {
     containerId,
     toastId,
     updateId
-  }: NotValidatedToastProps) {
+  // }: NotValidatedToastProps) {
+  }: any) {
     return !containerRef.current ||
       (instance.props.enableMultiContainer &&
         containerId !== instance.props.containerId) ||
@@ -130,8 +153,10 @@ export function useToastContainer(props: ToastContainerProps) {
 
   // this function and all the function called inside needs to rely on ref(`useKeeper`)
   function buildToast(
-    content: ToastContent,
-    { delay, staleId, ...options }: NotValidatedToastProps
+    // content: ToastContent,
+    // { delay, staleId, ...options }: NotValidatedToastProps
+    content: any,
+    { delay, staleId, ...options }: any
   ) {
     if (!canBeRendered(content) || isNotValid(options)) return;
 
@@ -142,7 +167,8 @@ export function useToastContainer(props: ToastContainerProps) {
 
     if (isNotAnUpdate) toastCount++;
 
-    const toastProps: ToastProps = {
+    // const toastProps: ToastProps = {
+      const toastProps: any = {
       toastId,
       updateId,
       isIn: false,
@@ -151,8 +177,10 @@ export function useToastContainer(props: ToastContainerProps) {
       closeToast: closeToast,
       closeButton: options.closeButton,
       rtl: props.rtl,
-      position: options.position || (props.position as ToastPosition),
-      transition: options.transition || (props.transition as ToastTransition),
+      // position: options.position || (props.position as ToastPosition),
+      // transition: options.transition || (props.transition as ToastTransition),
+      position: options.position || (props.position as any),
+      transition: options.transition || (props.transition as any),
       className: parseClassName(options.className || props.toastClassName),
       bodyClassName: parseClassName(
         options.bodyClassName || props.bodyClassName
@@ -216,10 +244,11 @@ export function useToastContainer(props: ToastContainerProps) {
     let toastContent = content;
 
     if (isValidElement(content) && !isStr(content.type)) {
-      toastContent = cloneElement(content, {
+      let tempCloneElementProps:any = {
         closeToast,
         toastProps
-      });
+      };
+      toastContent = cloneElement(content, tempCloneElementProps);
     } else if (isFn(content)) {
       toastContent = content({ closeToast, toastProps });
     }
@@ -235,16 +264,19 @@ export function useToastContainer(props: ToastContainerProps) {
     } else if (isNum(delay) && (delay as number) > 0) {
       setTimeout(() => {
         appendToast(toastContent, toastProps, staleId);
-      }, delay);
+      }, Number(delay));
     } else {
       appendToast(toastContent, toastProps, staleId);
     }
   }
 
   function appendToast(
-    content: ToastContent,
-    toastProps: ToastProps,
-    staleId?: Id
+    // content: ToastContent,
+    // toastProps: ToastProps,
+    // staleId?: Id
+    content: any,
+    toastProps: any,
+    staleId?: any
   ) {
     const { toastId } = toastProps;
 
@@ -261,7 +293,8 @@ export function useToastContainer(props: ToastContainerProps) {
     });
   }
 
-  function removeFromCollection(toastId: Id) {
+  // function removeFromCollection(toastId: Id) {
+    function removeFromCollection(toastId: any) {
     delete collection[toastId];
     const queueLen = queue.length;
     toastCount = isToastIdValid(toastId)
@@ -288,7 +321,8 @@ export function useToastContainer(props: ToastContainerProps) {
   }
 
   function getToastToRender<T>(
-    cb: (position: ToastPosition, toastList: Toast[]) => T
+    // cb: (position: ToastPosition, toastList: Toast[]) => T
+    cb: (position: any, toastList: any[]) => T
   ) {
     const toastToRender: ToastToRender = {};
     const toastList = props.newestOnTop
@@ -303,7 +337,10 @@ export function useToastContainer(props: ToastContainerProps) {
       toastToRender[position]!.push(toast);
     }
 
-    return (Object.keys(toastToRender) as Array<ToastPosition>).map(p =>
+    // return (Object.keys(toastToRender) as Array<ToastPosition>).map(p =>
+    //   cb(p, toastToRender[p]!)
+    // );
+    return (Object.keys(toastToRender) as Array<any>).map(p =>
       cb(p, toastToRender[p]!)
     );
   }

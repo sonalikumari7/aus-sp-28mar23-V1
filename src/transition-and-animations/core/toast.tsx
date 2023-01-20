@@ -3,28 +3,33 @@ import { render } from 'react-dom';
 
 import { POSITION, TYPE, canUseDom, isStr, isNum, isFn } from '../utils';
 import { eventManager, OnChangeCallback, Event } from './eventManager';
-import {
-  ToastContent,
-  ToastOptions,
-  ToastProps,
-  Id,
-  ToastContainerProps,
-  UpdateOptions,
-  ClearWaitingQueueParams,
-  NotValidatedToastProps
-} from '../types';
-import { ContainerInstance } from 'hooks';
+// import {
+//   ToastContent,
+//   ToastOptions,
+//   ToastProps,
+//   Id,
+//   ToastContainerProps,
+//   UpdateOptions,
+//   ClearWaitingQueueParams,
+//   NotValidatedToastProps
+// } from '../types';
+import { ContainerInstance } from '../hooks';
 import { ToastContainer } from '../components';
 
 interface EnqueuedToast {
-  content: ToastContent;
-  options: NotValidatedToastProps;
+  // content: ToastContent;
+  content: any;
+  // options: NotValidatedToastProps;
+  options: any;
 }
 
-let containers = new Map<ContainerInstance | Id, ContainerInstance>();
-let latestInstance: ContainerInstance | Id;
+// let containers = new Map<ContainerInstance | Id, ContainerInstance>();
+let containers = new Map<ContainerInstance | any, ContainerInstance>();
+// let latestInstance: ContainerInstance | Id;
+let latestInstance: ContainerInstance | any;
 let containerDomNode: HTMLElement;
-let containerConfig: ToastContainerProps;
+// let containerConfig: ToastContainerProps;
+let containerConfig: any;
 let queue: EnqueuedToast[] = [];
 let lazy = false;
 
@@ -38,7 +43,14 @@ function isAnyContainerMounted() {
 /**
  * Get the toast by id, given it's in the DOM, otherwise returns null
  */
-function getToast(toastId: Id, { containerId }: ToastOptions) {
+// function getToast(toastId: Id, { containerId }: ToastOptions) {
+//   const container = containers.get(containerId || latestInstance);
+//   if (!container) return null;
+
+//   return container.getToast(toastId);
+// }
+
+function getToast(toastId: any, { containerId }: any) {
   const container = containers.get(containerId || latestInstance);
   if (!container) return null;
 
@@ -57,7 +69,14 @@ function generateToastId() {
 /**
  * Generate a toastId or use the one provided
  */
-function getToastId(options?: ToastOptions) {
+// function getToastId(options?: ToastOptions) {
+//   if (options && (isStr(options.toastId) || isNum(options.toastId))) {
+//     return options.toastId;
+//   }
+
+//   return generateToastId();
+// }
+function getToastId(options?: any) {
   if (options && (isStr(options.toastId) || isNum(options.toastId))) {
     return options.toastId;
   }
@@ -69,10 +88,28 @@ function getToastId(options?: ToastOptions) {
  * If the container is not mounted, the toast is enqueued and
  * the container lazy mounted
  */
+// function dispatchToast(
+//   // content: ToastContent,
+//   options: NotValidatedToastProps
+// ): Id {
+//   if (isAnyContainerMounted()) {
+//     eventManager.emit(Event.Show, content, options);
+//   } else {
+//     queue.push({ content, options });
+//     if (lazy && canUseDom) {
+//       lazy = false;
+//       containerDomNode = document.createElement('div');
+//       document.body.appendChild(containerDomNode);
+//       render(<ToastContainer {...containerConfig} />, containerDomNode);
+//     }
+//   }
+
+//   return options.toastId;
+// }
 function dispatchToast(
-  content: ToastContent,
-  options: NotValidatedToastProps
-): Id {
+  content: any,
+  options: any
+): any {
   if (isAnyContainerMounted()) {
     eventManager.emit(Event.Show, content, options);
   } else {
@@ -91,21 +128,34 @@ function dispatchToast(
 /**
  * Merge provided options with the defaults settings and generate the toastId
  */
-function mergeOptions(type: string, options?: ToastOptions) {
+// function mergeOptions(type: string, options?: ToastOptions) {
+//   return {
+//     ...options,
+//     type: (options && options.type) || type,
+//     toastId: getToastId(options)
+//   } as NotValidatedToastProps;
+// }
+
+function mergeOptions(type: string, options?: any) {
   return {
     ...options,
     type: (options && options.type) || type,
     toastId: getToastId(options)
-  } as NotValidatedToastProps;
+  } as any;
 }
 
 const createToastByType = (type: string) => (
-  content: ToastContent,
-  options?: ToastOptions
+  // content: ToastContent,
+  content: any,
+  // options?: ToastOptions
+  options?: any
 ) => dispatchToast(content, mergeOptions(type, options));
 
-const toast = (content: ToastContent, options?: ToastOptions) =>
-  dispatchToast(content, mergeOptions(TYPE.DEFAULT, options));
+// const toast = (content: ToastContent, options?: ToastOptions) =>
+//   dispatchToast(content, mergeOptions(TYPE.DEFAULT, options));
+
+  const toast = (content: any, options?: any) =>
+  dispatchToast(content, mergeOptions(TYPE.DEFAULT, options));  
 
 toast.success = createToastByType(TYPE.SUCCESS);
 toast.info = createToastByType(TYPE.INFO);
@@ -117,18 +167,22 @@ toast.warn = toast.warning;
 /**
  * Remove toast programmaticaly
  */
-toast.dismiss = (id?: Id) => eventManager.emit(Event.Clear, id);
+// toast.dismiss = (id?: Id) => eventManager.emit(Event.Clear, id);
+toast.dismiss = (id?: any) => eventManager.emit(Event.Clear, id);
 
 /**
  * Clear waiting queue when limit is used
  */
-toast.clearWaitingQueue = (params: ClearWaitingQueueParams = {}) =>
+// toast.clearWaitingQueue = (params: ClearWaitingQueueParams = {}) =>
+//   eventManager.emit(Event.ClearWaitingQueue, params);
+toast.clearWaitingQueue = (params: any = {}) =>
   eventManager.emit(Event.ClearWaitingQueue, params);
 
 /**
  * return true if one container is displaying the toast
  */
-toast.isActive = (id: Id) => {
+// toast.isActive = (id: Id) => {
+  toast.isActive = (id: any) => {
   let isToastActive = false;
 
   containers.forEach(container => {
@@ -140,20 +194,28 @@ toast.isActive = (id: Id) => {
   return isToastActive;
 };
 
-toast.update = (toastId: Id, options: UpdateOptions = {}) => {
+// toast.update = (toastId: Id, options: UpdateOptions = {}) => {
+  toast.update = (toastId: any, options: any = {}) => {
   // if you call toast and toast.update directly nothing will be displayed
   // this is why I defered the update
   setTimeout(() => {
-    const toast = getToast(toastId, options as ToastOptions);
+    // const toast = getToast(toastId, options as ToastOptions);
+    const toast = getToast(toastId, options as any);
     if (toast) {
       const { props: oldOptions, content: oldContent } = toast;
 
+      // const nextOptions = {
+      //   ...oldOptions,
+      //   ...options,
+      //   toastId: options.toastId || toastId,
+      //   updateId: generateToastId()
+      // } as ToastProps & UpdateOptions;
       const nextOptions = {
         ...oldOptions,
         ...options,
         toastId: options.toastId || toastId,
         updateId: generateToastId()
-      } as ToastProps & UpdateOptions;
+      } as any & any;
 
       if (nextOptions.toastId !== toastId) nextOptions.staleId = toastId;
 
@@ -168,7 +230,12 @@ toast.update = (toastId: Id, options: UpdateOptions = {}) => {
 /**
  * Used for controlled progress bar.
  */
-toast.done = (id: Id) => {
+// toast.done = (id: Id) => {
+//   toast.update(id, {
+//     progress: 1
+//   });
+// };
+toast.done = (id: any) => {
   toast.update(id, {
     progress: 1
   });
@@ -190,7 +257,11 @@ toast.onChange = (callback: OnChangeCallback) => {
 /**
  * Configure the ToastContainer when lazy mounted
  */
-toast.configure = (config: ToastContainerProps = {}) => {
+// toast.configure = (config: ToastContainerProps = {}) => {
+//   lazy = true;
+//   containerConfig = config;
+// };
+toast.configure = (config: any = {}) => {
   lazy = true;
   containerConfig = config;
 };

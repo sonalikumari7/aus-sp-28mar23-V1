@@ -1,5 +1,5 @@
 import React, { useEffect, useLayoutEffect, useRef } from 'react';
-import { ToastTransitionProps } from '../types';
+// import { ToastTransitionProps } from '../types';
 
 import { collapseToast } from './collapseToast';
 import { Default } from './constant';
@@ -68,7 +68,8 @@ export function cssTransition({
     done,
     nodeRef,
     isIn
-  }: ToastTransitionProps) {
+  // }: ToastTransitionProps) {
+  }: any) {
     const enterClassName = appendPosition ? `${enter}--${position}` : enter;
     const exitClassName = appendPosition ? `${exit}--${position}` : exit;
     const baseClassName = useRef<string>();

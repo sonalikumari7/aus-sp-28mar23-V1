@@ -7,7 +7,7 @@ import {
 } from 'react';
 
 import { isFn } from '../utils';
-import { ToastProps } from '../types';
+// import { ToastProps } from '../types';
 import { useKeeper } from './useKeeper';
 import { Direction } from '../utils/constant';
 
@@ -36,7 +36,8 @@ function getY(e: DragEvent) {
     : e.clientY;
 }
 
-export function useToast(props: ToastProps) {
+// export function useToast(props: ToastProps) {
+  export function useToast(props: any) {
   const [isRunning, setIsRunning] = useState(true);
   const [preventExitTransition, setPreventExitTransition] = useState(false);
   const toastRef = useRef<HTMLDivElement>(null);

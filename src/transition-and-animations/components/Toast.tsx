@@ -2,11 +2,12 @@ import * as React from 'react';
 import cx from 'clsx';
 
 import { ProgressBar } from './ProgressBar';
-import { ToastProps } from '../types';
+// import { ToastProps } from '../types';
 import { Default, isFn } from '../utils';
 import { useToast } from '../hooks';
 
-export const Toast: React.FC<ToastProps> = props => {
+// export const Toast: React.FC<ToastProps> = props => {
+    export const Toast: React.FC<any> = props => {
   const {
     isRunning,
     preventExitTransition,

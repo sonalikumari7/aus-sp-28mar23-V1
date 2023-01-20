@@ -1,9 +1,9 @@
-import {
-  Id,
-  ToastContent,
-  ClearWaitingQueueParams,
-  NotValidatedToastProps
-} from '../types';
+// import {
+//   Id,
+//   ToastContent,
+//   ClearWaitingQueueParams,
+//   NotValidatedToastProps
+// } from '../types';
 import { ContainerInstance } from '../hooks';
 
 export const enum Event {
@@ -16,11 +16,15 @@ export const enum Event {
 }
 
 type OnShowCallback = (
-  content: ToastContent,
-  options: NotValidatedToastProps
+  // content: ToastContent,
+  content: any,
+  // options: NotValidatedToastProps
+  options: any
 ) => void;
-type OnClearCallback = (id?: Id) => void;
-type OnClearWaitingQueue = (params: ClearWaitingQueueParams) => void;
+// type OnClearCallback = (id?: Id) => void;
+type OnClearCallback = (id?: any) => void;
+// type OnClearWaitingQueue = (params: ClearWaitingQueueParams) => void;
+type OnClearWaitingQueue = (params: any) => void;
 type OnDidMountCallback = (containerInstance: ContainerInstance) => void;
 type OnWillUnmountCallback = OnDidMountCallback;
 export type OnChangeCallback = (
@@ -53,10 +57,12 @@ export interface EventManager {
   emit(
     event: Event.Show,
     content: React.ReactNode,
-    options: NotValidatedToastProps
+    // options: NotValidatedToastProps
+    options: any
   ): void;
   emit(event: Event.Clear, id?: string | number): void;
-  emit(event: Event.ClearWaitingQueue, params: ClearWaitingQueueParams): void;
+  // emit(event: Event.ClearWaitingQueue, params: ClearWaitingQueueParams): void;
+  emit(event: Event.ClearWaitingQueue, params: any): void;
   emit(event: Event.DidMount, containerInstance: ContainerInstance): void;
   emit(event: Event.WillUnmount, containerInstance: ContainerInstance): void;
   emit(event: Event.Change, toast: number, containerId?: number | string): void;

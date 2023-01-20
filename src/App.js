@@ -26,7 +26,8 @@ function App() {
 
   useEffect(() => {
     setTimeout(() => {
-      setDataikuValue(window.dataiku.defaultAPIKey)
+      // setDataikuValue(window.dataiku.defaultAPIKey)
+      setDataikuValue("testingOnLocal")
     }, 1000);
 
   }, [])
