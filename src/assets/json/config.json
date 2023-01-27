@@ -68,38 +68,45 @@
                     {
                         "field": "current_contract_price",
                         "header": "Current Contract Price",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "currency"
                     },
                     {
                         "field": "list_price",
                         "header": "Chemist List Price (CLP)",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "currency"
                     },
                     {
                         "field": "msp",
                         "header": "MSP",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "currency"
                     },
                     {
                         "field": "leading_edge_price",
                         "header": "GTCS Lowest Price",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "currency"
                     },
                     {
                         "field": "annual_usage_volume",
                         "header": "Future RFT Annual QTY",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "quantity"
                     },
                     {
                         "field": "total_cost_msp",
                         "header": "Total Cost (MSP)",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "currency"
                     }
                 ],
                 "user_input": [
                     {
                         "field": "new_contract_price",
-                        "header": "Bid Price"
+                        "header": "Bid Price",
+                        "type": "currency"
                     },
                     {
                         "field": "product_rebate",
@@ -113,37 +120,44 @@
                     },
                     {
                         "field": "rebate_value",
-                        "header": "Rebate Value"
+                        "header": "Rebate Value",
+                        "type": "currency"
                     },
                     {
                         "field": "rebate_percentage",
-                        "header": "Rebate (%)"
+                        "header": "Rebate (%)",
+                        "type": "percent"
                     }
                 ],
                 "calculated_fields": [
                     {
                         "field": "net_contract_price",
                         "header": "Net Bid Price",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "currency"
                     },
                     {
                         "field": "total_revenue",
                         "header": "Net Revenue",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "currency"
                     },
                     {
                         "field": "margin_msp",
                         "header": "Margin from MSP (%)",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "percent"
                     },
                     {
                         "field": "total_margin",
                         "header": "Net Margin",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "currency"
                     },
                     {
                         "field": "discount_to_clp",
-                        "header": "% Discount to CLP"
+                        "header": "% Discount to CLP",
+                        "type": "percent"
                     },
                     {
                         "field": "fts_risk",
@@ -190,7 +204,8 @@
                         {
                             "field": "standard_units_per_pack",
                             "header": "Pack Size",
-                            "sortable": true
+                            "sortable": true,
+                        "type": "currency"
                         }
                     ]
                 },
@@ -202,23 +217,27 @@
                     {
                         "field": "annual_usage_volume",
                         "header": "Future RFT Annual QTY",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "quantity"
                     },
                     {
                         "field": "list_price",
                         "header": "Chemist List Price (CLP)",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "currency"
                     },
                     {
                         "field": "msp",
                         "header": "MSP",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "currency"
                     }
                 ],
                 "user_input": [
                     {
                         "field": "new_contract_price",
-                        "header": "Bid Price"
+                        "header": "Bid Price",
+                        "type": "currency"
                     },
                     {
                         "field": "product_rebate",
@@ -233,29 +252,34 @@
                     {
                         "field": "rebate_value",
                         "header": "Rebate Value",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "currency"
                     },
                     {
                         "field": "rebate_percentage",
                         "header": "Rebate (%)",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "percent"
                     }
                 ],
                 "calculated_fields": [
                     {
                         "field": "net_contract_price",
                         "header": "Net Bid Price",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "currency"
                     },
                     {
                         "field": "total_revenue",
                         "header": "Net Revenue",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "currency"
                     },
                     {
                         "field": "margin_msp",
                         "header": "Margin from MSP (%)",
-                        "sortable": true
+                        "sortable": true,
+                        "type": "percent"
                     },
                     {
                         "field": "fts_risk",

@@ -70,6 +70,7 @@ li {
     justify-content: space-around;
     max-height     : 4rem;
     align-items    : center;
+    vertical-align: middle;
 }
 
 select {
@@ -142,4 +143,8 @@ span.p-multiselect-trigger-icon.p-c.pi.pi-chevron-down {
 
 .main-filter-container .p-multiselect .p-multiselect-label {
     padding: 0rem 0.5rem !important
+}
+
+.tooltip-instructions{
+    font-size:0.85rem !important
 }

@@ -125,7 +125,7 @@ function ViewDataTable(props) {
     const [selectedValue, setSelectedValue] = useState(selectResetList)
     const [defaultSelectionSorting, setDefaultSelectionSorting] = useState({ sortField: "", sortOrder: 1 })
     const [first1, setFirst1] = useState(0);
-    const [rows2, setRows2] = useState(10);
+    const [rows2, setRows2] = useState(50);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageInputTooltip, setPageInputTooltip] = useState('Press \'Enter\' key to go to this page.');
     const [mainData, setMainData] = useState([])
@@ -173,7 +173,8 @@ function ViewDataTable(props) {
         filterListGlobal = filterList
         let calculatResult = calculationField(filterList)
         setValue(calculatResult)
-        setMainData(calculatResult)
+        // setMainData(calculatResult)
+        setMainData(props.opportunityProduct)
         setFilterColumSelection()
         selctionFilterColumnList(filterList)
         let returSelectionSortColum = JSON.parse(sessionStorage.getItem("sorting"))
@@ -187,6 +188,11 @@ function ViewDataTable(props) {
             setCurrentPage(returnPagination.currentPage)
         }
         // setKPIFunction(filterList)
+        // always keep selected product details column in memory
+        let tempSelectedProductDetailsColumns = JSON.parse(sessionStorage.getItem("selectedProductDetailsColumns"));
+        if (tempSelectedProductDetailsColumns && tempSelectedProductDetailsColumns.length !== 0){
+            setSelectedColumns([...tempSelectedProductDetailsColumns])
+        }
     }, [])
 
     useEffect(() => {
@@ -194,7 +200,6 @@ function ViewDataTable(props) {
             clearCustomFilter()
         }
     }, [stateObj])
-
 
     const setFilterColumSelection = () => {
         for (let i in filterSelectionList) {
@@ -230,9 +235,11 @@ function ViewDataTable(props) {
 
     const columnFilterFunction = (e, val) => {
         filterSelectionList[`${val.toString()}`] = e.value
+        if (e.value.length === 0)
+            sessionStorage.removeItem("filter")
         currenFilterSelection = val
-        let filterList = filteringColumnSelection(mainData, filterSelectionList)
-
+        let temp = JSON.parse(JSON.stringify(mainData))
+        let filterList = filteringColumnSelection([...temp], filterSelectionList)
         setValue(filterList)
         if (val === 'local_item_code') {
             setSelectedLocalItemlist(e.value)
@@ -333,7 +340,7 @@ function ViewDataTable(props) {
             setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
             setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
         }
-        props.handleFilterProductCalculation(KPICalculation(filterList))
+        props.handleFilterProductCalculation(KPICalculation([...filterList]))
 
     }
 
@@ -496,15 +503,60 @@ function ViewDataTable(props) {
         }
     }
 
+    function numberFormatter(cellValue,type){
+        if (cellValue === null || cellValue === undefined || cellValue === "")
+        return cellValue;
+
+        let result = "";
+        let isNegative = cellValue<0?true:false;
+
+        if (type === undefined){
+            return cellValue;
+        }
+        else if (type === "currency"){
+            result = cellValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+        }
+        else if (type === "quantity"){
+            result = Math.round(cellValue).toLocaleString('en-US')
+        }
+        else if (type === "percent"){
+            result = String(cellValue)+"%"
+        }
+
+        if (isNegative){
+            result = result.slice(1);
+            result = "("+result+")";
+        }
+
+        return result;
+    }
+
+    function getColumnHeader(keyName, header){
+        let temp = filterSelectionList[`${keyName.toString()}`]
+        if (!temp || temp.length === 0){
+            return <span>{header.toUpperCase()}</span>
+        }
+        else {
+            return <span>{header.toUpperCase()}<br/>
+            <i className="pi pi-undo" style={{ fontSize:"0.85rem", cursor:"pointer" }} onClick={()=>{
+                columnFilterFunction({value:[]},keyName)
+            }} />
+        </span>
+        }
+    }
+
     const columnProductDetailList = value.length > 0 ? selectedColumns?.map(k => {
         return (
             <Column key={k.field} field={k.field}
-                headerStyle={{ width: '82px', height: props.type.tab_name === "Finance Review" ? '100px' : null }}
+                headerStyle={{ width: '79px', height: props.type.tab_name === "Finance Review" ? '100px' : null }}
                 headerClassName="header-word-wrap product-detail-header"
-                header={k.header.toUpperCase()}
+                header={getColumnHeader(k.field,k.header)}
                 sortable={k.sortable === undefined ? false : true}
                 filter={k.filterby === undefined ? false : true}
                 filterElement={k.filterby === undefined ? null : customColumFilter(k)}
+                body = {(rowData)=>{
+                   return numberFormatter(rowData[k.field],k.type)
+                }}
             />
         )
     }) : null
@@ -512,9 +564,12 @@ function ViewDataTable(props) {
     const columnCurrentBidDetailList = value.length > 0 ? props.type.excel_config.current_bid_details?.map(k => {
         return (
             <Column key={k.field} field={k.field}
-                headerStyle={{ width: '58px' }}
+                headerStyle={{ width: '60px' }}
                 headerClassName="header-word-wrap current-bid-header"
                 header={k.header.toUpperCase()}
+                body = {(rowData)=>{
+                    return numberFormatter(rowData[k.field],k.type)
+                }}
                 sortable={k.sortable === undefined ? false : true}
             />)
     }) : null
@@ -522,36 +577,46 @@ function ViewDataTable(props) {
     const columnUserInputDetailList = value.length > 0 ? props.type.excel_config.user_input?.map(k => {
         return (
             <Column key={k.field} field={k.field}
-                headerStyle={{ width: '58px' }}
+                headerStyle={{ width: '60px' }}
                 headerClassName="header-word-wrap user-input-header"
-                header={k.header.toUpperCase()}
+                header={getColumnHeader(k.field,k.header)}
                 editor={props.type.tab_name === "Finance Review" ? null : (props) => codeEditor(props)}
                 filter={k.filterby === undefined ? false : true}
                 filterElement={k.filterby === undefined ? null : customColumFilter(k)}
+                body = {(rowData)=>{
+                    return numberFormatter(rowData[k.field],k.type)
+                }}
             />)
     }) : null
 
     const columnCalculatedDetailList = value.length > 0 ? props.type.excel_config.calculated_fields?.map(k => {
         return (
             <Column key={k.field} field={k.field}
-                headerStyle={{ width: '58px' }}
+                headerStyle={{ width: '65px' }}
                 headerClassName="header-word-wrap calculated-field-header"
                 sortable={k.sortable === undefined ? false : true}
-                header={k.header.toUpperCase()}
+                header={getColumnHeader(k.field,k.header)}
                 filter={k.filterby === undefined ? false : true}
                 filterElement={k.filterby === undefined ? null : customColumFilter(k)}
+                body = {(rowData)=>{
+                    return numberFormatter(rowData[k.field],k.type)
+                }}
             />)
     }) : null
 
     const columnUserCommentDetailList = value.length > 0 ? props.type.excel_config.user_comments?.map(k => {
         return (
             <Column key={k.field} field={k.field}
-                headerStyle={{ width: '58px' }}
+                headerStyle={{ width: '55px' }}
                 headerClassName="header-word-wrap comment-header"
-                header={k.header.toUpperCase()}
+                // header={k.header.toUpperCase()}
+                header={getColumnHeader(k.field,k.header)}
                 editor={props.type.tab_name === "Finance Review" ? null : (props) => codeEditor(props)}
                 filter={k.filterby === undefined ? false : true}
                 filterElement={k.filterby === undefined ? null : customColumFilter(k)}
+                body = {(rowData)=>{
+                    return numberFormatter(rowData[k.field],k.type)
+                }}
             />)
     }) : null
 
@@ -605,135 +670,142 @@ function ViewDataTable(props) {
         return productData
     }
 
-    const onEditorComplete = (props, val) => {
-        if (props.field === 'rebate_value' || props.field === 'rebate_percentage') {
+    const onEditorComplete = (editorProps, val) => {
+        if (editorProps.field === 'rebate_value' || editorProps.field === 'rebate_percentage') {
             let upd = [...value]
             let contractPrice;
             if (isNaN(parseFloat(val)) === true) {
-                upd[props.rowIndex]['rebate_percentage'] = null
-                upd[props.rowIndex]['rebate_value'] = null
+                upd[editorProps.rowIndex]['rebate_percentage'] = null
+                upd[editorProps.rowIndex]['rebate_value'] = null
             } else {
                 val = val.replaceAll(",", "")
-                if (props.field === 'rebate_value') {
-                    if (upd[props.rowIndex]['list_price'] !== upd[props.rowIndex]['new_contract_price'] && upd[props.rowIndex]['new_contract_price'] !== null) {
-                        contractPrice = upd[props.rowIndex]['new_contract_price']
-                    } else if(upd[props.rowIndex]['list_price']!== null){
-                        contractPrice = upd[props.rowIndex]['list_price']
+                if (editorProps.field === 'rebate_value') {
+                    if (upd[editorProps.rowIndex]['list_price'] !== upd[editorProps.rowIndex]['new_contract_price'] && upd[editorProps.rowIndex]['new_contract_price'] !== null) {
+                        contractPrice = upd[editorProps.rowIndex]['new_contract_price']
+                    } else if(upd[editorProps.rowIndex]['list_price']!== null){
+                        contractPrice = upd[editorProps.rowIndex]['list_price']
                     }
                     else {
                         contractPrice = 0
                     }
-                    upd[props.rowIndex]['rebate_percentage'] = contractPrice === 0 || contractPrice === null ? null: parseFloat(((parseFloat(val) / contractPrice) * 100).toFixed(2))
+                    upd[editorProps.rowIndex]['rebate_percentage'] = contractPrice === 0 || contractPrice === null ? null: parseFloat(((parseFloat(val) / contractPrice) * 100).toFixed(2))
 
-                } else if (props.field === 'rebate_percentage') {
-                    if (upd[props.rowIndex]['list_price'] !== upd[props.rowIndex]['new_contract_price'] && upd[props.rowIndex]['new_contract_price'] !== null) {
-                        contractPrice = upd[props.rowIndex]['new_contract_price']
-                    } else if(upd[props.rowIndex]['list_price']!==null){
-                        contractPrice = upd[props.rowIndex]['list_price']
+                } else if (editorProps.field === 'rebate_percentage') {
+                    if (upd[editorProps.rowIndex]['list_price'] !== upd[editorProps.rowIndex]['new_contract_price'] && upd[editorProps.rowIndex]['new_contract_price'] !== null) {
+                        contractPrice = upd[editorProps.rowIndex]['new_contract_price']
+                    } else if(upd[editorProps.rowIndex]['list_price']!==null){
+                        contractPrice = upd[editorProps.rowIndex]['list_price']
                     }
                     else{
                         contractPrice = 0
                     }
-                    upd[props.rowIndex]['rebate_value'] = contractPrice === 0 || contractPrice === null ? null: parseFloat((parseFloat(val) * (contractPrice / 100)).toFixed(2))
+                    upd[editorProps.rowIndex]['rebate_value'] = contractPrice === 0 || contractPrice === null ? null: parseFloat((parseFloat(val) * (contractPrice / 100)).toFixed(2))
                 }
             }
 
-            upd[props.rowIndex]['net_contract_price'] = contractPrice === 0 ? 0: upd[props.rowIndex]['rebate_type'] === 'Flat Percentage' ? parseFloat((contractPrice - (parseInt(val) / 100 * contractPrice)).toFixed(2)) : parseFloat((contractPrice - (parseFloat(val))).toFixed(2))
-            upd[props.rowIndex]['total_revenue'] = parseFloat((upd[props.rowIndex]['net_contract_price'] * upd[props.rowIndex]['annual_usage_volume']).toFixed(2))
-            upd[props.rowIndex]['margin_msp'] = upd[props.rowIndex]['net_contract_price'] === 0 || upd[props.rowIndex]['msp'] === null ? null: parseFloat((((upd[props.rowIndex]['net_contract_price'] - upd[props.rowIndex]['msp']) / upd[props.rowIndex]['net_contract_price']) * 100).toFixed(2))
-            upd[props.rowIndex]['total_margin'] = upd[props.rowIndex]['net_contract_price'] === 0 || upd[props.rowIndex]['msp'] === null ? null : parseFloat(((upd[props.rowIndex]['net_contract_price'] - upd[props.rowIndex]['msp']) * upd[props.rowIndex]['annual_usage_volume']).toFixed(2))
-            upd[props.rowIndex]['discount_to_clp'] = upd[props.rowIndex]['net_contract_price'] === 0 || upd[props.rowIndex]['list_price'] === null || upd[props.rowIndex]['list_price'] === 0 ? null : parseFloat(((1 - (upd[props.rowIndex]['net_contract_price'] / upd[props.rowIndex]['list_price'])) * 100).toFixed(2))
-            upd[props.rowIndex]['fts_risk'] = upd[props.rowIndex]['discount_to_clp'] > 40 ? "Yes" : "No"
-            upd[props.rowIndex]['bid_kam'] = upd[props.rowIndex]['net_contract_price'] >= upd[props.rowIndex]['kams_floor_price'] ? "Yes" : "No"
+            upd[editorProps.rowIndex]['net_contract_price'] = contractPrice === 0 ? 0: upd[editorProps.rowIndex]['rebate_type'] === 'Flat Percentage' ? parseFloat((contractPrice - (parseInt(val) / 100 * contractPrice)).toFixed(2)) : parseFloat((contractPrice - (parseFloat(val))).toFixed(2))
+            upd[editorProps.rowIndex]['total_revenue'] = parseFloat((upd[editorProps.rowIndex]['net_contract_price'] * upd[editorProps.rowIndex]['annual_usage_volume']).toFixed(2))
+            upd[editorProps.rowIndex]['margin_msp'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['msp'] === null ? null: parseFloat((((upd[editorProps.rowIndex]['net_contract_price'] - upd[editorProps.rowIndex]['msp']) / upd[editorProps.rowIndex]['net_contract_price']) * 100).toFixed(2))
+            upd[editorProps.rowIndex]['total_margin'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['msp'] === null ? null : parseFloat(((upd[editorProps.rowIndex]['net_contract_price'] - upd[editorProps.rowIndex]['msp']) * upd[editorProps.rowIndex]['annual_usage_volume']).toFixed(2))
+            upd[editorProps.rowIndex]['discount_to_clp'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['list_price'] === null || upd[editorProps.rowIndex]['list_price'] === 0 ? null : parseFloat(((1 - (upd[editorProps.rowIndex]['net_contract_price'] / upd[editorProps.rowIndex]['list_price'])) * 100).toFixed(2))
+            upd[editorProps.rowIndex]['fts_risk'] = upd[editorProps.rowIndex]['discount_to_clp'] > 40 ? "Yes" : "No"
+            upd[editorProps.rowIndex]['bid_kam'] = upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['kams_floor_price'] ? "Yes" : "No"
 
-            if ( upd[props.rowIndex]['net_contract_price'] !== null && upd[props.rowIndex]['cost_gmx_current_year'] !== null && upd[props.rowIndex]['net_contract_price'] < upd[props.rowIndex]['cost_gmx_current_year']) {
-                upd[props.rowIndex]['ncp_cogs'] = "Red"
+            if ( upd[editorProps.rowIndex]['net_contract_price'] !== null && upd[editorProps.rowIndex]['cost_gmx_current_year'] !== null && upd[editorProps.rowIndex]['net_contract_price'] < upd[editorProps.rowIndex]['cost_gmx_current_year']) {
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Red"
             }
-            else if (upd[props.rowIndex]['net_contract_price'] === null || upd[props.rowIndex]['net_contract_price'] ===0){
-                upd[props.rowIndex]['ncp_cogs'] = "Net Bid Price not defined"
+            else if (upd[editorProps.rowIndex]['net_contract_price'] === null || upd[editorProps.rowIndex]['net_contract_price'] ===0){
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Net Bid Price not defined"
             }
-            else if (upd[props.rowIndex]['cost_gmx_current_year'] ===null ){
-                upd[props.rowIndex]['ncp_cogs'] = "CoGS Not Found"
+            else if (upd[editorProps.rowIndex]['cost_gmx_current_year'] ===null ){
+                upd[editorProps.rowIndex]['ncp_cogs'] = "CoGS Not Found"
             }
-            else if (upd[props.rowIndex]['msp'] === null){
-                upd[props.rowIndex]['ncp_cogs'] = "MSP Not Found"
+            else if (upd[editorProps.rowIndex]['msp'] === null){
+                upd[editorProps.rowIndex]['ncp_cogs'] = "MSP Not Found"
             }
-            else if (upd[props.rowIndex]['net_contract_price'] >= upd[props.rowIndex]['cost_gmx_current_year'] && upd[props.rowIndex]['net_contract_price'] < upd[props.rowIndex]['msp']) {
-                upd[props.rowIndex]['ncp_cogs'] = "Yellow"
+            else if (upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['cost_gmx_current_year'] && upd[editorProps.rowIndex]['net_contract_price'] < upd[editorProps.rowIndex]['msp']) {
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Yellow"
             }
-            else if (upd[props.rowIndex]['net_contract_price'] >= upd[props.rowIndex]['msp'] && upd[props.rowIndex]['net_contract_price'] > upd[props.rowIndex]['cost_gmx_current_year']) {
-                upd[props.rowIndex]['ncp_cogs'] = "Green"
+            else if (upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['msp'] && upd[editorProps.rowIndex]['net_contract_price'] > upd[editorProps.rowIndex]['cost_gmx_current_year']) {
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Green"
             }
 
             setMainData(upd)
             setValue(upd)
             dispatch(updateKPIStateToDispatchData(upd))
-            dispatch(changeStateToDispatchData(upd[props.rowIndex]))
-            dispatch(SetAllListUpdate(upd[props.rowIndex]))
+            dispatch(changeStateToDispatchData(upd[editorProps.rowIndex]))
+            dispatch(SetAllListUpdate(upd[editorProps.rowIndex]))
         }
-        else if (props.field === 'comments' || props.field === 'line_status' ||
-            props.field === 'product_rebate' || props.field === 'rebate_type' ||
-            props.field === 'intent_to_bid' || props.field === 'bid_category') {
-            let upd = [...props.value]
-            if (props.field === 'intent_to_bid' && val === 'No') {
-                upd[props.rowIndex]['new_contract_price'] = upd[props.rowIndex]['list_price']
+        else if (editorProps.field === 'comments' || editorProps.field === 'line_status' ||
+            editorProps.field === 'product_rebate' || editorProps.field === 'rebate_type' ||
+            editorProps.field === 'intent_to_bid' || editorProps.field === 'bid_category') {
+            let upd = [...editorProps.value]
+            if (editorProps.field === 'intent_to_bid' && val === 'No') {
+                upd[editorProps.rowIndex]['new_contract_price'] = upd[editorProps.rowIndex]['list_price']
                 // Prevents rebate from being captured if 'No' Intent to Bid, highest possible price i.e. Chemist List Price is used
-                upd[props.rowIndex]['product_rebate'] = 'No'
-                upd[props.rowIndex]['rebate_type'] = null
-                upd[props.rowIndex]['rebate_value'] = null
-                upd[props.rowIndex]['rebate_percentage'] = null  
+                upd[editorProps.rowIndex]['product_rebate'] = 'No'
+                upd[editorProps.rowIndex]['rebate_type'] = null
+                upd[editorProps.rowIndex]['rebate_value'] = null
+                upd[editorProps.rowIndex]['rebate_percentage'] = null  
             }
-            upd[props.rowIndex][props.field] = val
+            upd[editorProps.rowIndex][editorProps.field] = val
             setMainData(upd)
             setValue(upd)
             dispatch(updateKPIStateToDispatchData(upd))
-            dispatch(changeStateToDispatchData(upd[props.rowIndex]))
-            dispatch(SetAllListUpdate(upd[props.rowIndex]))
+            dispatch(changeStateToDispatchData(upd[editorProps.rowIndex]))
+            dispatch(SetAllListUpdate(upd[editorProps.rowIndex]))
+
+            //update dropdown values for global Intent to Bid filter
+            if (editorProps.field === "intent_to_bid"){
+                let uniqueIntentValues = Array.from(new Set(upd.map(({ intent_to_bid }) => intent_to_bid)));
+                sessionStorage.setItem("intentToBidValues",JSON.stringify(uniqueIntentValues))
+                props.intentToBidUpdater(prevValue => prevValue + 1)
+            }
         }
 
-        else if (props.field === 'new_contract_price') {
+        else if (editorProps.field === 'new_contract_price') {
 
-            let upd = [...props.value]
+            let upd = [...editorProps.value]
             let newContractValue
-            if (isNaN(parseFloat(val)) === true && upd[props.rowIndex]['list_price'] !== null){
+            if (isNaN(parseFloat(val)) === true && upd[editorProps.rowIndex]['list_price'] !== null){
                 // If 'New' Bid Price is not defined, 'Net' Bid Price (after rebates) is set to 'Chemist List Price (CLP)', by default
-                newContractValue = upd[props.rowIndex]['list_price']
+                newContractValue = upd[editorProps.rowIndex]['list_price']
             } else {
-                upd[props.rowIndex][props.field] = parseFloat(val.replaceAll(",", ""))
-                newContractValue = parseFloat(val.replaceAll(",", ""))
+                upd[editorProps.rowIndex][editorProps.field] = parseFloat(val.replaceAll(",", "")) || null
+                newContractValue = parseFloat(val.replaceAll(",", "")) || null
             }
-            upd[props.rowIndex]['net_contract_price'] = newContractValue === null|| newContractValue === 0 ? 0: parseFloat((newContractValue - (upd[props.rowIndex]['rebate_value'])).toFixed(2))
-            upd[props.rowIndex]['total_revenue'] = parseFloat((upd[props.rowIndex]['net_contract_price'] * upd[props.rowIndex]['annual_usage_volume']).toFixed(2))
-            upd[props.rowIndex]['margin_msp'] = upd[props.rowIndex]['net_contract_price'] === 0 || upd[props.rowIndex]['msp'] === null ? null : parseFloat((((upd[props.rowIndex]['net_contract_price'] - upd[props.rowIndex]['msp']) / upd[props.rowIndex]['net_contract_price']) * 100).toFixed(2))
-            upd[props.rowIndex]['total_margin'] = upd[props.rowIndex]['net_contract_price'] === 0 || upd[props.rowIndex]['msp'] === null ? null : parseFloat(((upd[props.rowIndex]['net_contract_price'] - upd[props.rowIndex]['msp']) * upd[props.rowIndex]['annual_usage_volume']).toFixed(2))
-            upd[props.rowIndex]['discount_to_clp'] = upd[props.rowIndex]['net_contract_price'] === 0 || upd[props.rowIndex]['list_price'] === null || upd[props.rowIndex]['list_price'] === 0 ? null : parseFloat(((1 - (upd[props.rowIndex]['net_contract_price'] / upd[props.rowIndex]['list_price'])) * 100).toFixed(2))
-            upd[props.rowIndex]['fts_risk'] = upd[props.rowIndex]['discount_to_clp'] > 40 ? "Yes" : "No"
-            upd[props.rowIndex]['bid_kam'] = upd[props.rowIndex]['net_contract_price'] >= upd[props.rowIndex]['kams_floor_price'] ? "Yes" : "No"
+            upd[editorProps.rowIndex]['net_contract_price'] = newContractValue === null|| newContractValue === 0 ? 0: parseFloat((newContractValue - (upd[editorProps.rowIndex]['rebate_value'])).toFixed(2))
+            upd[editorProps.rowIndex]['total_revenue'] = parseFloat((upd[editorProps.rowIndex]['net_contract_price'] * upd[editorProps.rowIndex]['annual_usage_volume']).toFixed(2))
+            upd[editorProps.rowIndex]['margin_msp'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['msp'] === null ? null : parseFloat((((upd[editorProps.rowIndex]['net_contract_price'] - upd[editorProps.rowIndex]['msp']) / upd[editorProps.rowIndex]['net_contract_price']) * 100).toFixed(2))
+            upd[editorProps.rowIndex]['total_margin'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['msp'] === null ? null : parseFloat(((upd[editorProps.rowIndex]['net_contract_price'] - upd[editorProps.rowIndex]['msp']) * upd[editorProps.rowIndex]['annual_usage_volume']).toFixed(2))
+            upd[editorProps.rowIndex]['discount_to_clp'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['list_price'] === null || upd[editorProps.rowIndex]['list_price'] === 0 ? null : parseFloat(((1 - (upd[editorProps.rowIndex]['net_contract_price'] / upd[editorProps.rowIndex]['list_price'])) * 100).toFixed(2))
+            upd[editorProps.rowIndex]['fts_risk'] = upd[editorProps.rowIndex]['discount_to_clp'] > 40 ? "Yes" : "No"
+            upd[editorProps.rowIndex]['bid_kam'] = upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['kams_floor_price'] ? "Yes" : "No"
 
-            if ( upd[props.rowIndex]['net_contract_price'] !== null && upd[props.rowIndex]['cost_gmx_current_year'] !== null && upd[props.rowIndex]['net_contract_price'] < upd[props.rowIndex]['cost_gmx_current_year']) {
-                upd[props.rowIndex]['ncp_cogs'] = "Red"
+            if ( upd[editorProps.rowIndex]['net_contract_price'] !== null && upd[editorProps.rowIndex]['cost_gmx_current_year'] !== null && upd[editorProps.rowIndex]['net_contract_price'] < upd[editorProps.rowIndex]['cost_gmx_current_year']) {
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Red"
             }
-            else if (upd[props.rowIndex]['net_contract_price'] === null || upd[props.rowIndex]['net_contract_price'] ===0){
-                upd[props.rowIndex]['ncp_cogs'] = "Net Bid Price not defined"
+            else if (upd[editorProps.rowIndex]['net_contract_price'] === null || upd[editorProps.rowIndex]['net_contract_price'] ===0){
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Net Bid Price not defined"
             }
-            else if (upd[props.rowIndex]['cost_gmx_current_year'] ===null ){
-                upd[props.rowIndex]['ncp_cogs'] = "CoGS Not Found"
+            else if (upd[editorProps.rowIndex]['cost_gmx_current_year'] ===null ){
+                upd[editorProps.rowIndex]['ncp_cogs'] = "CoGS Not Found"
             }
-            else if (upd[props.rowIndex]['msp'] === null){
-                upd[props.rowIndex]['ncp_cogs'] = "MSP Not Found"
+            else if (upd[editorProps.rowIndex]['msp'] === null){
+                upd[editorProps.rowIndex]['ncp_cogs'] = "MSP Not Found"
             }
-            else if (upd[props.rowIndex]['net_contract_price'] >= upd[props.rowIndex]['cost_gmx_current_year'] && upd[props.rowIndex]['net_contract_price'] < upd[props.rowIndex]['msp']) {
-                upd[props.rowIndex]['ncp_cogs'] = "Yellow"
+            else if (upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['cost_gmx_current_year'] && upd[editorProps.rowIndex]['net_contract_price'] < upd[editorProps.rowIndex]['msp']) {
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Yellow"
             }
-            else if (upd[props.rowIndex]['net_contract_price'] >= upd[props.rowIndex]['msp'] && upd[props.rowIndex]['net_contract_price'] > upd[props.rowIndex]['cost_gmx_current_year']) {
-                upd[props.rowIndex]['ncp_cogs'] = "Green"
+            else if (upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['msp'] && upd[editorProps.rowIndex]['net_contract_price'] > upd[editorProps.rowIndex]['cost_gmx_current_year']) {
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Green"
             }
 
             setMainData(upd)
             setValue(upd)
             dispatch(updateKPIStateToDispatchData(upd))
-            dispatch(changeStateToDispatchData(upd[props.rowIndex]))
-            dispatch(SetAllListUpdate(upd[props.rowIndex]))
+            dispatch(changeStateToDispatchData(upd[editorProps.rowIndex]))
+            dispatch(SetAllListUpdate(upd[editorProps.rowIndex]))
         }
     }
 
@@ -757,7 +829,7 @@ function ViewDataTable(props) {
             return <InputNumber id={'bid_id'} className="p-inputtext-sm p-d-block p-mb-2" type="text"
                 mode='decimal' minFractionDigits={2} maxFractionDigits={2} value={props.rowData[props.field]}
                 min={0}
-                max={props.rowData['list_price']}
+                max={props.rowData['list_price'] || 0}
                 onBlur={(e) => onEditorComplete(props, e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { onEditorComplete(props, e.target.value) } }}
                 onValueChange={(e) => onEditorValueChange(props, e.value)} />
@@ -863,6 +935,7 @@ function ViewDataTable(props) {
     const filterColumns = (e) => {
         let selectedColumns = e.value;
         let orderedSelectedColumns = props.type.excel_config.product_details.list.filter(col => selectedColumns.some(sCol => sCol.field === col.field));
+        sessionStorage.setItem("selectedProductDetailsColumns",JSON.stringify(orderedSelectedColumns))
         setSelectedColumns(orderedSelectedColumns)
     }
 
@@ -921,6 +994,7 @@ function ViewDataTable(props) {
         setValue(mainData)
         filterSelectionList = []
         props.handleFilterProductCalculation(KPICalculation(stateObj.UserRecord.userRecord))
+        sessionStorage.removeItem("filterGlobal")
         sessionStorage.removeItem("filter")
     }
 
@@ -931,18 +1005,27 @@ function ViewDataTable(props) {
                 options.field === 'total_revenue' ||
                 options.field === 'total_margin'|| 
                 options.field === 'margin_msp' ||
-                options.field === 'discount_to_clp' ||
-                options.field === 'fts_risk') {
+                options.field === 'discount_to_clp' ) {
                 return {
                     'error-show': true
                 }
             }
+            else if (options.field === 'fts_risk') {
+            return {
+                'error-show-dropdown': true
+            }
+        }
         }
 
         if (options.rowData['list_price'] === null || options.rowData['list_price'] === 0) {
-            if (options.field === 'discount_to_clp' || options.field === 'fts_risk') {
+            if (options.field === 'discount_to_clp') {
                 return {
                     'error-show': true
+                }
+            }
+            else if (options.field === 'fts_risk') {
+                return {
+                    'error-show-dropdown': true
                 }
             }
         }
@@ -1137,7 +1220,7 @@ function ViewDataTable(props) {
                         sortField={defaultSelectionSorting.sortField}
                         sortOrder={defaultSelectionSorting.sortOrder}
                         onSort={(e) => { onSorting(e) }}
-                        className="p-datatable-sm editable-cells-table" scrollHeight="65vh" showGridlines
+                        className="p-datatable-sm editable-cells-table" scrollHeight="65vh" showGridlines 
                         headerColumnGroup={props.type.tab_name === "Finance Review" ? null : headerGroup}
                         cellClassName={cellStyleRow}
                         loading={isloading}

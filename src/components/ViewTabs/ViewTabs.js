@@ -1,9 +1,9 @@
 import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Tab, Tabs } from '@material-ui/core'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import TabConfigJson from '../../assets/json/config.json'
 import logo from '../../assets/images/logo.png'
 import './ViewTabs.css'
-
+import { Tooltip } from "antd"
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
 import HighlightIcon from '@material-ui/icons/HighlightOff'
 import ErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined';
@@ -14,7 +14,7 @@ import { resetData, resetFlag, updateInfoRecords, getUserInfo, LoadOpportunityCl
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ViewDataTable from '../ViewTable/ViewDataTable';
-import { filterColumnDropDown, filteringColumnSelection, KPICalculation } from '../../utility/util'
+import { filterColumnDropDown, filteringColumnSelection,filteringColumnSelectionGlobal, KPICalculation } from '../../utility/util'
 import { MultiSelect } from 'primereact/multiselect'
 
 
@@ -43,6 +43,9 @@ function ViewTabs() {
     const [selectedIntentToBidList, setSelectedIntentToBidlist] = useState([])
     const [countValidationError, setCountValidationError] = useState({ "bidErrorCount": null, "rebateValueErrorCount": null })
 
+    // const intentToBidUpdateCounter = useRef(0);
+    const [intentToBidUpdateCounter, setIntentToBidUpdateCounter] = useState(0)
+
     const dispatch = useDispatch()
 
     const [mainFilterList, setMainFilterList] = useState({
@@ -70,6 +73,20 @@ function ViewTabs() {
         }
     )
 
+    //to dynamically update values of global intent to bid dropdown
+    useEffect(()=>{
+        let uniqueIntentValues = JSON.parse(sessionStorage.getItem("intentToBidValues"));
+        if (uniqueIntentValues){
+            mainFilterList.intent_to_bid = uniqueIntentValues.map((val)=>{
+                return {
+                    field:val,
+                    header:val,
+                    keyName:"intent_to_bid"
+                }
+            });
+        }
+    },[intentToBidUpdateCounter])
+
     //  This code for create Tab list
     const TabPanel = (info) => {
         const { index, type, type: { view } } = info
@@ -82,7 +99,9 @@ function ViewTabs() {
                             opportunityProduct={opportunityProductList}
                             filterBULists={filterBUList}
                             selectedResetList={selectedResetValue}
-                            handleFilterProductCalculation={filterProductCalculation} />
+                            handleFilterProductCalculation={filterProductCalculation}
+                            intentToBidUpdater = {setIntentToBidUpdateCounter} />
+                            
                     )
                 }
             </div>
@@ -160,6 +179,70 @@ function ViewTabs() {
             fetchUserName()
             fetchData(opp_id)
 
+            //update global filter values if filter is already applied and update filterSelectionList
+            let tempFilters = sessionStorage.getItem("filter");
+            if (tempFilters && tempFilters.length>0){
+                tempFilters = tempFilters.replaceAll("(","").replaceAll(")","").replaceAll("item[","").replaceAll("]","").replaceAll("'","").trimEnd().split(" && ");
+                let tempBuFilters = [];
+                let tempBrandManagerFilters = [];
+                let tempIntentToBidFilters = [];
+                let tempFCodeFilters = [];
+                let tempMarketStatusFilters = [];
+                let tempProductDescriptionFilters = [];
+                tempFilters.map(item=>{
+                    let [field,value] = item.split(" === ")
+                    
+                    if (field === "brand_manager"){
+                        tempBrandManagerFilters.push({
+                            field:value,
+                            header:value,
+                            keyName:field
+                        });
+                        filterSelectionList[`${field.toString()}`] = tempBrandManagerFilters;
+                    } else if (field === "market_status"){
+                        tempMarketStatusFilters.push({
+                            field:value,
+                            header:value,
+                            keyName:field
+                        });
+                        filterSelectionList[`${field.toString()}`] = tempMarketStatusFilters
+                    } else if (field === "business_unit_name"){
+                        tempBuFilters.push({
+                            field:value,
+                            header:value,
+                            keyName:field
+                        });
+                        filterSelectionList[`${field.toString()}`] = tempBuFilters
+                    } else if (field === "local_item_code"){
+                        tempFCodeFilters.push({
+                            field:value,
+                            header:value,
+                            keyName:field
+                        });
+                        filterSelectionList[`${field.toString()}`] = tempFCodeFilters
+                    } else if (field === "local_product_description"){
+                        tempProductDescriptionFilters.push({
+                            field:value,
+                            header:value,
+                            keyName:field
+                        });
+                        filterSelectionList[`${field.toString()}`] = tempProductDescriptionFilters
+                    } else if (field === "intent_to_bid"){
+                        tempIntentToBidFilters.push({
+                            field:value,
+                            header:value,
+                            keyName:field
+                        });
+                        filterSelectionList[`${field.toString()}`] = tempIntentToBidFilters
+                    }
+                })
+                setSelectedBUlist([...tempBuFilters]);
+                setSelectedFCodelist([...tempFCodeFilters]);
+                setSelectedBrandManagerlist([...tempBrandManagerFilters]);
+                setSelectedMarketStatuslist([...tempMarketStatusFilters]);
+                setSelectedProductDescriptionlist([...tempProductDescriptionFilters]);
+                setSelectedIntentToBidlist([...tempIntentToBidFilters]);
+            }
         }
     }, [])
 
@@ -191,6 +274,7 @@ function ViewTabs() {
                 }
                 setOpen(false);
                 selectedResetValues = []
+                setSelectedResetValue([]) //for reset counter value to be 0 after every reset
                 fetchData(selectedOpportunityName)
                 toast.success("Sucessfully Reset Data")
                 setIsloading(false)
@@ -236,7 +320,7 @@ function ViewTabs() {
                 })
                 setBtnDisableStatus(false)
             }
-            let filterData = filteringColumnSelection(tempResponse, [])
+            let filterData = filteringColumnSelectionGlobal(tempResponse, [])
             setOpportunityProductList(tempResponse)
             // KPICalculation(tempResponse)
             setProductInfo(KPICalculation(filterData))
@@ -301,6 +385,7 @@ function ViewTabs() {
         setSelectedMarketStatuslist([])
         setSelectedBrandManagerlist([])
         setSelectedIntentToBidlist([])
+        filterSelectionList={}
 
         for (let i in mainFilterList) {
             mainFilterList[i] = []
@@ -338,7 +423,7 @@ function ViewTabs() {
         if (filterCount === 0) {
             sessionStorage.removeItem("filter")
         }
-        let filterList = filteringColumnSelection(opportunityProductList, filterSelectionList)
+        let filterList = filteringColumnSelectionGlobal(opportunityProductList, filterSelectionList)
 
         if (keyname === 'business_unit_name') {
             setSelectedBUlist(e.value)
@@ -550,8 +635,6 @@ function ViewTabs() {
                 <div className="main-filter-container">
                     <div>Business Unit</div>
                     <div>
-                        {console.log(selectedBUList)}
-
                         <MultiSelect value={selectedBUList} options={mainFilterList.business_unit_name}
                             maxSelectedLabels={1} placeholder={"All"} style={{ width: '200px', height: '30px' }} optionLabel="header"
                             filter onChange={(e) => filterFunction(e, 'business_unit_name')} />
@@ -619,28 +702,32 @@ function ViewTabs() {
 
             <div className="info-section">
                 <div className="opportunity-info-section">
-                    <label>
-                        <span style={{ color: '#7f6c6c' }}>Opportunity Name:</span> {opportunityInfo?.opportunity_name}
-                    </label>
-                    {
-                        opportunityInfo?.opportunity_name === undefined ? null :
-                            (
-                                <><span style={{ marginLeft: '1.5rem', cursor: 'pointer' }} onClick={() => exportGTCSTemplateCSV(false)}>
-                                    <span style={{ color: '#7f6c6c' }}>GTCS Template:</span>
-                                    <i className="pi pi-download" style={{ marginLeft: '0.5rem' }} />
-                                </span>
-
-                                    <span style={{ marginLeft: '1rem', cursor: 'pointer' }} onClick={() => exportFinanceReviewCSV(false)}>
+                    <div style={{display:"flex"}}>
+                        <div style={{width:"60%"}}>
+                            <label>
+                                <span style={{ color: '#7f6c6c', fontSize:"0.9rem" }}>Opportunity Name:</span> {opportunityInfo?.opportunity_name}
+                            </label> <br/>
+                            <label>
+                                <span style={{ color: '#7f6c6c', fontSize:"0.9rem" }}>Customer Name:</span> {opportunityInfo?.customer_name}
+                            </label>
+                        </div>
+                        <div style={{width:"40%"}}>
+                            {opportunityInfo?.opportunity_name === undefined ? null :(
+                                <>
+                                    <span style={{ cursor: 'pointer' }} onClick={() => exportGTCSTemplateCSV(false)}>
+                                        <span style={{ color: '#7f6c6c' }}>GTCS Template:</span>
+                                        <i className="pi pi-download" style={{ marginLeft: '0.5rem', fontSize:"0.9rem" }} />
+                                    </span>
+                                    <br/>
+                                    <span style={{ cursor: 'pointer' }} onClick={() => exportFinanceReviewCSV(false)}>
                                         <span style={{ color: '#7f6c6c' }}>Finance Review Template:</span>
-                                        <i className="pi pi-download" style={{ marginLeft: '0.5rem' }} />
+                                        <i className="pi pi-download" style={{ marginLeft: '0.5rem', fontSize:"0.9rem"  }} />
                                     </span>
                                 </>
-                            )
-                    }
-                    <br />
-                    <label>
-                        <span style={{ color: '#7f6c6c' }}>Customer Name:</span> {opportunityInfo?.customer_name}
-                    </label>
+                            )}
+                        </div>
+                    </div>
+                    
                 </div>
                 <div className="product-info-section">
                     <div className="product-info-container">
@@ -667,54 +754,74 @@ function ViewTabs() {
                     </div>
                 </div>
             </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '5px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '5px', marginInline:"1rem" }}>
                 {/* <div style={{ color: '#7f6c6c', cursor: 'pointer' }} onClick={() => clearFilter()}>
                     <i className="pi pi-filter-slash" style={{ marginLeft: '1.5rem', marginRight: '0.5rem' }} />
                     Clear Filter
                 </div> */}
-                <div>
-
-                <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                <div style={{width:"50% "}}>
+                    <Tooltip
+                    
+                    title={
+                    <>
+                    <ul style={{listStyle:"disc", paddingLeft:"0rem"}}>
+                        <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>By default, Net Bid Price is set to Chemist List Price. Please enter 'Bid Price' to reset it. </li>
+                        <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If Intent to Bid is set to No, Bid Price is automatically set to Chemist List Price and rebates are locked. Any previously entered Rebates are removed.</li>
+                        <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>Bid Price should always be less than Chemist List Price. If user
+                            accidentally enters a Bid Price greater
+                            than Chemist List Price, Bid Price is automatically set to Chemist List Price.</li>
+                        <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.</li>
+                        <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If TGA Shortages is Yes (Yellow), please refer TGA Shortages Tab for details.</li>
+                    </ul>
+                        {/* <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
                         <span>*</span>By default, Net Bid Price is set to Chemist List Price. Please enter 'Bid Price' to reset it. 
+                        </span>
+                        <br></br>
+                        <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                        
+                        <span>*</span>If Intent to Bid is set to No, Bid Price is automatically set to Chemist List Price and rebates are locked. Any previously entered Rebates are removed.
+                        
+                        </span>
+                        <br></br>
+                        
+                        <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                            <span>*</span>Bid Price should always be less than Chemist List Price. If user
+                            accidentally enters a Bid Price greater
+                            than Chemist List Price, Bid Price is automatically set to Chemist List Price.
+                        </span>
+                        <br></br>
+                        <br></br>
+                        <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                            <span>*</span>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.
+                        </span>
+                        <br></br>
+                        <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                            <span>*</span>If TGA Shortages is Yes (Yellow), please refer TGA Shortages Tab for details.
+                        </span> */}
+                    </>
+                    }
+                    overlayInnerStyle={{backgroundColor:"#e4e4e4", width:"40rem", color:"black", fontSize:"0.85rem",opacity:0.95}}
+                    placement="right"
+                    color={"#d3d3d3"}
+                    className="tooltip-instructions"
+                    >
+                        <i className="pi pi-info-circle" style={{ marginRight: '10px', fontSize:"0.9rem" }} />
+                        General Instructions
+                    </Tooltip>
+                    <span style={{display:"flex", alignItems:"center"}}>
+                        <i className="pi pi-info-circle" style={{ marginRight: '10px', fontSize:"0.9rem" }} />
+                        <p style={{fontSize:"0.85rem"}}>Please click on 'Save' button every few minutes, to avoid losing your progress. Changes are not auto saved.</p>
                     </span>
-                    <br></br>
-                    <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                    
-                    <span>*</span>If Intent to Bid is set to No, Bid Price is automatically set to Chemist List Price and rebates are locked. Any previously entered Rebates are removed.
-                    
-                    </span>
-                    <br></br>
-                    
-                    <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                        <span>*</span>Bid Price should always be less than Chemist List Price. If user
-                        accidentally enters a Bid Price greater
-                        than Chemist List Price, Bid Price is automatically set to Chemist List Price.
-                    </span>
-                    <br></br>
-                    <br></br>
-                    <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                        <span>*</span>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.
-                    </span>
-                    <br></br>
-                    <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                        <span>*</span>If TGA Shortages is Yes (Yellow), please refer TGA Shortages Tab for details.
-                    </span>
-                
                 </div>
-                <div style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                <div style={{ color: '#7f6c6c', fontSize: '12px', paddingLeft:"2rem", width:"50%" }}>
                     <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(146,207,137)' }}> </span>NBP &ge; MSP and NBP &gt; COGS  </span>
                     <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(242,226,136)' }}></span> NBP &ge; COGS and NBP &lt; MSP </span>
                     <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(248,138,140)' }}></span> NBP  &lt; COGS  </span>
                     <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(211,211,211)' }}></span> Insufficient info (Either CoGS or MSP could not be found)</span>
-                    <br></br>
-                    <br></br>
-                    <br></br>
-                    <br></br>
-                    <br></br>
-                    <span>
+                    {/* <span>
                         <i className="pi pi-info-circle" style={{ marginRight: '10px' }} />
                         Please click on 'Save' button every few minutes, to avoid losing your progress. Changes are not auto saved.
-                    </span>
+                    </span> */}
                 
                 </div >
             </div>

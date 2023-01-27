@@ -15,7 +15,11 @@ export const filterColumnDropDown = (list, keyName) => {
 
 // This function filtering data based on multiple column selection value selection 
 export const filteringColumnSelection = (data, filtercolumnlist) => {
-    let expression = "";
+    let expression = sessionStorage.getItem("filterGlobal") || "";
+    // let expression ="";
+    if (expression && expression.length !== 0){
+        expression += " && ";
+    }
     let filterList = []
     for (let i in filtercolumnlist) {
         expression += "(";
@@ -50,6 +54,46 @@ export const filteringColumnSelection = (data, filtercolumnlist) => {
     }
 }
 
+//to apply global filters on session item filterGlobal
+export const filteringColumnSelectionGlobal = (data, filtercolumnlist) => {
+    let expression = "";
+    // let expression = sessionStorage.getItem("filter") || "";
+    // if (expression && expression.length !== 0){
+    //     expression += " && ";
+    // }
+    let filterList = []
+    for (let i in filtercolumnlist) {
+        expression += "(";
+        filtercolumnlist[i].forEach((r, index) => {
+            expression += "item['" + i + "'] === '" + r["field"] + "'" +
+                (index === filtercolumnlist[i].length - 1 ? "" : " || ");
+        });
+        expression += ") && "
+    }
+    expression = expression.replaceAll("() &&", "").replaceAll("'Blank'", null).trim();
+
+    //  Create an expression for all selected Column value
+    if (expression.endsWith("||") || expression.endsWith("&&")) {
+        expression = expression.substring(0, expression.length - 2);
+    }
+
+    if (expression.length === 0) {
+        const tempExpression = sessionStorage.getItem("filterGlobal")
+        if (tempExpression === null) {
+            filterList = data
+            return filterList;
+        }
+        else {
+            filterList = data.filter(item => eval(tempExpression))
+            return filterList;
+        }
+    }
+    else {
+        sessionStorage.setItem("filterGlobal", expression)
+        filterList = data.filter(item => eval(expression))
+        return filterList;
+    }
+}
 
 /* 
  This function is calculate Total Revenue, Total Margin, Discount for  the Product details. 

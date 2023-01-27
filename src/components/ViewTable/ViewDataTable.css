@@ -66,6 +66,13 @@
     font-weight: 600 !important;
 }
 
+.error-show-dropdown {
+    color      : rgb(248, 23, 26) !important;
+    text-align : center !important;
+    font-size  : 11px !important;
+    font-weight: 600 !important;
+}
+
 .right-text-align {
     text-align : right !important;
     color      : black !important;
@@ -152,7 +159,7 @@ span.p-sortable-column-icon.pi.pi-fw.pi-sort-alt {
 }
 
 .user-input-header {
-    background-color: rgb(131, 131, 255) !important;
+    background-color: rgb(131, 131, 255) !important;   
 }
 
 .calculated-field-header {
