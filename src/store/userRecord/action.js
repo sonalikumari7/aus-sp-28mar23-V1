@@ -1,21 +1,20 @@
+//defining actions
 export const SET_USER = "SET_USER";
 export const GET_USER = "GET_USER";
 export const SET_UPDATE_DATA = "SET_UPDATE_DATA";
 export const SET_RESET_FLAG = "SET_RESET_FLAG";
 export const SET_RESET_ITEM = "SET_RESET_ITEM";
 export const SET_ALL_LIST = "SET_ALL_LIST";
-export const CLEAR_UPDATE_DATA = "CLEAR_UPDATE_DATA"
-export const SET_KPI = "SET_KPI"
+export const CLEAR_UPDATE_DATA = "CLEAR_UPDATE_DATA";
+export const SET_KPI = "SET_KPI";
 
-const REACT_APP_URL = "http://localhost:5000";
+const REACT_APP_URL = "http://localhost:5000"; //comment for local run
 
 export const LoadUserRecord = (status, id) => (dispatch, getState) => {
+    //API to fetch data
     return new Promise((resolve, reject) => {
-        // let url = process.env.REACT_APP_ENV === "dev" ? 'http://127.0.0.1:4005/app_start' : window.getWebAppBackendUrl('app_start');
-
-        // fetch(`${process.env.REACT_APP_URL}/${status}/${id}`).
         // fetch(window.getWebAppBackendUrl('getData/' + id)).
-        fetch(`${REACT_APP_URL}/getData/${id}`).
+        fetch(`${REACT_APP_URL}/getData/${id}`).    //comment for local run
             then(async (response) => {
                 if (response.ok) {
                     const json = await response.json()
@@ -33,9 +32,8 @@ export const LoadUserRecord = (status, id) => (dispatch, getState) => {
 
 export const LoadOpportunityClient = () => (dispatch, getState) => {
     return new Promise((resolve, reject) => {
-        // fetch(`${process.env.REACT_APP_URL}/filterlist`).
         // fetch(window.getWebAppBackendUrl('filterlist')).
-        fetch(`${REACT_APP_URL}/filterlist`).
+        fetch(`${REACT_APP_URL}/filterlist`). //comment for local run
             then(async (response) => {
                 if (response.ok) {
                     const json = await response.json()
@@ -50,7 +48,7 @@ export const LoadOpportunityClient = () => (dispatch, getState) => {
 }
 
 export const updateInfoRecords = (data) => (dispatch, getState) => {
-
+    //API to update edited records
     return new Promise((resolve, reject) => {
         const content = {
             method: 'POST',
@@ -63,9 +61,8 @@ export const updateInfoRecords = (data) => (dispatch, getState) => {
 
         }
 
-        // fetch(`${process.env.REACT_APP_URL}/update`, content)
         // fetch(window.getWebAppBackendUrl('update'), content)
-        fetch(`${REACT_APP_URL}/update`, content)
+        fetch(`${REACT_APP_URL}/update`, content) //comment for local run
             .then(async (response) => {
                 if (response.ok) {
                     const json = await response.json();
@@ -84,9 +81,8 @@ export const updateInfoRecords = (data) => (dispatch, getState) => {
 
 
 export const resetData = (data) => (dispatch, getState) => {
+    //API to reset selected records
     return new Promise((resolve, reject) => {
-
-
         const content = {
             method: 'POST',
             headers: {
@@ -98,9 +94,8 @@ export const resetData = (data) => (dispatch, getState) => {
 
         }
 
-        // fetch(`${process.env.REACT_APP_URL}/reset`, content)
         // fetch(window.getWebAppBackendUrl('reset'), content)
-        fetch(`${REACT_APP_URL}/reset`, content)
+        fetch(`${REACT_APP_URL}/reset`, content) //comment for local run
             .then(async (response) => {
                 if (response.ok) {
                     const json = await response.json();
@@ -117,10 +112,10 @@ export const resetData = (data) => (dispatch, getState) => {
 }
 
 export const refreshData = (id) => (dispatch, getState) => {
+    //API to refresh data
     return new Promise((resolve, reject) => {
-        // fetch(`${process.env.REACT_APP_URL}/refresh/${id}`).
         // fetch(window.getWebAppBackendUrl('refresh/' + id)).
-        fetch(`${REACT_APP_URL}/refresh/${id}`).
+        fetch(`${REACT_APP_URL}/refresh/${id}`). //comment for local run
             then(async (response) => {
                 if (response.ok) {
                     const json = await response.json()
@@ -137,11 +132,10 @@ export const refreshData = (id) => (dispatch, getState) => {
 
 
 export const getUserInfo = () => (dispatch, getState) => {
+    //API to get user info
     return new Promise((resolve, reject) => {
-
-        // fetch(`${process.env.REACT_APP_URL}/info`).
         // fetch(window.getWebAppBackendUrl('info')).
-        fetch(`${REACT_APP_URL}/info`).
+        fetch(`${REACT_APP_URL}/info`). //comment for local run
             then(async (response) => {
                 if (response.ok) {
                     const json = await response.json()
@@ -157,10 +151,8 @@ export const getUserInfo = () => (dispatch, getState) => {
 
 export const ExportGTCSTemplateFile = (id) => (dispatch, getState) => {
     return new Promise((resolve, reject) => {
-
-        // fetch(`${process.env.REACT_APP_URL}/getcsv/${id}`).
         // fetch(window.getWebAppBackendUrl('getgtcstemplatecsv/' + id)).
-        fetch(`${REACT_APP_URL}/getcsv/${id}`).
+        fetch(`${REACT_APP_URL}/getcsv/${id}`). //comment for local run
             then(response => response.blob()).then(blob => {
                 const url = window.URL.createObjectURL(blob)
                 const a = document.createElement('a')
@@ -179,10 +171,8 @@ export const ExportGTCSTemplateFile = (id) => (dispatch, getState) => {
 
 export const ExportFinanceReviewFile = (id) => (dispatch, getState) => {
     return new Promise((resolve, reject) => {
-
-        // fetch(`${process.env.REACT_APP_URL}/getcsv/${id}`).
         // fetch(window.getWebAppBackendUrl('getfinancereviewcsv/' + id)).
-        fetch(`${REACT_APP_URL}/getcsv/${id}`).
+        fetch(`${REACT_APP_URL}/getcsv/${id}`). //comment for local run
             then(response => response.blob()).then(blob => {
                 const url = window.URL.createObjectURL(blob)
                 const a = document.createElement('a')
@@ -211,9 +201,6 @@ export const SetAllListUpdate = (data) => (dispatch, getState) => {
     dispatch(setAllListDataInStateAction(data))
 }
 
-
-
-
 export function userRecordsInStateAction(userData) {
     return {
         type: GET_USER,
@@ -228,7 +215,6 @@ export const resetFlag = (flag) => (dispatch, getState) => {
 export const updateKPIStateToDispatchData = (data) => (dispatch, getState) => {
     dispatch(setKPIResult(data))
 }
-
 
 export function setResetFlag(flag) {
     return {
@@ -257,7 +243,6 @@ export function setAllListDataInStateAction(userData) {
         userData
     }
 }
-
 
 export function setchangeStateToDispatchDataAction(updateData) {
 

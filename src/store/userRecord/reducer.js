@@ -1,5 +1,6 @@
 import * as Actions from './action'
 
+//state variable
 let defaultState = {
     isFetching: false,
     userRecord: [],
@@ -9,6 +10,7 @@ let defaultState = {
 }
 
 const reducers = (state = defaultState, action) => {
+    //return updated state based on type of action
     switch (action.type) {
         case Actions.GET_USER: {
             return {

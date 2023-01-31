@@ -8,21 +8,21 @@ import { Dropdown } from 'primereact/dropdown';
 import { ColumnGroup } from 'primereact/columngroup';
 import { Row } from 'primereact/row';
 import { MultiSelect } from 'primereact/multiselect';
-import { classNames } from 'primereact/utils';
 import { changeStateToDispatchData, LoadOpportunityClient, LoadUserRecord, resetFlag, resetItems, SetAllListUpdate, setResetFlag, updateInfo, updateKPIStateToDispatchData } from '../../store/userRecord/action';
 import './ViewDataTable.css'
 import { filterColumnDropDown, filteringColumnSelection, KPICalculation } from '../../utility/util';
-import { isNullishCoalesce } from 'typescript';
 
-var filterSelectionList = {};
-var currenFilterSelection = ''
-var filterListGlobal = []
+var filterSelectionList = {}; // holds the filters selected
+var currenFilterSelection = ''; // holds the current column on which filter is applied
+var filterListGlobal = [];
+
 function ViewDataTable(props) {
-    const listcol = props.type.excel_config.product_details.selected_list
-    const { type: { tab_name } } = props
-    const selectResetList = props.selectedResetList
+    const listcol = props.type.excel_config.product_details.selected_list; //default selected product details columns
+    const { type: { tab_name } } = props;
+    const selectResetList = props.selectedResetList; //selected rows for reset purpose
     const [selectedColumns, setSelectedColumns] = useState(listcol);
 
+    //defining default values for filter dropdowns of different columns
     const statuses = [
         { label: 'Yes', value: 'Yes' },
         { label: 'No', value: 'No' }
@@ -108,339 +108,332 @@ function ViewDataTable(props) {
             "label": "Single Source",
             "value": "Single Source"
         }
-    ]
+    ];
 
     const rebateType = [
         { label: 'Flat Percentage', value: 'Flat Percentage' },
         { label: 'Flat Value', value: 'Flat Value' }
-    ]
+    ];
 
-
-    const dispatch = useDispatch()
+    const dispatch = useDispatch(); //dispatch method for state management from redux store
     const dt = useRef(null);
-    const stateObj = useSelector(state => state)
-    const [isloading, setIsloading] = useState(false)
+    const stateObj = useSelector(state => state); //state from store
+    const [isloading, setIsloading] = useState(false);
 
-    const [value, setValue] = useState([])
-    const [selectedValue, setSelectedValue] = useState(selectResetList)
-    const [defaultSelectionSorting, setDefaultSelectionSorting] = useState({ sortField: "", sortOrder: 1 })
-    const [first1, setFirst1] = useState(0);
-    const [rows2, setRows2] = useState(50);
+    const [value, setValue] = useState([]); //holds the current table
+    const [selectedValue, setSelectedValue] = useState(selectResetList);
+    const [defaultSelectionSorting, setDefaultSelectionSorting] = useState({ sortField: "", sortOrder: 1 });
+    const [first1, setFirst1] = useState(0); //first record index
+    const [rows2, setRows2] = useState(50); //default page size
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageInputTooltip, setPageInputTooltip] = useState('Press \'Enter\' key to go to this page.');
-    const [mainData, setMainData] = useState([])
+    const [pageInputTooltip, setPageInputTooltip] = useState('Press \'Enter\' key to go to this page.'); //tooltip on page number input field
+    const [mainData, setMainData] = useState([]); //holds the main original data. only updates when fields are updated.
 
 
-    const [selectedBUlist, setSelectedBUlist] = useState([])
-    const [selectedLocalItemlist, setSelectedLocalItemlist] = useState([])
-    const [selectedMarketStatuslist, setSelectedMarketStatuslist] = useState([])
-    const [selectedProductRebatelist, setSelectedProductRebatelist] = useState([])
-    const [selectedLineStatuslist, setselectedLineStatuslist] = useState([])
-    const [selectedFTSList, setSelectedFTSList] = useState([])
-    const [selectedNCPList, setSelectedNCPList] = useState([])
-    const [selectedSupplyStatusList, setSelectedSupplyStatusList] = useState([])
-    const [selectedShortageList, setSelectedShortageList] = useState([])
+    const [selectedBUlist, setSelectedBUlist] = useState([]);
+    const [selectedLocalItemlist, setSelectedLocalItemlist] = useState([]);
+    const [selectedMarketStatuslist, setSelectedMarketStatuslist] = useState([]);
+    const [selectedProductRebatelist, setSelectedProductRebatelist] = useState([]);
+    const [selectedLineStatuslist, setselectedLineStatuslist] = useState([]);
+    const [selectedFTSList, setSelectedFTSList] = useState([]);
+    const [selectedNCPList, setSelectedNCPList] = useState([]);
+    const [selectedSupplyStatusList, setSelectedSupplyStatusList] = useState([]);
+    const [selectedShortageList, setSelectedShortageList] = useState([]);
+
+    const [buList, setBuList] = useState(props?.filterBULists?.BUList);
+    const [localItemList, setLocalItemList] = useState(props?.filterBULists?.LocalList);
+    const [marketStatusList, setMarketStatusList] = useState(props?.filterBULists?.MarketList);
+    const [productRebatelist, setProductRebatelist] = useState(product_rebate_list);
+    const [lineStatuslist, setLineStatuslist] = useState(line_status_list);
+    const [ftsList, setFtsList] = useState(props?.filterBULists?.FTSRisk);
+    const [ncpList, setNCPList] = useState(props?.filterBULists?.NCPCogs);
+    const [supplyList, setSupplyList] = useState(supply_status_list);
+    const [shortageList, setShortageList] = useState(shortage_list);
 
 
-    const [buList, setBuList] = useState(props?.filterBULists?.BUList)
-    const [localItemList, setLocalItemList] = useState(props?.filterBULists?.LocalList)
-    const [marketStatusList, setMarketStatusList] = useState(props?.filterBULists?.MarketList)
-    const [productRebatelist, setProductRebatelist] = useState(product_rebate_list)
-    const [lineStatuslist, setLineStatuslist] = useState(line_status_list)
-    const [ftsList, setFtsList] = useState(props?.filterBULists?.FTSRisk)
-    const [ncpList, setNCPList] = useState(props?.filterBULists?.NCPCogs)
-    const [supplyList, setSupplyList] = useState(supply_status_list)
-    const [shortageList, setShortageList] = useState(shortage_list)
+    useEffect(() => { // runs on every first render
+        //since this component is being rerendered on every update, this useEffect is being executed on every render.
+        // this part of code applies selected filter on the records and updates the filters  
+        let filterList = filteringColumnSelection(props.opportunityProduct, filterSelectionList);
+        filterListGlobal = filterList;
+        let calculatResult = calculationField(filterList);
+        setValue(calculatResult);
+        // setMainData(calculatResult);
+        setMainData(props.opportunityProduct);
+        setFilterColumSelection();
+        selctionFilterColumnList(filterList);
 
-
-    useEffect(() => {
-        // let filterList = []
-        // const defaultFilterSelectionStatus = sessionStorage.getItem("defaultFilter")
-        // const defaultLocalFilterSelection = sessionStorage.getItem("filter")
-        // if (defaultFilterSelectionStatus === null || defaultLocalFilterSelection === null) {
-        //     const defaultSelectionFilter = {
-        //         "business_unit_name": [{ "field": "Hospital", "header": "Hospital", "keyName": "business_unit_name" }],
-        //         "market_status": [{ "field": "Multi-Source", "header": "Multi-Source", "keyName": "market_status" }]
-        //     }
-        //     filterList = filteringColumnSelection(props.opportunityProduct, defaultSelectionFilter)
-        // }
-        // else {
-        //     filterList = filteringColumnSelection(props.opportunityProduct, filterSelectionList)
-
-        // }
-        let filterList = filteringColumnSelection(props.opportunityProduct, filterSelectionList)
-
-        filterListGlobal = filterList
-        let calculatResult = calculationField(filterList)
-        setValue(calculatResult)
-        // setMainData(calculatResult)
-        setMainData(props.opportunityProduct)
-        setFilterColumSelection()
-        selctionFilterColumnList(filterList)
-        let returSelectionSortColum = JSON.parse(sessionStorage.getItem("sorting"))
+        //check for sorting applied, if any
+        let returSelectionSortColum = JSON.parse(sessionStorage.getItem("sorting"));
         if (returSelectionSortColum !== null) {
-            setDefaultSelectionSorting(returSelectionSortColum)
+            setDefaultSelectionSorting(returSelectionSortColum);
         }
-        let returnPagination = JSON.parse(sessionStorage.getItem("pagination"))
+
+        //check for pagination
+        let returnPagination = JSON.parse(sessionStorage.getItem("pagination"));
         if (returnPagination !== null) {
-            setFirst1(returnPagination.first)
-            setRows2(returnPagination.rows)
-            setCurrentPage(returnPagination.currentPage)
+            setFirst1(returnPagination.first);
+            setRows2(returnPagination.rows);
+            setCurrentPage(returnPagination.currentPage);
         }
         // setKPIFunction(filterList)
+
         // always keep selected product details column in memory
         let tempSelectedProductDetailsColumns = JSON.parse(sessionStorage.getItem("selectedProductDetailsColumns"));
         if (tempSelectedProductDetailsColumns && tempSelectedProductDetailsColumns.length !== 0){
-            setSelectedColumns([...tempSelectedProductDetailsColumns])
+            setSelectedColumns([...tempSelectedProductDetailsColumns]);
         }
     }, [])
 
     useEffect(() => {
+        //clear the filters whenever reset is done
         if (stateObj.UserRecord.isFetching) {
-            clearCustomFilter()
+            clearCustomFilter();
         }
     }, [stateObj])
 
-    const setFilterColumSelection = () => {
+    const setFilterColumSelection = () => { 
+        //sets the selected values for columns on which filters are applied
         for (let i in filterSelectionList) {
             if (i === 'business_unit_name') {
-                setSelectedBUlist(filterSelectionList[i])
+                setSelectedBUlist(filterSelectionList[i]);
             }
             else if (i === 'local_item_code') {
-                setSelectedLocalItemlist(filterSelectionList[i])
+                setSelectedLocalItemlist(filterSelectionList[i]);
             }
             else if (i === 'market_status') {
-                setSelectedMarketStatuslist(filterSelectionList[i])
+                setSelectedMarketStatuslist(filterSelectionList[i]);
             }
             else if (i === 'product_rebate') {
-                setSelectedProductRebatelist(filterSelectionList[i])
+                setSelectedProductRebatelist(filterSelectionList[i]);
             }
             else if (i === 'line_status') {
-                setselectedLineStatuslist(filterSelectionList[i])
+                setselectedLineStatuslist(filterSelectionList[i]);
             }
             else if (i === 'fts_risk') {
-                setSelectedFTSList(filterSelectionList[i])
+                setSelectedFTSList(filterSelectionList[i]);
             }
             else if (i === 'ncp_cogs') {
-                setSelectedNCPList(filterSelectionList[i])
+                setSelectedNCPList(filterSelectionList[i]);
             }
             else if (i === 'supply_status'){
-                setSelectedSupplyStatusList(filterSelectionList[i])
+                setSelectedSupplyStatusList(filterSelectionList[i]);
             }
             else if (i === 'shortage'){
-                setSelectedShortageList(filterSelectionList[i])
+                setSelectedShortageList(filterSelectionList[i]);
             }
         }
     }
 
     const columnFilterFunction = (e, val) => {
-        filterSelectionList[`${val.toString()}`] = e.value
+        //function which applies selected filter values on the table records
+        filterSelectionList[`${val.toString()}`] = e.value;
         if (e.value.length === 0)
-            sessionStorage.removeItem("filter")
-        currenFilterSelection = val
-        let temp = JSON.parse(JSON.stringify(mainData))
-        let filterList = filteringColumnSelection([...temp], filterSelectionList)
-        setValue(filterList)
+            sessionStorage.removeItem("filter");
+        currenFilterSelection = val; //val is the keyname or the column name
+        let temp = JSON.parse(JSON.stringify(mainData));
+        let filterList = filteringColumnSelection([...temp], filterSelectionList);
+        setValue(filterList); //update the table state
+
+        //update dropdown options of other columns based on selections in current column
         if (val === 'local_item_code') {
-            setSelectedLocalItemlist(e.value)
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setSelectedLocalItemlist(e.value);
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
         else if (val === 'market_status') {
-            setSelectedMarketStatuslist(e.value)
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setSelectedMarketStatuslist(e.value);
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
         else if (val === 'business_unit_name') {
-            setSelectedBUlist(e.value)
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setSelectedBUlist(e.value);
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
         else if (val === 'product_rebate') {
-            setSelectedProductRebatelist(e.value)
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setSelectedProductRebatelist(e.value);
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
         else if (val === 'line_status') {
-            setselectedLineStatuslist(e.value)
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setselectedLineStatuslist(e.value);
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
         else if (val === 'fts_risk') {
-            setSelectedFTSList(e.value)
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setSelectedFTSList(e.value);
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
         else if (val === 'ncp_cogs') {
-            setSelectedNCPList(e.value)
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setSelectedNCPList(e.value);
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
         else if (val === 'supply_status') {
-            setSelectedSupplyStatusList(e.value)
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
+            setSelectedSupplyStatusList(e.value);
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
         }
         else if (val === 'shortage') {
-            setSelectedShortageList(e.value)
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setSelectedShortageList(e.value);
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
-        props.handleFilterProductCalculation(KPICalculation([...filterList]))
-
+        props.handleFilterProductCalculation(KPICalculation([...filterList]));
     }
 
     const selctionFilterColumnList = (filterList) => {
+        // update the filter dropdown options of the other columns based on the current column selection
         if (currenFilterSelection === 'local_item_code') {
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
         else if (currenFilterSelection === 'market_status') {
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
         else if (currenFilterSelection === 'business_unit_name') {
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
         else if (currenFilterSelection === 'product_rebate') {
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
         else if (currenFilterSelection === 'line_status') {
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
         else if (currenFilterSelection === 'fts_risk') {
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
         else if (currenFilterSelection === 'ncp_cogs') {
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
         else if (currenFilterSelection === 'supply_status') {
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setShortageList(filterColumnDropDown(filterList, 'shortage'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
         }
         else if (currenFilterSelection === 'shortage') {
-            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'))
-            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'))
-            setBuList(filterColumnDropDown(filterList, 'business_unit_name'))
-            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'))
-            setFtsList(filterColumnDropDown(filterList, 'fts_risk'))
-            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'))
-            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'))
-            setSupplyList(filterColumnDropDown(filterList, 'supply_status'))
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
-        
-
     }
 
     const customColumFilter = (info) => {
-
+        //custom template for filter dropdowns bsaed on type of colum
         if (info['field'] === 'local_item_code') {
             return (<MultiSelect value={selectedLocalItemlist} options={localItemList}
                 maxSelectedLabels={1} style={{ width: '2px', height: '44px' }} optionLabel="header"
@@ -503,48 +496,52 @@ function ViewDataTable(props) {
         }
     }
 
-    function numberFormatter(cellValue,type){
+    function numberFormatter(cellValue,type) {
+        // returns formatted string of number based on its type- currency, quantity, percent or negative
         if (cellValue === null || cellValue === undefined || cellValue === "")
-        return cellValue;
+            return cellValue;
 
         let result = "";
-        let isNegative = cellValue<0?true:false;
+        let isNegative = cellValue < 0 ? true : false;
 
         if (type === undefined){
             return cellValue;
         }
         else if (type === "currency"){
-            result = cellValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' })
+            result = cellValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
         }
         else if (type === "quantity"){
-            result = Math.round(cellValue).toLocaleString('en-US')
+            result = Math.round(cellValue).toLocaleString('en-US');
         }
         else if (type === "percent"){
-            result = String(cellValue)+"%"
+            result = String(cellValue)+"%";
         }
 
         if (isNegative){
             result = result.slice(1);
             result = "("+result+")";
         }
-
         return result;
     }
 
-    function getColumnHeader(keyName, header){
+    function getColumnHeader(keyName, header) {
+        //return column header based on whether filter is applied on it or not. If yes, append a reset icon with it.
         let temp = filterSelectionList[`${keyName.toString()}`]
         if (!temp || temp.length === 0){
             return <span>{header.toUpperCase()}</span>
         }
         else {
-            return <span>{header.toUpperCase()}<br/>
-            <i className="pi pi-undo" style={{ fontSize:"0.85rem", cursor:"pointer" }} onClick={()=>{
-                columnFilterFunction({value:[]},keyName)
-            }} />
-        </span>
+            return <span>
+                        {header.toUpperCase()}
+                        <br/>
+                        <i className="pi pi-undo" style={{ fontSize:"0.85rem", cursor:"pointer" }} onClick={()=>{
+                            columnFilterFunction({value:[]},keyName)
+                        }} />
+                </span>
         }
     }
 
+    //columns for product details header
     const columnProductDetailList = value.length > 0 ? selectedColumns?.map(k => {
         return (
             <Column key={k.field} field={k.field}
@@ -559,8 +556,9 @@ function ViewDataTable(props) {
                 }}
             />
         )
-    }) : null
+    }) : null;
 
+    //columns for bid details header
     const columnCurrentBidDetailList = value.length > 0 ? props.type.excel_config.current_bid_details?.map(k => {
         return (
             <Column key={k.field} field={k.field}
@@ -572,8 +570,9 @@ function ViewDataTable(props) {
                 }}
                 sortable={k.sortable === undefined ? false : true}
             />)
-    }) : null
+    }) : null;
 
+    //columns for user input header
     const columnUserInputDetailList = value.length > 0 ? props.type.excel_config.user_input?.map(k => {
         return (
             <Column key={k.field} field={k.field}
@@ -587,8 +586,9 @@ function ViewDataTable(props) {
                     return numberFormatter(rowData[k.field],k.type)
                 }}
             />)
-    }) : null
+    }) : null;
 
+    //columns for calculated fields header
     const columnCalculatedDetailList = value.length > 0 ? props.type.excel_config.calculated_fields?.map(k => {
         return (
             <Column key={k.field} field={k.field}
@@ -602,8 +602,9 @@ function ViewDataTable(props) {
                     return numberFormatter(rowData[k.field],k.type)
                 }}
             />)
-    }) : null
+    }) : null;
 
+    //columns for user comments header
     const columnUserCommentDetailList = value.length > 0 ? props.type.excel_config.user_comments?.map(k => {
         return (
             <Column key={k.field} field={k.field}
@@ -618,198 +619,203 @@ function ViewDataTable(props) {
                     return numberFormatter(rowData[k.field],k.type)
                 }}
             />)
-    }) : null
+    }) : null;
 
     const onEditorValueChange = (props, val) => {
-        let upd = [...props.value]
+        //update the table records after editing
+        let upd = [...props.value];
         upd[props.rowIndex][props.field] = val;
-        setValue(upd)
+        setValue(upd);
     }
 
     const calculationField = (productData) => {
+        //sets the calculated fields for each record in the table
         productData.forEach(p => {
             // Setting default Net Bid Price (after rebates) to List Price (also called Chemist List Price or CLP)
             // If a 'New' Bid Price is entered in User Input field, provided the 'new' value is not blank AND is different from default value List Price it is 'set'
             let contractPrice;
             if (p['list_price'] !== p['new_contract_price'] && p['new_contract_price'] !== null) {
-                contractPrice = p['new_contract_price']
+                contractPrice = p['new_contract_price'];
             } else if(p['list_price'] !== null){
-                contractPrice = p['list_price']
+                contractPrice = p['list_price'];
             } else{
-                contractPrice = 0
+                contractPrice = 0;
             }
 
-            p['net_contract_price'] = contractPrice === 0 ? 0: parseFloat((contractPrice - p['rebate_value']).toFixed(2))
-            p['total_revenue'] = contractPrice === 0 ? 0: parseFloat((p['net_contract_price'] * p['annual_usage_volume']).toFixed(2))
-            p['margin_msp'] = p['net_contract_price'] === 0 || p['msp'] === null ? null: parseFloat((((p['net_contract_price'] - p['msp']) / p['net_contract_price']) * 100).toFixed(2))
-            p['total_margin'] = p['net_contract_price'] === 0 || p['msp'] === null ? null : parseFloat(((p['net_contract_price'] - p['msp']) * p['annual_usage_volume']).toFixed(2))
-            p['discount_to_clp'] = p['net_contract_price'] === 0 || p['list_price'] === null || p['list_price'] === 0 ? null : parseFloat(((1 - (p['net_contract_price'] / p['list_price'])) * 100).toFixed(2))
-            p['fts_risk'] = p['discount_to_clp'] > 40 ? "Yes" : "No"
-            p['bid_kam'] = p['net_contract_price'] >= p['kams_floor_price'] ? "Yes" : "No"
+            p['net_contract_price'] = contractPrice === 0 ? 0: parseFloat((contractPrice - p['rebate_value']).toFixed(2));
+            p['total_revenue'] = contractPrice === 0 ? 0: parseFloat((p['net_contract_price'] * p['annual_usage_volume']).toFixed(2));
+            p['margin_msp'] = p['net_contract_price'] === 0 || p['msp'] === null ? null: parseFloat((((p['net_contract_price'] - p['msp']) / p['net_contract_price']) * 100).toFixed(2));
+            p['total_margin'] = p['net_contract_price'] === 0 || p['msp'] === null ? null : parseFloat(((p['net_contract_price'] - p['msp']) * p['annual_usage_volume']).toFixed(2));
+            p['discount_to_clp'] = p['net_contract_price'] === 0 || p['list_price'] === null || p['list_price'] === 0 ? null : parseFloat(((1 - (p['net_contract_price'] / p['list_price'])) * 100).toFixed(2));
+            p['fts_risk'] = p['discount_to_clp'] > 40 ? "Yes" : "No";
+            p['bid_kam'] = p['net_contract_price'] >= p['kams_floor_price'] ? "Yes" : "No";
 
             if ( p['net_contract_price'] !== null && p['cost_gmx_current_year'] !== null && p['net_contract_price'] < p['cost_gmx_current_year']) {
-                p['ncp_cogs'] = "Red"
+                p['ncp_cogs'] = "Red";
             }
             else if (p['net_contract_price'] === null || p['net_contract_price'] ===0){
-                p['ncp_cogs'] = "Net Bid Price not defined"
+                p['ncp_cogs'] = "Net Bid Price not defined";
             }
             else if (p['cost_gmx_current_year'] ===null ){
-                p['ncp_cogs'] = "CoGS Not Found"
+                p['ncp_cogs'] = "CoGS Not Found";
             }
             else if (p['msp'] === null){
-                p['ncp_cogs'] = "MSP Not Found"
+                p['ncp_cogs'] = "MSP Not Found";
             }            
             else if (p['net_contract_price'] >= p['cost_gmx_current_year'] && p['net_contract_price'] < p['msp']) {
-                p['ncp_cogs'] = "Yellow"
+                p['ncp_cogs'] = "Yellow";
             }
             else if (p['net_contract_price'] >= p['msp'] && p['net_contract_price'] > p['cost_gmx_current_year']) {
-                p['ncp_cogs'] = "Green"
+                p['ncp_cogs'] = "Green";
             }
             
         })
-        return productData
+        return productData;
     }
 
     const onEditorComplete = (editorProps, val) => {
+        //function that is executed after enter key is pressed after the edit
         if (editorProps.field === 'rebate_value' || editorProps.field === 'rebate_percentage') {
-            let upd = [...value]
+            let upd = [...value];
             let contractPrice;
             if (isNaN(parseFloat(val)) === true) {
-                upd[editorProps.rowIndex]['rebate_percentage'] = null
-                upd[editorProps.rowIndex]['rebate_value'] = null
+                //check for non numerical values
+                upd[editorProps.rowIndex]['rebate_percentage'] = null;
+                upd[editorProps.rowIndex]['rebate_value'] = null;
             } else {
-                val = val.replaceAll(",", "")
+                val = val.replaceAll(",", "");
                 if (editorProps.field === 'rebate_value') {
                     if (upd[editorProps.rowIndex]['list_price'] !== upd[editorProps.rowIndex]['new_contract_price'] && upd[editorProps.rowIndex]['new_contract_price'] !== null) {
-                        contractPrice = upd[editorProps.rowIndex]['new_contract_price']
+                        contractPrice = upd[editorProps.rowIndex]['new_contract_price'];
                     } else if(upd[editorProps.rowIndex]['list_price']!== null){
-                        contractPrice = upd[editorProps.rowIndex]['list_price']
+                        contractPrice = upd[editorProps.rowIndex]['list_price'];
                     }
                     else {
-                        contractPrice = 0
+                        contractPrice = 0;
                     }
-                    upd[editorProps.rowIndex]['rebate_percentage'] = contractPrice === 0 || contractPrice === null ? null: parseFloat(((parseFloat(val) / contractPrice) * 100).toFixed(2))
+                    upd[editorProps.rowIndex]['rebate_percentage'] = contractPrice === 0 || contractPrice === null ? null: parseFloat(((parseFloat(val) / contractPrice) * 100).toFixed(2));
 
                 } else if (editorProps.field === 'rebate_percentage') {
                     if (upd[editorProps.rowIndex]['list_price'] !== upd[editorProps.rowIndex]['new_contract_price'] && upd[editorProps.rowIndex]['new_contract_price'] !== null) {
-                        contractPrice = upd[editorProps.rowIndex]['new_contract_price']
+                        contractPrice = upd[editorProps.rowIndex]['new_contract_price'];
                     } else if(upd[editorProps.rowIndex]['list_price']!==null){
-                        contractPrice = upd[editorProps.rowIndex]['list_price']
+                        contractPrice = upd[editorProps.rowIndex]['list_price'];
                     }
                     else{
-                        contractPrice = 0
+                        contractPrice = 0;
                     }
-                    upd[editorProps.rowIndex]['rebate_value'] = contractPrice === 0 || contractPrice === null ? null: parseFloat((parseFloat(val) * (contractPrice / 100)).toFixed(2))
+                    upd[editorProps.rowIndex]['rebate_value'] = contractPrice === 0 || contractPrice === null ? null: parseFloat((parseFloat(val) * (contractPrice / 100)).toFixed(2));
                 }
             }
 
-            upd[editorProps.rowIndex]['net_contract_price'] = contractPrice === 0 ? 0: upd[editorProps.rowIndex]['rebate_type'] === 'Flat Percentage' ? parseFloat((contractPrice - (parseInt(val) / 100 * contractPrice)).toFixed(2)) : parseFloat((contractPrice - (parseFloat(val))).toFixed(2))
-            upd[editorProps.rowIndex]['total_revenue'] = parseFloat((upd[editorProps.rowIndex]['net_contract_price'] * upd[editorProps.rowIndex]['annual_usage_volume']).toFixed(2))
-            upd[editorProps.rowIndex]['margin_msp'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['msp'] === null ? null: parseFloat((((upd[editorProps.rowIndex]['net_contract_price'] - upd[editorProps.rowIndex]['msp']) / upd[editorProps.rowIndex]['net_contract_price']) * 100).toFixed(2))
-            upd[editorProps.rowIndex]['total_margin'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['msp'] === null ? null : parseFloat(((upd[editorProps.rowIndex]['net_contract_price'] - upd[editorProps.rowIndex]['msp']) * upd[editorProps.rowIndex]['annual_usage_volume']).toFixed(2))
-            upd[editorProps.rowIndex]['discount_to_clp'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['list_price'] === null || upd[editorProps.rowIndex]['list_price'] === 0 ? null : parseFloat(((1 - (upd[editorProps.rowIndex]['net_contract_price'] / upd[editorProps.rowIndex]['list_price'])) * 100).toFixed(2))
-            upd[editorProps.rowIndex]['fts_risk'] = upd[editorProps.rowIndex]['discount_to_clp'] > 40 ? "Yes" : "No"
-            upd[editorProps.rowIndex]['bid_kam'] = upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['kams_floor_price'] ? "Yes" : "No"
+            upd[editorProps.rowIndex]['net_contract_price'] = contractPrice === 0 ? 0: upd[editorProps.rowIndex]['rebate_type'] === 'Flat Percentage' ? parseFloat((contractPrice - (parseInt(val) / 100 * contractPrice)).toFixed(2)) : parseFloat((contractPrice - (parseFloat(val))).toFixed(2));
+            upd[editorProps.rowIndex]['total_revenue'] = parseFloat((upd[editorProps.rowIndex]['net_contract_price'] * upd[editorProps.rowIndex]['annual_usage_volume']).toFixed(2));
+            upd[editorProps.rowIndex]['margin_msp'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['msp'] === null ? null: parseFloat((((upd[editorProps.rowIndex]['net_contract_price'] - upd[editorProps.rowIndex]['msp']) / upd[editorProps.rowIndex]['net_contract_price']) * 100).toFixed(2));
+            upd[editorProps.rowIndex]['total_margin'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['msp'] === null ? null : parseFloat(((upd[editorProps.rowIndex]['net_contract_price'] - upd[editorProps.rowIndex]['msp']) * upd[editorProps.rowIndex]['annual_usage_volume']).toFixed(2));
+            upd[editorProps.rowIndex]['discount_to_clp'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['list_price'] === null || upd[editorProps.rowIndex]['list_price'] === 0 ? null : parseFloat(((1 - (upd[editorProps.rowIndex]['net_contract_price'] / upd[editorProps.rowIndex]['list_price'])) * 100).toFixed(2));
+            upd[editorProps.rowIndex]['fts_risk'] = upd[editorProps.rowIndex]['discount_to_clp'] > 40 ? "Yes" : "No";
+            upd[editorProps.rowIndex]['bid_kam'] = upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['kams_floor_price'] ? "Yes" : "No";
 
             if ( upd[editorProps.rowIndex]['net_contract_price'] !== null && upd[editorProps.rowIndex]['cost_gmx_current_year'] !== null && upd[editorProps.rowIndex]['net_contract_price'] < upd[editorProps.rowIndex]['cost_gmx_current_year']) {
-                upd[editorProps.rowIndex]['ncp_cogs'] = "Red"
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Red";
             }
             else if (upd[editorProps.rowIndex]['net_contract_price'] === null || upd[editorProps.rowIndex]['net_contract_price'] ===0){
-                upd[editorProps.rowIndex]['ncp_cogs'] = "Net Bid Price not defined"
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Net Bid Price not defined";
             }
-            else if (upd[editorProps.rowIndex]['cost_gmx_current_year'] ===null ){
-                upd[editorProps.rowIndex]['ncp_cogs'] = "CoGS Not Found"
+            else if (upd[editorProps.rowIndex]['cost_gmx_current_year'] === null ){
+                upd[editorProps.rowIndex]['ncp_cogs'] = "CoGS Not Found";
             }
             else if (upd[editorProps.rowIndex]['msp'] === null){
-                upd[editorProps.rowIndex]['ncp_cogs'] = "MSP Not Found"
+                upd[editorProps.rowIndex]['ncp_cogs'] = "MSP Not Found";
             }
             else if (upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['cost_gmx_current_year'] && upd[editorProps.rowIndex]['net_contract_price'] < upd[editorProps.rowIndex]['msp']) {
-                upd[editorProps.rowIndex]['ncp_cogs'] = "Yellow"
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Yellow";
             }
             else if (upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['msp'] && upd[editorProps.rowIndex]['net_contract_price'] > upd[editorProps.rowIndex]['cost_gmx_current_year']) {
-                upd[editorProps.rowIndex]['ncp_cogs'] = "Green"
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Green";
             }
 
-            setMainData(upd)
-            setValue(upd)
-            dispatch(updateKPIStateToDispatchData(upd))
-            dispatch(changeStateToDispatchData(upd[editorProps.rowIndex]))
-            dispatch(SetAllListUpdate(upd[editorProps.rowIndex]))
+            setMainData(upd);
+            setValue(upd);
+            dispatch(updateKPIStateToDispatchData(upd));
+            dispatch(changeStateToDispatchData(upd[editorProps.rowIndex]));
+            dispatch(SetAllListUpdate(upd[editorProps.rowIndex]));
         }
         else if (editorProps.field === 'comments' || editorProps.field === 'line_status' ||
             editorProps.field === 'product_rebate' || editorProps.field === 'rebate_type' ||
             editorProps.field === 'intent_to_bid' || editorProps.field === 'bid_category') {
-            let upd = [...editorProps.value]
+            let upd = [...editorProps.value];
             if (editorProps.field === 'intent_to_bid' && val === 'No') {
-                upd[editorProps.rowIndex]['new_contract_price'] = upd[editorProps.rowIndex]['list_price']
+                upd[editorProps.rowIndex]['new_contract_price'] = upd[editorProps.rowIndex]['list_price'];
                 // Prevents rebate from being captured if 'No' Intent to Bid, highest possible price i.e. Chemist List Price is used
-                upd[editorProps.rowIndex]['product_rebate'] = 'No'
-                upd[editorProps.rowIndex]['rebate_type'] = null
-                upd[editorProps.rowIndex]['rebate_value'] = null
-                upd[editorProps.rowIndex]['rebate_percentage'] = null  
+                upd[editorProps.rowIndex]['product_rebate'] = 'No';
+                upd[editorProps.rowIndex]['rebate_type'] = null;
+                upd[editorProps.rowIndex]['rebate_value'] = null;
+                upd[editorProps.rowIndex]['rebate_percentage'] = null  ;
             }
-            upd[editorProps.rowIndex][editorProps.field] = val
-            setMainData(upd)
-            setValue(upd)
-            dispatch(updateKPIStateToDispatchData(upd))
-            dispatch(changeStateToDispatchData(upd[editorProps.rowIndex]))
-            dispatch(SetAllListUpdate(upd[editorProps.rowIndex]))
+            upd[editorProps.rowIndex][editorProps.field] = val;
+            setMainData(upd);
+            setValue(upd);
+            dispatch(updateKPIStateToDispatchData(upd));
+            dispatch(changeStateToDispatchData(upd[editorProps.rowIndex]));
+            dispatch(SetAllListUpdate(upd[editorProps.rowIndex]));
 
             //update dropdown values for global Intent to Bid filter
             if (editorProps.field === "intent_to_bid"){
                 let uniqueIntentValues = Array.from(new Set(upd.map(({ intent_to_bid }) => intent_to_bid)));
-                sessionStorage.setItem("intentToBidValues",JSON.stringify(uniqueIntentValues))
-                props.intentToBidUpdater(prevValue => prevValue + 1)
+                sessionStorage.setItem("intentToBidValues",JSON.stringify(uniqueIntentValues));
+                props.intentToBidUpdater(prevValue => prevValue + 1);
             }
         }
 
         else if (editorProps.field === 'new_contract_price') {
 
-            let upd = [...editorProps.value]
-            let newContractValue
+            let upd = [...editorProps.value];
+            let newContractValue;
             if (isNaN(parseFloat(val)) === true && upd[editorProps.rowIndex]['list_price'] !== null){
                 // If 'New' Bid Price is not defined, 'Net' Bid Price (after rebates) is set to 'Chemist List Price (CLP)', by default
-                newContractValue = upd[editorProps.rowIndex]['list_price']
+                newContractValue = upd[editorProps.rowIndex]['list_price'];
             } else {
-                upd[editorProps.rowIndex][editorProps.field] = parseFloat(val.replaceAll(",", "")) || null
-                newContractValue = parseFloat(val.replaceAll(",", "")) || null
+                upd[editorProps.rowIndex][editorProps.field] = parseFloat(val.replaceAll(",", "")) || null;
+                newContractValue = parseFloat(val.replaceAll(",", "")) || null;
             }
-            upd[editorProps.rowIndex]['net_contract_price'] = newContractValue === null|| newContractValue === 0 ? 0: parseFloat((newContractValue - (upd[editorProps.rowIndex]['rebate_value'])).toFixed(2))
-            upd[editorProps.rowIndex]['total_revenue'] = parseFloat((upd[editorProps.rowIndex]['net_contract_price'] * upd[editorProps.rowIndex]['annual_usage_volume']).toFixed(2))
-            upd[editorProps.rowIndex]['margin_msp'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['msp'] === null ? null : parseFloat((((upd[editorProps.rowIndex]['net_contract_price'] - upd[editorProps.rowIndex]['msp']) / upd[editorProps.rowIndex]['net_contract_price']) * 100).toFixed(2))
-            upd[editorProps.rowIndex]['total_margin'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['msp'] === null ? null : parseFloat(((upd[editorProps.rowIndex]['net_contract_price'] - upd[editorProps.rowIndex]['msp']) * upd[editorProps.rowIndex]['annual_usage_volume']).toFixed(2))
-            upd[editorProps.rowIndex]['discount_to_clp'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['list_price'] === null || upd[editorProps.rowIndex]['list_price'] === 0 ? null : parseFloat(((1 - (upd[editorProps.rowIndex]['net_contract_price'] / upd[editorProps.rowIndex]['list_price'])) * 100).toFixed(2))
-            upd[editorProps.rowIndex]['fts_risk'] = upd[editorProps.rowIndex]['discount_to_clp'] > 40 ? "Yes" : "No"
-            upd[editorProps.rowIndex]['bid_kam'] = upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['kams_floor_price'] ? "Yes" : "No"
+            upd[editorProps.rowIndex]['net_contract_price'] = newContractValue === null|| newContractValue === 0 ? 0: parseFloat((newContractValue - (upd[editorProps.rowIndex]['rebate_value'])).toFixed(2));
+            upd[editorProps.rowIndex]['total_revenue'] = parseFloat((upd[editorProps.rowIndex]['net_contract_price'] * upd[editorProps.rowIndex]['annual_usage_volume']).toFixed(2));
+            upd[editorProps.rowIndex]['margin_msp'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['msp'] === null ? null : parseFloat((((upd[editorProps.rowIndex]['net_contract_price'] - upd[editorProps.rowIndex]['msp']) / upd[editorProps.rowIndex]['net_contract_price']) * 100).toFixed(2));
+            upd[editorProps.rowIndex]['total_margin'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['msp'] === null ? null : parseFloat(((upd[editorProps.rowIndex]['net_contract_price'] - upd[editorProps.rowIndex]['msp']) * upd[editorProps.rowIndex]['annual_usage_volume']).toFixed(2));
+            upd[editorProps.rowIndex]['discount_to_clp'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['list_price'] === null || upd[editorProps.rowIndex]['list_price'] === 0 ? null : parseFloat(((1 - (upd[editorProps.rowIndex]['net_contract_price'] / upd[editorProps.rowIndex]['list_price'])) * 100).toFixed(2));
+            upd[editorProps.rowIndex]['fts_risk'] = upd[editorProps.rowIndex]['discount_to_clp'] > 40 ? "Yes" : "No";
+            upd[editorProps.rowIndex]['bid_kam'] = upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['kams_floor_price'] ? "Yes" : "No";
 
             if ( upd[editorProps.rowIndex]['net_contract_price'] !== null && upd[editorProps.rowIndex]['cost_gmx_current_year'] !== null && upd[editorProps.rowIndex]['net_contract_price'] < upd[editorProps.rowIndex]['cost_gmx_current_year']) {
-                upd[editorProps.rowIndex]['ncp_cogs'] = "Red"
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Red";
             }
             else if (upd[editorProps.rowIndex]['net_contract_price'] === null || upd[editorProps.rowIndex]['net_contract_price'] ===0){
-                upd[editorProps.rowIndex]['ncp_cogs'] = "Net Bid Price not defined"
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Net Bid Price not defined";
             }
             else if (upd[editorProps.rowIndex]['cost_gmx_current_year'] ===null ){
-                upd[editorProps.rowIndex]['ncp_cogs'] = "CoGS Not Found"
+                upd[editorProps.rowIndex]['ncp_cogs'] = "CoGS Not Found";
             }
             else if (upd[editorProps.rowIndex]['msp'] === null){
-                upd[editorProps.rowIndex]['ncp_cogs'] = "MSP Not Found"
+                upd[editorProps.rowIndex]['ncp_cogs'] = "MSP Not Found";
             }
             else if (upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['cost_gmx_current_year'] && upd[editorProps.rowIndex]['net_contract_price'] < upd[editorProps.rowIndex]['msp']) {
-                upd[editorProps.rowIndex]['ncp_cogs'] = "Yellow"
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Yellow";
             }
             else if (upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['msp'] && upd[editorProps.rowIndex]['net_contract_price'] > upd[editorProps.rowIndex]['cost_gmx_current_year']) {
-                upd[editorProps.rowIndex]['ncp_cogs'] = "Green"
+                upd[editorProps.rowIndex]['ncp_cogs'] = "Green";
             }
 
-            setMainData(upd)
-            setValue(upd)
-            dispatch(updateKPIStateToDispatchData(upd))
-            dispatch(changeStateToDispatchData(upd[editorProps.rowIndex]))
-            dispatch(SetAllListUpdate(upd[editorProps.rowIndex]))
+            setMainData(upd);
+            setValue(upd);
+            dispatch(updateKPIStateToDispatchData(upd));
+            dispatch(changeStateToDispatchData(upd[editorProps.rowIndex]));
+            dispatch(SetAllListUpdate(upd[editorProps.rowIndex]));
         }
     }
 
     const inputTextEditor = (props) => {
+        //returns the type of editor based on column type - input field or dropdown
         if (props.field === "product_rebate" && props.rowData['intent_to_bid'] === 'Yes') {
             return <Dropdown value={props.rowData['product_rebate']} options={statuses} optionLabel="label"
                 optionValue="value" onChange={(e) => onEditorComplete(props, e.value)}
@@ -854,8 +860,6 @@ function ViewDataTable(props) {
                 onValueChange={(e) => onEditorValueChange(props, e.value)}
             />
         }
-
-
         else if (props.field === "rebate_value" && (props.rowData['rebate_type'] === 'Flat Percentage'
             || props.rowData['rebate_type'] === 'Flat Value') &&
             (props.rowData['product_rebate'] === 'Yes' || props.rowData['product_rebate'] === 'No')
@@ -896,7 +900,6 @@ function ViewDataTable(props) {
             (props.rowData['intent_to_bid'] === null || props.rowData['intent_to_bid'] === 'No')) {
             return <span >{props.rowData['rebate_type']}</span>
         }
-
         else if (props.field === "line_status") {
             return <Dropdown value={props.rowData['line_status']} options={lineData} optionLabel="label" optionValue="value"
                 onChange={(e) => onEditorComplete(props, e.value)} style={{ width: '100%' }} placeholder="Select a Status"
@@ -933,10 +936,11 @@ function ViewDataTable(props) {
     }
 
     const filterColumns = (e) => {
+        //filter function to update the selected product details columns
         let selectedColumns = e.value;
         let orderedSelectedColumns = props.type.excel_config.product_details.list.filter(col => selectedColumns.some(sCol => sCol.field === col.field));
-        sessionStorage.setItem("selectedProductDetailsColumns",JSON.stringify(orderedSelectedColumns))
-        setSelectedColumns(orderedSelectedColumns)
+        sessionStorage.setItem("selectedProductDetailsColumns",JSON.stringify(orderedSelectedColumns));
+        setSelectedColumns(orderedSelectedColumns);
     }
 
     const filterStatus = <>
@@ -944,7 +948,7 @@ function ViewDataTable(props) {
             maxSelectedLabels={1} optionLabel="header" onChange={filterColumns}
             filter className="filter-dropdown"
         />
-    </>
+    </>;
 
     let headerGroup = <ColumnGroup>
         <Row >
@@ -990,16 +994,17 @@ function ViewDataTable(props) {
     }
 
     const clearCustomFilter = () => {
-        dispatch(resetFlag(false))
-        setValue(mainData)
-        filterSelectionList = []
-        props.handleFilterProductCalculation(KPICalculation(stateObj.UserRecord.userRecord))
-        sessionStorage.removeItem("filterGlobal")
-        sessionStorage.removeItem("filter")
+        //function to clear all applied filters.
+        dispatch(resetFlag(false));
+        setValue(mainData);
+        filterSelectionList = [];
+        props.handleFilterProductCalculation(KPICalculation(stateObj.UserRecord.userRecord));
+        sessionStorage.removeItem("filterGlobal");
+        sessionStorage.removeItem("filter");
     }
 
     const cellStyleRow = (rowData, options) => {
-
+        //return the styles for cells of different columns
         if (options.rowData['net_contract_price'] <= 0) {
             if (options.field === 'net_contract_price' || 
                 options.field === 'total_revenue' ||
@@ -1011,10 +1016,10 @@ function ViewDataTable(props) {
                 }
             }
             else if (options.field === 'fts_risk') {
-            return {
-                'error-show-dropdown': true
+                return {
+                    'error-show-dropdown': true
+                }
             }
-        }
         }
 
         if (options.rowData['list_price'] === null || options.rowData['list_price'] === 0) {
@@ -1101,11 +1106,12 @@ function ViewDataTable(props) {
     }
 
     const onSelectedResetValue = (val) => {
-        setSelectedValue(val)
-        props.onSelectedResetItem(val)
+        setSelectedValue(val); //update selected rows which can be reset
+        props.onSelectedResetItem(val);
     }
 
     const onCustomPage1 = (event) => {
+        //store the pagination object in sessionStorage
         setFirst1(event.first);
         setRows2(event.rows);
         setCurrentPage(event.page + 1);
@@ -1118,12 +1124,14 @@ function ViewDataTable(props) {
     }
 
     const onPageInputKeyDown = (event, options) => {
+        //check validation for correct page number input
         if (event.key === 'Enter') {
             const page = parseInt(currentPage);
             if (page < 0 || page > options.totalPages) {
                 setPageInputTooltip(`Value must be between 1 and ${options.totalPages}.`);
             }
             else {
+                //update page
                 const first = currentPage ? options.rows * (page - 1) : 0;
                 setFirst1(first);
                 let storePaginationObj = {
@@ -1141,6 +1149,7 @@ function ViewDataTable(props) {
         setCurrentPage(event.target.value);
     }
 
+    //template for pagination bar display
     const template2 = {
         layout: 'PrevPageLink CurrentPageReport NextPageLink RowsPerPageDropdown',
         'RowsPerPageDropdown': (options) => {
@@ -1171,16 +1180,18 @@ function ViewDataTable(props) {
 
 
     const onSorting = (e) => {
-        setDefaultSelectionSorting(e)
-        let sortArr = []
-        sessionStorage.setItem("sorting", JSON.stringify(e))
+        //updates the table based on selected sort value of the column
+        setDefaultSelectionSorting(e);
+        let sortArr = [];
+        sessionStorage.setItem("sorting", JSON.stringify(e));
         if (e.sortField === null) {
             sortArr = value.sort((a, b) => {
                 return a['id_18char__opportunity'].localeCompare(b['id_18char__opportunity']) || a['local_item_code'].localeCompare(b['local_item_code'])
             })
-            setValue(sortArr)
+            setValue(sortArr);
         }
         else {
+            //string comparison
             if (e.sortField === 'local_product_description' || e.sortField === 'business_unit_name') {
                 sortArr = value.sort((a, b) => {
                     if (e.sortOrder === -1) {
@@ -1189,10 +1200,11 @@ function ViewDataTable(props) {
                     else {
                         return a[e.sortField].localeCompare(b[e.sortField])
                     }
-                })
-                setValue(sortArr)
+                });
+                setValue(sortArr);
             }
             else {
+                //numerical comparison
                 sortArr = value.sort((a, b) => {
                     if (e.sortOrder === -1) {
                         return b[e.sortField] - a[e.sortField]
@@ -1200,11 +1212,12 @@ function ViewDataTable(props) {
                     else {
                         return a[e.sortField] - b[e.sortField]
                     }
-                })
-                setValue(sortArr)
+                });
+                setValue(sortArr);
             }
         }
     }
+
     return (
         <div>
             <div className="viewtable">
@@ -1234,7 +1247,6 @@ function ViewDataTable(props) {
                             </Column>)
 
                         }
-
                         {columnProductDetailList}
                         {columnCurrentBidDetailList}
                         {columnUserInputDetailList}
@@ -1247,4 +1259,4 @@ function ViewDataTable(props) {
     )
 }
 
-export default ViewDataTable
+export default ViewDataTable;

@@ -6,7 +6,7 @@ import 'primereact/resources/primereact.min.css'
 import 'primeicons/primeicons.css'
 
 /**
- * @returns Thus is totally Functional Hook based application.
+ * @returns This is totally Functional Hook based application.
  * This is main component to run react js application
  */
 
@@ -27,7 +27,7 @@ function App() {
   useEffect(() => {
     setTimeout(() => {
       // setDataikuValue(window.dataiku.defaultAPIKey)
-      setDataikuValue("testingOnLocal")
+      setDataikuValue("testingOnLocal") // comment this line for deploying on DSS and uncomment the above one.
     }, 1000);
 
   }, [])

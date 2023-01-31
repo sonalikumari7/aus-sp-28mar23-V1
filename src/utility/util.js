@@ -1,5 +1,5 @@
 
-// This function show filter column based on current column selection
+// This function returns column filter dropdowns based on input data
 export const filterColumnDropDown = (list, keyName) => {
     let resultFilter = [...new Set((list)
         .map(r => r[keyName]))]
@@ -13,90 +13,85 @@ export const filterColumnDropDown = (list, keyName) => {
     return resultFilter;
 }
 
-// This function filtering data based on multiple column selection value selection 
+// This function filters data based on input selection list of applied filter using session item "filter"
 export const filteringColumnSelection = (data, filtercolumnlist) => {
-    let expression = sessionStorage.getItem("filterGlobal") || "";
-    // let expression ="";
+    let expression = sessionStorage.getItem("filterGlobal") || ""; // check if any global filters are applied or not
     if (expression && expression.length !== 0){
         expression += " && ";
     }
-    let filterList = []
+    let filterList = [];
     for (let i in filtercolumnlist) {
+        //for each filter, evaluate an expression and append it
         expression += "(";
         filtercolumnlist[i].forEach((r, index) => {
             expression += "item['" + i + "'] === '" + r["field"] + "'" +
                 (index === filtercolumnlist[i].length - 1 ? "" : " || ");
         });
-        expression += ") && "
+        expression += ") && ";
     }
     expression = expression.replaceAll("() &&", "").replaceAll("'Blank'", null).trim();
 
-    //  Create an expression for all selected Column value
     if (expression.endsWith("||") || expression.endsWith("&&")) {
         expression = expression.substring(0, expression.length - 2);
     }
 
     if (expression.length === 0) {
-        const tempExpression = sessionStorage.getItem("filter")
+        const tempExpression = sessionStorage.getItem("filter");
+        //chcek for already applied filters
         if (tempExpression === null) {
-            filterList = data
+            filterList = data;
             return filterList;
         }
         else {
-            filterList = data.filter(item => eval(tempExpression))
+            filterList = data.filter(item => eval(tempExpression));
             return filterList;
         }
     }
     else {
-        sessionStorage.setItem("filter", expression)
-        filterList = data.filter(item => eval(expression))
+        sessionStorage.setItem("filter", expression);
+        filterList = data.filter(item => eval(expression));
         return filterList;
     }
 }
 
-//to apply global filters on session item filterGlobal
+// This function filters data based on input selection list of global filters using session item "filterGlobal"
 export const filteringColumnSelectionGlobal = (data, filtercolumnlist) => {
     let expression = "";
-    // let expression = sessionStorage.getItem("filter") || "";
-    // if (expression && expression.length !== 0){
-    //     expression += " && ";
-    // }
-    let filterList = []
+    let filterList = [];
     for (let i in filtercolumnlist) {
         expression += "(";
         filtercolumnlist[i].forEach((r, index) => {
             expression += "item['" + i + "'] === '" + r["field"] + "'" +
                 (index === filtercolumnlist[i].length - 1 ? "" : " || ");
         });
-        expression += ") && "
+        expression += ") && ";
     }
     expression = expression.replaceAll("() &&", "").replaceAll("'Blank'", null).trim();
 
-    //  Create an expression for all selected Column value
     if (expression.endsWith("||") || expression.endsWith("&&")) {
         expression = expression.substring(0, expression.length - 2);
     }
 
     if (expression.length === 0) {
-        const tempExpression = sessionStorage.getItem("filterGlobal")
+        const tempExpression = sessionStorage.getItem("filterGlobal");
         if (tempExpression === null) {
-            filterList = data
+            filterList = data;
             return filterList;
         }
         else {
-            filterList = data.filter(item => eval(tempExpression))
+            filterList = data.filter(item => eval(tempExpression));
             return filterList;
         }
     }
     else {
-        sessionStorage.setItem("filterGlobal", expression)
-        filterList = data.filter(item => eval(expression))
+        sessionStorage.setItem("filterGlobal", expression);
+        filterList = data.filter(item => eval(expression));
         return filterList;
     }
 }
 
 /* 
- This function is calculate Total Revenue, Total Margin, Discount for  the Product details. 
+ This function is calculate Total Revenue, Total Margin, Overall Percentage and Discount for the Product details KPIs. 
  This is KPI result function
 */
 

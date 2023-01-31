@@ -18,35 +18,34 @@ import { filterColumnDropDown, filteringColumnSelection,filteringColumnSelection
 import { MultiSelect } from 'primereact/multiselect'
 
 
-var selectedResetValues = []
-var filterSelectionList = {};
+var selectedResetValues = []; //rows selected to reset
+var filterSelectionList = {}; //filters selected
 
 function ViewTabs() {
-    const [value, setValue] = useState(0);
+    const [value, setValue] = useState(0); //state to store selected tab
     const [open, setOpen] = useState(false);
     const [isValidation, setIsValidation] = useState(false);
-    const [isloading, setIsloading] = useState(false)
-    const updateStateInfo = useSelector(state => state);
+    const [isloading, setIsloading] = useState(false);
+    const updateStateInfo = useSelector(state => state); //state from store
     const [userName, setUserName] = useState(undefined);
-    const [warningMessage, setWarningMessage] = useState("")
-    const [btnDisableStatus, setBtnDisableStatus] = useState(true)
-    const [opportunityInfo, setOpportunityInfo] = useState({})
-    const [opportunityProductList, setOpportunityProductList] = useState([])
-    const [selectedOpportunityName, setSelectedOpportunityName] = useState([])
-    const [selectedResetValue, setSelectedResetValue] = useState([])
+    const [warningMessage, setWarningMessage] = useState("");
+    const [btnDisableStatus, setBtnDisableStatus] = useState(true);
+    const [opportunityInfo, setOpportunityInfo] = useState({});
+    const [opportunityProductList, setOpportunityProductList] = useState([]);
+    const [selectedOpportunityName, setSelectedOpportunityName] = useState([]);
+    const [selectedResetValue, setSelectedResetValue] = useState([]);
 
-    const [selectedBUList, setSelectedBUlist] = useState([])
-    const [selectedFCodeList, setSelectedFCodelist] = useState([])
-    const [selectedProductDescriptionList, setSelectedProductDescriptionlist] = useState([])
-    const [selectedMarketStatusList, setSelectedMarketStatuslist] = useState([])
-    const [selectedBrandMangerList, setSelectedBrandManagerlist] = useState([])
-    const [selectedIntentToBidList, setSelectedIntentToBidlist] = useState([])
-    const [countValidationError, setCountValidationError] = useState({ "bidErrorCount": null, "rebateValueErrorCount": null })
+    const [selectedBUList, setSelectedBUlist] = useState([]);
+    const [selectedFCodeList, setSelectedFCodelist] = useState([]);
+    const [selectedProductDescriptionList, setSelectedProductDescriptionlist] = useState([]);
+    const [selectedMarketStatusList, setSelectedMarketStatuslist] = useState([]);
+    const [selectedBrandMangerList, setSelectedBrandManagerlist] = useState([]);
+    const [selectedIntentToBidList, setSelectedIntentToBidlist] = useState([]);
+    const [countValidationError, setCountValidationError] = useState({ "bidErrorCount": null, "rebateValueErrorCount": null });
 
-    // const intentToBidUpdateCounter = useRef(0);
-    const [intentToBidUpdateCounter, setIntentToBidUpdateCounter] = useState(0)
+    const [intentToBidUpdateCounter, setIntentToBidUpdateCounter] = useState(0); //counter to update intent to bid dropdown values
 
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
 
     const [mainFilterList, setMainFilterList] = useState({
         'business_unit_name': [],
@@ -55,15 +54,14 @@ function ViewTabs() {
         'local_product_description': [],
         'brand_manager': [],
         'intent_to_bid': []
-    })
+    });
     const [filterBUList, setFilterBUList] = useState({
         "BUList": [],
         "LocalList": [],
         "MarketList": [],
         "FTSRisk": [],
         "NCPCogs": []
-    })
-
+    });
     const [productInfo, setProductInfo] = useState(
         {
             "total_revenue": 0,
@@ -71,9 +69,9 @@ function ViewTabs() {
             "overall_percentage": 0,
             "discount": 0
         }
-    )
+    );
 
-    //to dynamically update values of global intent to bid dropdown
+    //to dynamically update values of global intent to bid dropdown whenever the counter value increases
     useEffect(()=>{
         let uniqueIntentValues = JSON.parse(sessionStorage.getItem("intentToBidValues"));
         if (uniqueIntentValues){
@@ -87,9 +85,9 @@ function ViewTabs() {
         }
     },[intentToBidUpdateCounter])
 
-    //  This code for create Tab list
+    //  This code is for creating reusable data table component
     const TabPanel = (info) => {
-        const { index, type, type: { view } } = info
+        const { index, type, type: { view } } = info;
         return (
             <div>
                 {
@@ -113,74 +111,67 @@ function ViewTabs() {
     };
 
     const handleSelectedReset = (selectedItem) => {
-        selectedResetValues = selectedItem
-        setSelectedResetValue(selectedResetValues)
+        //update selected rows to be reset
+        selectedResetValues = selectedItem;
+        setSelectedResetValue(selectedResetValues);
     }
 
     const handleReset = () => {
         if (selectedResetValues.length > 0) {
-            setWarningMessage(`You have selected ${selectedResetValues.length} product's, Do you really want to reset data ?`)
+            setWarningMessage(`You have selected ${selectedResetValues.length} product's, Do you really want to reset data ?`);
         } else {
-            setWarningMessage('Are you sure, you want to reset data?')
+            setWarningMessage('Are you sure, you want to reset data?');
         }
         setOpen(true);
     }
 
     const handleRefresh = () => {
-        setIsloading(true)
+        //API call to refresh the data
+        setIsloading(true);
         dispatch(refreshData(selectedOpportunityName)).then(res => {
-            sessionStorage.removeItem("inputDetail")
+            sessionStorage.removeItem("inputDetail");
             setOpen(false);
-            selectedResetValues = []
-            fetchData(selectedOpportunityName)
-            toast.success("Sucessfully Refresh Data")
-            setIsloading(false)
+            selectedResetValues = [];
+            fetchData(selectedOpportunityName);
+            toast.success("Sucessfully Refresh Data");
+            setIsloading(false);
 
         }).catch(error => {
-            console.log("ERROR:", error)
-            toast.error("Failed to Reset data")
+            console.log("ERROR:", error);
+            toast.error("Failed to Reset data");
             setOpen(false);
-            setIsloading(false)
+            setIsloading(false);
         })
     }
 
     useEffect(() => {
-        // const checkFilterSelection = sessionStorage.getItem("filter")
-        // if (checkFilterSelection === null) {
-        //     sessionStorage.setItem("defaultFilter", "true")
-        //     setSelectedBUlist(
-        //         [{ "field": "Hospital", "header": "Hospital", "keyName": "business_unit_name" }]
-        //     )
-        //     setSelectedMarketStatuslist(
-        //         [{ "field": "Multi-Source", "header": "Multi-Source", "keyName": "market_status" }])
-        // }
-
+        //check if any record has been updated. if yes, update the sessionStorage and enable the reset button.
         if (updateStateInfo.UserRecord.updateRecords.length > 0) {
-            let tempInputData = JSON.parse(sessionStorage.getItem("inputDetail"))
+            let tempInputData = JSON.parse(sessionStorage.getItem("inputDetail"));
             if (tempInputData !== null) {
                 let uniqueList = Array.from([...tempInputData, ...updateStateInfo.UserRecord.updateRecords]
-                    .reduce((map, obj) => map.set(obj.id_18char__opportunity_product, obj), new Map()).values())
-                sessionStorage.setItem("inputDetail", JSON.stringify(uniqueList))
+                    .reduce((map, obj) => map.set(obj.id_18char__opportunity_product, obj), new Map()).values());
+                sessionStorage.setItem("inputDetail", JSON.stringify(uniqueList));
             } else {
-                sessionStorage.setItem("inputDetail", JSON.stringify(updateStateInfo.UserRecord.updateRecords))
+                sessionStorage.setItem("inputDetail", JSON.stringify(updateStateInfo.UserRecord.updateRecords));
             }
 
-            setProductInfo(KPICalculation(updateStateInfo.UserRecord.kpiData))
-            setBtnDisableStatus(false)
+            setProductInfo(KPICalculation(updateStateInfo.UserRecord.kpiData));
+            setBtnDisableStatus(false);
         } else {
-            setBtnDisableStatus(true)
+            setBtnDisableStatus(true);
         }
     }, [updateStateInfo])
 
     useEffect(() => {
-        let opp_id = window.location.pathname.split("/").pop()
+        let opp_id = window.location.pathname.split("/").pop();
         if (opp_id !== 'view') {
-            setSelectedOpportunityName(opp_id)
-            fetchUserName()
-            fetchData(opp_id)
+            setSelectedOpportunityName(opp_id);
+            fetchUserName();
+            fetchData(opp_id);
 
             //update global filter values if filter is already applied and update filterSelectionList
-            let tempFilters = sessionStorage.getItem("filter");
+            let tempFilters = sessionStorage.getItem("filterGlobal");
             if (tempFilters && tempFilters.length>0){
                 tempFilters = tempFilters.replaceAll("(","").replaceAll(")","").replaceAll("item[","").replaceAll("]","").replaceAll("'","").trimEnd().split(" && ");
                 let tempBuFilters = [];
@@ -190,7 +181,7 @@ function ViewTabs() {
                 let tempMarketStatusFilters = [];
                 let tempProductDescriptionFilters = [];
                 tempFilters.map(item=>{
-                    let [field,value] = item.split(" === ")
+                    let [field,value] = item.split(" === ");
                     
                     if (field === "brand_manager"){
                         tempBrandManagerFilters.push({
@@ -205,35 +196,35 @@ function ViewTabs() {
                             header:value,
                             keyName:field
                         });
-                        filterSelectionList[`${field.toString()}`] = tempMarketStatusFilters
+                        filterSelectionList[`${field.toString()}`] = tempMarketStatusFilters;
                     } else if (field === "business_unit_name"){
                         tempBuFilters.push({
                             field:value,
                             header:value,
                             keyName:field
                         });
-                        filterSelectionList[`${field.toString()}`] = tempBuFilters
+                        filterSelectionList[`${field.toString()}`] = tempBuFilters;
                     } else if (field === "local_item_code"){
                         tempFCodeFilters.push({
                             field:value,
                             header:value,
                             keyName:field
                         });
-                        filterSelectionList[`${field.toString()}`] = tempFCodeFilters
+                        filterSelectionList[`${field.toString()}`] = tempFCodeFilters;
                     } else if (field === "local_product_description"){
                         tempProductDescriptionFilters.push({
                             field:value,
                             header:value,
                             keyName:field
                         });
-                        filterSelectionList[`${field.toString()}`] = tempProductDescriptionFilters
+                        filterSelectionList[`${field.toString()}`] = tempProductDescriptionFilters;
                     } else if (field === "intent_to_bid"){
                         tempIntentToBidFilters.push({
                             field:value,
                             header:value,
                             keyName:field
                         });
-                        filterSelectionList[`${field.toString()}`] = tempIntentToBidFilters
+                        filterSelectionList[`${field.toString()}`] = tempIntentToBidFilters;
                     }
                 })
                 setSelectedBUlist([...tempBuFilters]);
@@ -248,42 +239,43 @@ function ViewTabs() {
 
     const fetchUserName = () => {
         dispatch(getUserInfo()).then(r => {
-            setUserName(r.Data)
+            setUserName(r.Data);
         }).catch(error => {
-            console.log("ERROR:", error)
+            console.log("ERROR:", error);
         })
     }
 
     function filterProductCalculation(info) {
-        setProductInfo(info)
+        setProductInfo(info);
     }
 
     function handleClose(value) {
         if (value === "yes") {
+            //reset the selected records
             const resetInfo = {
                 "id": selectedOpportunityName,
                 "data": selectedResetValues
-            }
+            };
 
-            setIsloading(true)
+            setIsloading(true);
             dispatch(resetData(resetInfo)).then(res => {
-                let tempInputData = JSON.parse(sessionStorage.getItem("inputDetail"))
+                let tempInputData = JSON.parse(sessionStorage.getItem("inputDetail"));
                 if (tempInputData !== null) {
-                    let uniqueList = tempInputData.filter(r => !selectedResetValues.some(p => p.id_18char__opportunity_product === r.id_18char__opportunity_product))
-                    sessionStorage.setItem("inputDetail", JSON.stringify(uniqueList))
+                    let uniqueList = tempInputData.filter(r => !selectedResetValues.some(p => p.id_18char__opportunity_product === r.id_18char__opportunity_product));
+                    sessionStorage.setItem("inputDetail", JSON.stringify(uniqueList));
                 }
                 setOpen(false);
-                selectedResetValues = []
-                setSelectedResetValue([]) //for reset counter value to be 0 after every reset
-                fetchData(selectedOpportunityName)
-                toast.success("Sucessfully Reset Data")
-                setIsloading(false)
+                selectedResetValues = [];
+                setSelectedResetValue([]); //for reset counter value to be 0 after every reset
+                fetchData(selectedOpportunityName);
+                toast.success("Sucessfully Reset Data");
+                setIsloading(false);
 
             }).catch(error => {
-                console.log("ERROR:", error)
-                toast.error("Failed to Reset data")
+                console.log("ERROR:", error);
+                toast.error("Failed to Reset data");
                 setOpen(false);
-                setIsloading(false)
+                setIsloading(false);
             })
         }
         else {
@@ -293,59 +285,60 @@ function ViewTabs() {
 
 
     const handleSave = () => {
-        let data = sessionStorage.getItem("inputDetail")
-        setIsloading(true)
+        //API call to save updated records
+        let data = sessionStorage.getItem("inputDetail");
+        setIsloading(true);
         dispatch(updateInfoRecords({ "data": JSON.parse(data) })).then(res => {
-            toast.success("Sucessfully Update Data")
-            sessionStorage.removeItem("inputDetail")
-            setIsloading(false)
+            toast.success("Sucessfully Update Data");
+            sessionStorage.removeItem("inputDetail");
+            setIsloading(false);
         }).catch(error => {
-            console.log(error)
-            toast.error("Failed to Update data")
-            setIsloading(false)
+            console.log(error);
+            toast.error("Failed to Update data");
+            setIsloading(false);
         })
     }
 
     const fetchData = (id) => {
-        const excel_name = "excel1.csv"
-        setIsloading(true)
+        //API call to fetch data for opportunity id
+        const excel_name = "excel1.csv";
+        setIsloading(true);
         dispatch(LoadUserRecord(excel_name, id)).then(res => {
-            setOpportunityInfo(JSON.parse(res['Data']['Data'])[0])
-            const tempResponse = JSON.parse(res['Data']['Data'])
-            const changeInputData = sessionStorage.getItem("inputDetail")
+            setOpportunityInfo(JSON.parse(res['Data']['Data'])[0]);
+            const tempResponse = JSON.parse(res['Data']['Data']);
+            const changeInputData = sessionStorage.getItem("inputDetail");
             if (changeInputData !== null) {
                 JSON.parse(changeInputData).forEach(r => {
-                    let ind = tempResponse.findIndex((el) => el['id_18char__opportunity_product'] === r['id_18char__opportunity_product'])
-                    tempResponse[ind] = r
+                    let ind = tempResponse.findIndex((el) => el['id_18char__opportunity_product'] === r['id_18char__opportunity_product']);
+                    tempResponse[ind] = r;
                 })
-                setBtnDisableStatus(false)
+                setBtnDisableStatus(false);
             }
-            let filterData = filteringColumnSelectionGlobal(tempResponse, [])
-            setOpportunityProductList(tempResponse)
+            let filterData = filteringColumnSelectionGlobal(tempResponse, []);
+            setOpportunityProductList(tempResponse);
             // KPICalculation(tempResponse)
-            setProductInfo(KPICalculation(filterData))
-            let tempResBu = [...new Set((tempResponse).map(r => r['business_unit_name']))].map(p => { return { "field": p, "header": p, "keyName": 'business_unit_name' } })
-            let tempResLocalCode = [...new Set((tempResponse).map(r => r['local_item_code']))].map(p => { return { "field": p, "header": p, "keyName": 'local_item_code' } })
-            let tempMarketStatus = [...new Set((tempResponse).map(r => r['market_status']))].map(p => { if (p === null) { return { "field": 'Blank', "header": 'Blank', "keyName": 'market_status' } } return { "field": p, "header": p, "keyName": 'market_status' } })
-            let tempFTS = [...new Set((tempResponse).map(r => r['fts_risk']))].map(p => { if (p === null) { return { "field": 'Blank', "header": 'Blank', "keyName": 'fts_risk' } } return { "field": p, "header": p, "keyName": 'fts_risk' } })
-
-            let tempNcp = [...new Set((tempResponse).map(r => r['ncp_cogs']))].map(p => { if (p === null) { return { "field": 'Blank', "header": 'Blank', "keyName": 'ncp_cogs' } } return { "field": p, "header": p, "keyName": 'ncp_cogs' } })
+            setProductInfo(KPICalculation(filterData));
+            let tempResBu = [...new Set((tempResponse).map(r => r['business_unit_name']))].map(p => { return { "field": p, "header": p, "keyName": 'business_unit_name' } });
+            let tempResLocalCode = [...new Set((tempResponse).map(r => r['local_item_code']))].map(p => { return { "field": p, "header": p, "keyName": 'local_item_code' } });
+            let tempMarketStatus = [...new Set((tempResponse).map(r => r['market_status']))].map(p => { if (p === null) { return { "field": 'Blank', "header": 'Blank', "keyName": 'market_status' } } return { "field": p, "header": p, "keyName": 'market_status' } });
+            let tempFTS = [...new Set((tempResponse).map(r => r['fts_risk']))].map(p => { if (p === null) { return { "field": 'Blank', "header": 'Blank', "keyName": 'fts_risk' } } return { "field": p, "header": p, "keyName": 'fts_risk' } });
+            let tempNcp = [...new Set((tempResponse).map(r => r['ncp_cogs']))].map(p => { if (p === null) { return { "field": 'Blank', "header": 'Blank', "keyName": 'ncp_cogs' } } return { "field": p, "header": p, "keyName": 'ncp_cogs' } });
 
             for (let i in mainFilterList) {
-                mainFilterList[i] = []
+                mainFilterList[i] = [];
             }
-            const uniqueList = []
-            const filteringList = ['business_unit_name', 'local_item_code', 'market_status', 'local_product_description', 'brand_manager', 'intent_to_bid']
+            const uniqueList = [];
+            const filteringList = ['business_unit_name', 'local_item_code', 'market_status', 'local_product_description', 'brand_manager', 'intent_to_bid'];
             tempResponse.forEach(x => {
                 filteringList.forEach(p => {
                     if (!uniqueList[x[p]]) {
                         if (x[p] === null) {
-                            mainFilterList[p].push({ "field": 'Blank', "header": 'Blank', "keyName": p })
-                            uniqueList[x[p]] = true
+                            mainFilterList[p].push({ "field": 'Blank', "header": 'Blank', "keyName": p });
+                            uniqueList[x[p]] = true;
                         }
                         else {
-                            mainFilterList[p].push({ "field": x[p], "header": x[p], "keyName": p })
-                            uniqueList[x[p]] = true
+                            mainFilterList[p].push({ "field": x[p], "header": x[p], "keyName": p });
+                            uniqueList[x[p]] = true;
                         }
                     }
                 })
@@ -357,9 +350,9 @@ function ViewTabs() {
                 "MarketList": tempMarketStatus,
                 "FTSRisk": tempFTS,
                 "NCPCogs": tempNcp
-            }
-            setFilterBUList(tempDropdownList)
-            setIsloading(false)
+            };
+            setFilterBUList(tempDropdownList);
+            setIsloading(false);
         })
     }
 
@@ -378,89 +371,86 @@ function ViewTabs() {
             console.log("ERROR..", err)
         })
     }
+
     const clearFilter = () => {
-        setSelectedBUlist([])
-        setSelectedFCodelist([])
-        setSelectedProductDescriptionlist([])
-        setSelectedMarketStatuslist([])
-        setSelectedBrandManagerlist([])
-        setSelectedIntentToBidlist([])
-        filterSelectionList={}
+        //function to clear filters
+        setSelectedBUlist([]);
+        setSelectedFCodelist([]);
+        setSelectedProductDescriptionlist([]);
+        setSelectedMarketStatuslist([]);
+        setSelectedBrandManagerlist([]);
+        setSelectedIntentToBidlist([]);
+        filterSelectionList={};
 
         for (let i in mainFilterList) {
-            mainFilterList[i] = []
+            mainFilterList[i] = [];
         }
-        const uniqueList = []
-        const filteringList = ['business_unit_name', 'local_item_code', 'market_status', 'local_product_description', 'brand_manager', 'intent_to_bid']
+        const uniqueList = [];
+        const filteringList = ['business_unit_name', 'local_item_code', 'market_status', 'local_product_description', 'brand_manager', 'intent_to_bid'];
         opportunityProductList.forEach(x => {
             filteringList.forEach(p => {
                 if (!uniqueList[x[p]]) {
                     if (x[p] === null) {
-                        mainFilterList[p].push({ "field": 'Blank', "header": 'Blank', "keyName": p })
-                        uniqueList[x[p]] = true
+                        mainFilterList[p].push({ "field": 'Blank', "header": 'Blank', "keyName": p });
+                        uniqueList[x[p]] = true;
                     }
                     else {
-                        mainFilterList[p].push({ "field": x[p], "header": x[p], "keyName": p })
-                        uniqueList[x[p]] = true
+                        mainFilterList[p].push({ "field": x[p], "header": x[p], "keyName": p });
+                        uniqueList[x[p]] = true;
                     }
                 }
             })
         })
-        dispatch(resetFlag(true))
+        dispatch(resetFlag(true));
     }
 
     const filterFunction = (e, keyname) => {
-        filterSelectionList[`${keyname.toString()}`] = e.value
-        // currenFilterSelection = val
-
-        // This code for if deselect all selection filter so it back to its original list
-
+        //function to apply filters and update other filter dropdown options
+        // if all or no option is selected, filterSelectionList for that column name would be "", hence all filters will be removed
+        e.preventDefault();
+        filterSelectionList[`${keyname.toString()}`] = e.value;
         let filterCount = 0;
         for (let fl in filterSelectionList) {
-            filterCount += filterSelectionList[fl].length
+            filterCount += filterSelectionList[fl].length;
         }
-
         if (filterCount === 0) {
-            sessionStorage.removeItem("filter")
+            sessionStorage.removeItem("filter");
         }
-        let filterList = filteringColumnSelectionGlobal(opportunityProductList, filterSelectionList)
-
+        let filterList = filteringColumnSelectionGlobal(opportunityProductList, filterSelectionList);
         if (keyname === 'business_unit_name') {
-            setSelectedBUlist(e.value)
+            setSelectedBUlist(e.value);
         }
         else if (keyname === 'local_item_code') {
-            setSelectedFCodelist(e.value)
+            setSelectedFCodelist(e.value);
         } else if (keyname === 'local_product_description') {
-            setSelectedProductDescriptionlist(e.value)
+            setSelectedProductDescriptionlist(e.value);
         } else if (keyname === 'market_status') {
-            setSelectedMarketStatuslist(e.value)
+            setSelectedMarketStatuslist(e.value);
         } else if (keyname === 'brand_manager') {
-            setSelectedBrandManagerlist(e.value)
+            setSelectedBrandManagerlist(e.value);
         } else if (keyname === 'intent_to_bid') {
-            setSelectedIntentToBidlist(e.value)
+            setSelectedIntentToBidlist(e.value);
         }
+        setProductInfo(KPICalculation(filterList));
 
-        const uniqueList = []
+        const uniqueList = [];
         for (let i in mainFilterList) {
             if (i !== keyname) {
-                mainFilterList[i] = []
+                mainFilterList[i] = [];
             }
-        }
-
-        setProductInfo(KPICalculation(filterList))
-
-        const filteringList = ['business_unit_name', 'local_item_code', 'market_status', 'local_product_description', 'brand_manager', 'intent_to_bid']
+        }  
+        const filteringList = ['business_unit_name', 'local_item_code', 'market_status', 'local_product_description', 'brand_manager', 'intent_to_bid'];
         filterList.forEach(x => {
             filteringList.forEach(p => {
                 if (p !== keyname) {
                     if (!uniqueList[x[p]]) {
                         if (x[p] === null) {
-                            mainFilterList[p].push({ "field": 'Blank', "header": 'Blank', "keyName": p })
-                            uniqueList[x[p]] = true
+                            mainFilterList[p].push({ "field": 'Blank', "header": 'Blank', "keyName": p });
+                            uniqueList[x[p]] = true;
                         }
                         else {
-                            mainFilterList[p].push({ "field": x[p], "header": x[p], "keyName": p })
-                            uniqueList[x[p]] = true
+                            mainFilterList[p].push({ "field": x[p], "header": x[p], "keyName": p });
+                            uniqueList[x[p]] = true;
                         }
                     }
                 }
@@ -471,26 +461,28 @@ function ViewTabs() {
     }
 
     const checkValidation = () => {
-        let uniqueList = []
-        const sessionStoreUpdateRecord = JSON.parse(sessionStorage.getItem("inputDetail"))
+        //check if updated records satisfy the validation rules
+        let uniqueList = [];
+        const sessionStoreUpdateRecord = JSON.parse(sessionStorage.getItem("inputDetail"));
         if (sessionStoreUpdateRecord !== null) {
             uniqueList = Array.from([...updateStateInfo.UserRecord.userRecord, ...sessionStoreUpdateRecord,]
-                .reduce((map, obj) => map.set(obj.id_18char__opportunity_product, obj), new Map()).values())
+                .reduce((map, obj) => map.set(obj.id_18char__opportunity_product, obj), new Map()).values());
         }
-        let validArray = uniqueList.length > 0 ? uniqueList : updateStateInfo.UserRecord.userRecord
-        let countBidPriceValueMissing = 0
-        let countRebateValueMissing = 0
+        let validArray = uniqueList.length > 0 ? uniqueList : updateStateInfo.UserRecord.userRecord;
+        let countBidPriceValueMissing = 0;
+        let countRebateValueMissing = 0;
         validArray.forEach(r => {
             if (r['new_contract_price'] === null) {
-                countBidPriceValueMissing = countBidPriceValueMissing + 1
+                countBidPriceValueMissing = countBidPriceValueMissing + 1;
             }
             if (r['new_contract_price'] !== null && r['product_rebate'] === 'Yes' && r['rebate_value'] === null) {
-                countRebateValueMissing = countRebateValueMissing + 1
+                countRebateValueMissing = countRebateValueMissing + 1;
             }
         })
-        setCountValidationError({ bidErrorCount: countBidPriceValueMissing, rebateValueErrorCount: countRebateValueMissing })
-        setIsValidation(true)
+        setCountValidationError({ bidErrorCount: countBidPriceValueMissing, rebateValueErrorCount: countRebateValueMissing });
+        setIsValidation(true);
     }
+
     return (
         <div  >
             <div>
