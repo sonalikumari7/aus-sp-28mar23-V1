@@ -407,7 +407,6 @@ function ViewTabs() {
     const filterFunction = (e, keyname) => {
         //function to apply filters and update other filter dropdown options
         // if all or no option is selected, filterSelectionList for that column name would be "", hence all filters will be removed
-        e.preventDefault();
         filterSelectionList[`${keyname.toString()}`] = e.value;
         let filterCount = 0;
         for (let fl in filterSelectionList) {

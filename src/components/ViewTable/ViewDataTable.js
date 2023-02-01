@@ -129,7 +129,6 @@ function ViewDataTable(props) {
     const [pageInputTooltip, setPageInputTooltip] = useState('Press \'Enter\' key to go to this page.'); //tooltip on page number input field
     const [mainData, setMainData] = useState([]); //holds the main original data. only updates when fields are updated.
 
-
     const [selectedBUlist, setSelectedBUlist] = useState([]);
     const [selectedLocalItemlist, setSelectedLocalItemlist] = useState([]);
     const [selectedMarketStatuslist, setSelectedMarketStatuslist] = useState([]);
@@ -150,7 +149,6 @@ function ViewDataTable(props) {
     const [supplyList, setSupplyList] = useState(supply_status_list);
     const [shortageList, setShortageList] = useState(shortage_list);
 
-
     useEffect(() => { // runs on every first render
         //since this component is being rerendered on every update, this useEffect is being executed on every render.
         // this part of code applies selected filter on the records and updates the filters  
@@ -166,7 +164,41 @@ function ViewDataTable(props) {
         //check for sorting applied, if any
         let returSelectionSortColum = JSON.parse(sessionStorage.getItem("sorting"));
         if (returSelectionSortColum !== null) {
+            //if sorting is applied, sort the table array. If not sorted, indexing would cause issue in case of editing data
             setDefaultSelectionSorting(returSelectionSortColum);
+            let sortArr = [];
+            if (returSelectionSortColum.sortField === null) {
+                sortArr = calculatResult.sort((a, b) => {
+                    return a['id_18char__opportunity'].localeCompare(b['id_18char__opportunity']) || a['local_item_code'].localeCompare(b['local_item_code'])
+                })
+                setValue(sortArr);
+            }
+            else {
+                //string comparison
+                if (returSelectionSortColum.sortField === 'local_product_description' || returSelectionSortColum.sortField === 'business_unit_name') {
+                    sortArr = calculatResult.sort((a, b) => {
+                        if (returSelectionSortColum.sortOrder === -1) {
+                            return b[returSelectionSortColum.sortField].localeCompare(a[returSelectionSortColum.sortField])
+                        }
+                        else {
+                            return a[returSelectionSortColum.sortField].localeCompare(b[returSelectionSortColum.sortField])
+                        }
+                    });
+                    setValue(sortArr);
+                }
+                else {
+                    //numerical comparison
+                    sortArr = calculatResult.sort((a, b) => {
+                        if (returSelectionSortColum.sortOrder === -1) {
+                            return b[returSelectionSortColum.sortField] - a[returSelectionSortColum.sortField]
+                        }
+                        else {
+                            return a[returSelectionSortColum.sortField] - b[returSelectionSortColum.sortField]
+                        }
+                    });
+                    setValue(sortArr);
+                }
+            }
         }
 
         //check for pagination
@@ -183,7 +215,7 @@ function ViewDataTable(props) {
         if (tempSelectedProductDetailsColumns && tempSelectedProductDetailsColumns.length !== 0){
             setSelectedColumns([...tempSelectedProductDetailsColumns]);
         }
-    }, [])
+    }, []);
 
     useEffect(() => {
         //clear the filters whenever reset is done
