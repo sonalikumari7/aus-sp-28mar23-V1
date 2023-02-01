@@ -627,17 +627,16 @@ function ViewTabs() {
                     <div>Business Unit</div>
                     <div>
                         <MultiSelect value={selectedBUList} options={mainFilterList.business_unit_name}
-                            maxSelectedLabels={1} placeholder={"All"} style={{ width: '200px', height: '30px' }} optionLabel="header"
+                            maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px' }} optionLabel="header"
                             filter onChange={(e) => filterFunction(e, 'business_unit_name')} />
                     </div>
-
                 </div>
                 <div className="main-filter-container">
                     <div>F Code</div>
                     <div>
 
                         <MultiSelect value={selectedFCodeList} options={mainFilterList.local_item_code}
-                            maxSelectedLabels={1} placeholder={"All"} style={{ width: '200px', height: '30px' }} optionLabel="header"
+                            maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px' }} optionLabel="header"
                             filter onChange={(e) => filterFunction(e, 'local_item_code')} />
                     </div>
                 </div>
@@ -645,17 +644,16 @@ function ViewTabs() {
                     <div>Product Description</div>
                     <div>
                         <MultiSelect value={selectedProductDescriptionList} options={mainFilterList.local_product_description}
-                            scrollHeight='40vh' placeholder={"All"} maxSelectedLabels={1} style={{ width: '200px', height: '30px' }} optionLabel="header"
+                            scrollHeight='40vh' placeholder={"All"} maxSelectedLabels={1} style={{ width: '12rem', height: '30px' }} optionLabel="header"
                             filter onChange={(e) => filterFunction(e, 'local_product_description')} />
                     </div>
-
                 </div>
                 <div className="main-filter-container">
                     <div>Market Status</div>
                     <div>
 
                         <MultiSelect value={selectedMarketStatusList} options={mainFilterList.market_status}
-                            maxSelectedLabels={1} placeholder={"All"} style={{ width: '200px', height: '30px', }} optionLabel="header"
+                            maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px', }} optionLabel="header"
                             filter onChange={(e) => filterFunction(e, 'market_status')} />
                     </div>
                 </div>
@@ -664,30 +662,32 @@ function ViewTabs() {
                     <div>
 
                         <MultiSelect value={selectedBrandMangerList} options={mainFilterList.brand_manager}
-                            maxSelectedLabels={1} placeholder={"All"} style={{ width: '200px', height: '30px', padding: '0px' }} optionLabel="header"
+                            maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px', padding: '0px' }} optionLabel="header"
                             filter onChange={(e) => filterFunction(e, 'brand_manager')} />
                     </div>
                 </div>
-
                 <div className="main-filter-container">
                     <div>Intent To Bid</div>
                     <div>
 
                         <MultiSelect value={selectedIntentToBidList} options={mainFilterList.intent_to_bid}
-                            maxSelectedLabels={1} placeholder={"All"} style={{ width: '200px', height: '30px' }} optionLabel="header"
+                            maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px' }} optionLabel="header"
                             filter onChange={(e) => filterFunction(e, 'intent_to_bid')} />
                     </div>
                 </div>
-                <div className="main-filter-container" style={{ color: '#7f6c6c', cursor: 'pointer' }} >
+                <div className="main-filter-container-buttons" style={{ color: '#7f6c6c', marginTop:"1rem" }} >
                     <span onClick={() => clearFilter()}>
-                        <i className="pi pi-filter-slash" style={{ marginLeft: '1rem', marginRight: '0.5rem' }} />
-                        Clear Filter
+                        <Button variant='outlined' style={{ color:"#000484", borderColor:"#000484", paddingInline:"0.5rem" }}>
+                            <i className="pi pi-filter-slash" style={{ marginLeft: '0rem', marginRight: '0.5rem' }} />
+                            Clear Filter
+                        </Button>
                     </span>
-                    <span onClick={() => checkValidation()} >
-                        <i className="pi pi-question-circle" style={{ marginLeft: '1rem', marginRight: '0.5rem' }} />
-                        Check Validation
+                    <span onClick={() => checkValidation()} style={{marginLeft:"1rem"}}>
+                        <Button variant='outlined' style={{ color:"#000484", borderColor:"#000484", paddingInline:"0.5rem" }}>
+                            <i className="pi pi-question-circle" style={{ marginLeft: '0rem', marginRight: '0.5rem' }} />
+                            Check Validation
+                        </Button>
                     </span>
-                    
                 </div>
             </div>
 
@@ -751,45 +751,48 @@ function ViewTabs() {
                     Clear Filter
                 </div> */}
                 <div style={{width:"50% "}}>
+                    <span style={{display:"flex", alignItems:"center"}}>
+                        <i className="pi pi-info-circle" style={{ marginRight: '10px', fontSize:"0.9rem" }} />
+                        <p style={{fontSize:"0.85rem", margin:"0.3rem"}}>Please click on 'Save' button every few minutes, to avoid losing your progress. Changes are not auto saved.</p>
+                    </span>
                     <Tooltip
-                    
                     title={
-                    <>
-                    <ul style={{listStyle:"disc", paddingLeft:"0rem"}}>
-                        <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>By default, Net Bid Price is set to Chemist List Price. Please enter 'Bid Price' to reset it. </li>
-                        <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If Intent to Bid is set to No, Bid Price is automatically set to Chemist List Price and rebates are locked. Any previously entered Rebates are removed.</li>
-                        <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>Bid Price should always be less than Chemist List Price. If user
-                            accidentally enters a Bid Price greater
-                            than Chemist List Price, Bid Price is automatically set to Chemist List Price.</li>
-                        <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.</li>
-                        <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If TGA Shortages is Yes (Yellow), please refer TGA Shortages Tab for details.</li>
-                    </ul>
-                        {/* <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                        <span>*</span>By default, Net Bid Price is set to Chemist List Price. Please enter 'Bid Price' to reset it. 
-                        </span>
-                        <br></br>
-                        <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                        
-                        <span>*</span>If Intent to Bid is set to No, Bid Price is automatically set to Chemist List Price and rebates are locked. Any previously entered Rebates are removed.
-                        
-                        </span>
-                        <br></br>
-                        
-                        <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                            <span>*</span>Bid Price should always be less than Chemist List Price. If user
-                            accidentally enters a Bid Price greater
-                            than Chemist List Price, Bid Price is automatically set to Chemist List Price.
-                        </span>
-                        <br></br>
-                        <br></br>
-                        <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                            <span>*</span>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.
-                        </span>
-                        <br></br>
-                        <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                            <span>*</span>If TGA Shortages is Yes (Yellow), please refer TGA Shortages Tab for details.
-                        </span> */}
-                    </>
+                        <>
+                        <ul style={{listStyle:"disc", paddingLeft:"0rem"}}>
+                            <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>By default, Net Bid Price is set to Chemist List Price. Please enter 'Bid Price' to reset it. </li>
+                            <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If Intent to Bid is set to No, Bid Price is automatically set to Chemist List Price and rebates are locked. Any previously entered Rebates are removed.</li>
+                            <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>Bid Price should always be less than Chemist List Price. If user
+                                accidentally enters a Bid Price greater
+                                than Chemist List Price, Bid Price is automatically set to Chemist List Price.</li>
+                            <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.</li>
+                            <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If TGA Shortages is Yes (Yellow), please refer TGA Shortages Tab for details.</li>
+                        </ul>
+                            {/* <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                            <span>*</span>By default, Net Bid Price is set to Chemist List Price. Please enter 'Bid Price' to reset it. 
+                            </span>
+                            <br></br>
+                            <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                            
+                            <span>*</span>If Intent to Bid is set to No, Bid Price is automatically set to Chemist List Price and rebates are locked. Any previously entered Rebates are removed.
+                            
+                            </span>
+                            <br></br>
+                            
+                            <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                                <span>*</span>Bid Price should always be less than Chemist List Price. If user
+                                accidentally enters a Bid Price greater
+                                than Chemist List Price, Bid Price is automatically set to Chemist List Price.
+                            </span>
+                            <br></br>
+                            <br></br>
+                            <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                                <span>*</span>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.
+                            </span>
+                            <br></br>
+                            <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                                <span>*</span>If TGA Shortages is Yes (Yellow), please refer TGA Shortages Tab for details.
+                            </span> */}
+                        </>
                     }
                     overlayInnerStyle={{backgroundColor:"#e4e4e4", width:"40rem", color:"black", fontSize:"0.85rem",opacity:0.95}}
                     placement="right"
@@ -797,12 +800,8 @@ function ViewTabs() {
                     className="tooltip-instructions"
                     >
                         <i className="pi pi-info-circle" style={{ marginRight: '10px', fontSize:"0.9rem" }} />
-                        General Instructions
+                        Hover here for general instructions
                     </Tooltip>
-                    <span style={{display:"flex", alignItems:"center"}}>
-                        <i className="pi pi-info-circle" style={{ marginRight: '10px', fontSize:"0.9rem" }} />
-                        <p style={{fontSize:"0.85rem"}}>Please click on 'Save' button every few minutes, to avoid losing your progress. Changes are not auto saved.</p>
-                    </span>
                 </div>
                 <div style={{ color: '#7f6c6c', fontSize: '12px', paddingLeft:"2rem", width:"50%" }}>
                     <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(146,207,137)' }}> </span>NBP &ge; MSP and NBP &gt; COGS  </span>

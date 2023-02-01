@@ -130,6 +130,14 @@ span.p-multiselect-trigger-icon.p-c.pi.pi-chevron-down {
     margin-right: 1rem;
 }
 
+.main-filter-container-buttons {
+    text-align  : center;
+    margin-right: 1rem;
+    display: flex;
+    justify-content: end;
+    flex: 1;
+}
+
 .main-filter-section {
     display       : flex;
     border        : 1px solid lightgray;
@@ -146,5 +154,9 @@ span.p-multiselect-trigger-icon.p-c.pi.pi-chevron-down {
 }
 
 .tooltip-instructions{
-    font-size:0.85rem !important
+    font-size: 0.85rem !important;
+    font-style: italic !important;
+    color: #000484 !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
 }

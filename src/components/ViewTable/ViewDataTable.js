@@ -115,6 +115,21 @@ function ViewDataTable(props) {
         { label: 'Flat Value', value: 'Flat Value' }
     ];
 
+    const commentOptions = [
+        { label: 'Bid at Chemist List Price', value: 'Bid at Chemist List Price' },
+        { label: 'Extend Current Contract Price', value: 'Extend Current Contract Price' },
+        { label: 'Aspirational Bid', value: 'Aspirational Bid' },
+        { label: 'Competitive Bid', value: 'Competitive Bid' },
+        { label: 'Exploratory Bid', value: 'Exploratory Bid' },
+        { label: 'Bid at Wholesaler List Price', value: 'Bid at Wholesaler List Price' },
+        { label: 'Do not bid - Single Source', value: 'Do not bid - Single Source' },
+        { label: 'Do not bid - Low Volumes', value: 'Do not bid - Low Volumes' },
+        { label: 'Do not bid - MSP too high', value: 'Do not bid - MSP too high' },
+        { label: 'Do not bid - Supply issues', value: 'Do not bid - Supply issues' },
+        { label: 'Do not bid - Commercial decision', value: 'Do not bid - Commercial decision' },
+        { label: 'Recent Winning Bid Price', value: 'Recent Winning Bid Price' },
+    ]
+
     const dispatch = useDispatch(); //dispatch method for state management from redux store
     const dt = useRef(null);
     const stateObj = useSelector(state => state); //state from store
@@ -956,10 +971,15 @@ function ViewDataTable(props) {
                 }} />
         }
         else if (props.field === "comments") {
-            return <InputText className="p-inputtext-sm p-d-block p-mb-2" type="text" value={props.rowData[props.field]}
-                onBlur={(e) => onEditorComplete(props, e.target.value)}
-                onKeyPress={(e) => { if (e.key === 'Enter') { onEditorComplete(props, e.target.value) } }}
-                onChange={(e) => onEditorValueChange(props, e.target.value)} />
+            // return <InputText className="p-inputtext-sm p-d-block p-mb-2" type="text" value={props.rowData[props.field]}
+            //     onBlur={(e) => onEditorComplete(props, e.target.value)}
+            //     onKeyPress={(e) => { if (e.key === 'Enter') { onEditorComplete(props, e.target.value) } }}
+            //     onChange={(e) => onEditorValueChange(props, e.target.value)} />
+            return <Dropdown value={props.rowData['comments']} options={commentOptions} optionLabel="label" optionValue="value"
+                onChange={(e) => onEditorComplete(props, e.value)} style={{ width: '100%' }} placeholder="Select a Comment"
+                itemTemplate={(option) => {
+                    return <span className={`product-badge status-${option.value.toLowerCase()}`}>{option.label}</span>
+                }} />
         }
     }
 
