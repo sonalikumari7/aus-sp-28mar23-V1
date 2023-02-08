@@ -52,11 +52,14 @@
 }
 
 .npc:nth-child(even) {
-    background-color: rgb(204, 232, 231) !important;
+    background-color: #e3eaff !important;
+    /* background-color: rgb(204, 232, 231) !important; */
+    
 }
 
 .npc:nth-child(odd) {
-    background-color: rgb(231, 244, 243) !important;
+    background-color: #f3f6ff !important;
+    /* background-color: rgb(231, 244, 243) !important; */
 }
 
 .error-show {
@@ -105,7 +108,7 @@
     text-align  : left;
     border-left : 1px solid white;
     border-right: 1px solid white;
-    padding     : 0px !important;
+    padding     : 0.4rem !important;
 }
 
 .p-datatable.p-datatable-sm .p-datatable-thead>tr>td {
@@ -114,12 +117,12 @@
 
 .pi-sort-alt:before {
     content  : "\e99e";
-    color    : #ffffff !important;
+    color    : black !important;
     font-size: 0.5rem !important;
 }
 
 .p-datatable .p-sortable-column.p-highlight .p-sortable-column-icon {
-    color    : white !important;
+    color    : black !important;
     font-size: 0.5rem !important;
 }
 
@@ -150,24 +153,36 @@ span.p-sortable-column-icon.pi.pi-fw.pi-sort-alt {
     word-wrap: break-word !important;
 }
 
+.p-column-title{
+    color:black !important;
+    font-weight: 600 !important;
+}
+
 .product-detail-header {
-    background-color: rgb(13, 189, 186) !important;
+    /* background-color: rgb(13, 189, 186) !important; */
+    background-color: #b0c6ff !important;
 }
 
 .current-bid-header {
-    background-color: rgb(10, 142, 139) !important;
+    /* background-color: rgb(10, 142, 139) !important; */
+    background-color: #cedcff !important;
+
 }
 
 .user-input-header {
-    background-color: rgb(131, 131, 255) !important;   
+    background-color: #b0c6ff !important;   
+    /* background-color: rgb(131, 131, 255) !important;    */
+
 }
 
 .calculated-field-header {
-    background-color: rgb(97, 29, 242) !important;
+    background-color: #cedcff !important;
+    /* background-color: rgb(97, 29, 242) !important; */
 }
 
 .comment-header {
-    background-color: rgb(157, 115, 247) !important;
+    background-color: #b0c6ff !important;
+    /* background-color: rgb(157, 115, 247) !important; */
 }
 
 
@@ -184,7 +199,7 @@ span.p-sortable-column-icon.pi.pi-fw.pi-sort-alt {
 
 .filter-dropdown {
     background-color: transparent !important;
-    color           : white !important;
+    color           : black !important;
     border          : none !important;
     margin-left     : 10px !important;
     padding         : 0px !important;
@@ -203,6 +218,10 @@ input:focus {
 .filter-dropdown .p-multiselect-trigger-icon.p-c.pi.pi-chevron-down {
     position    : relative;
     right       : 17px;
-    color    : white;
+    color    : black;
     font-size   : 10px;
+}
+
+.p-datatable-hoverable-rows .p-selectable-row{
+    cursor: auto !important;
 }

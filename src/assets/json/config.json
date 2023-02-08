@@ -205,7 +205,7 @@
                             "field": "standard_units_per_pack",
                             "header": "Pack Size",
                             "sortable": true,
-                        "type": "currency"
+                            "type": "currency"
                         }
                     ]
                 },
@@ -294,6 +294,153 @@
                     {
                         "field": "comments",
                         "header": "Comments"
+                    }
+                ]
+            }
+        },
+        {
+            "tab_name": "Legal Template",
+            "excel_name": "excel1.csv",
+            "excel_config": {
+                "product_details": {
+                    "selected_list": [],
+                    "list":[]
+                },
+                "current_bid_details": [],
+                "user_input": [{
+                    "field": "further_details",
+                    "header": "Further Details (open text field)",
+                    "sortable": true
+                },
+                {
+                    "field": "approved",
+                    "header": "Approved (Yes/No)",
+                    "sortable": true
+                }],
+                "calculated_fields": [],
+                "user_comments": [],
+                "legal_review":  [
+                    {
+                        "field": "logility_item_code",
+                        "header": "Product Code"
+                    },
+                    {
+                        "field": "local_item_code",
+                        "header": "F Code"
+                    },
+                    {
+                        "field": "local_product_description",
+                        "header": "Product Description",
+                        "sortable": true
+                    },
+                    {
+                        "field": "pbs_listing",
+                        "header": "PBS Listing",
+                        "sortable": true
+                    },
+                    {
+                        "field": "business_unit_name",
+                        "header": "BU",
+                        "sortable": true
+                    },
+                    {
+                        "field": "brand_manager",
+                        "header": "Brand Manager",
+                        "sortable": true
+                    },
+                    {
+                        "field": "intent_to_bid",
+                        "header": "Intent to Bid",
+                        "sortable": true
+                    },
+                    {
+                        "field": "incumbent_new_business",
+                        "header": "Incumbent/New Business",
+                        "sortable": true
+                    },
+                    {
+                        "field": "current_contract_price",
+                        "header": "Current Contract Price",
+                        "sortable": true,
+                        "type":"currency"
+                    },
+                    {
+                        "field": "new_contract_price",
+                        "header": "Bid Price",
+                        "sortable": true,
+                        "type":"currency"
+                    },
+                    {
+                        "field": "msp",
+                        "header": "Minimum Sell Price",
+                        "sortable": true,
+                        "type":"currency"
+                    },
+                    {
+                        "field": "bid_price_greater_than_msp",
+                        "header": "Bid Price > MSP",
+                        "sortable": true
+                    },
+                    {
+                        "field": "list_price",
+                        "header": "Chemist List Price (CLP)",
+                        "sortable": true,
+                        "type":"currency"
+                    },
+                    {
+                        "field": "discount_to_clp",
+                        "header": "CLP Discount",
+                        "sortable": true,
+                        "type":"percent"
+                    },
+                    {
+                        "field": "wlp_price",
+                        "header": "WLP Price",
+                        "sortable": true,
+                        "type":"currency"
+                    },
+                    {
+                        "field": "wlp_discount",
+                        "header": "WLP Discount",
+                        "sortable": true,
+                        "type":"percent"
+                    },
+                    {
+                        "field": "market_status",
+                        "header": "Market Status",
+                        "sortable": true
+                    },
+                    {
+                        "field": "pfizer_lowest_price",
+                        "header": "Pfizer's lowest bid price in last 12 months",
+                        "sortable": true,
+                        "type":"currency"
+                    },
+                    {
+                        "field": "market_lep",
+                        "header": "Market LEP",
+                        "sortable": true
+                    },
+                    {
+                        "field": "ims_pfizer_market_share",
+                        "header": "IMS Pfizer Market Share",
+                        "sortable": true
+                    },
+                    {
+                        "field": "ims_lowest_price",
+                        "header": "IMS Lowest Price",
+                        "sortable": true,
+                        "type":"currency"
+                    },
+                    {
+                        "field": "competitor_name",
+                        "header": "Competitor Name",
+                        "sortable": true
+                    },
+                    {
+                        "field": "comments",
+                        "header": "Comments",
+                        "sortable": true
                     }
                 ]
             }

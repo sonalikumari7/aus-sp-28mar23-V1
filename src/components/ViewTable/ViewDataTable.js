@@ -668,6 +668,21 @@ function ViewDataTable(props) {
             />)
     }) : null;
 
+    //columns for legal review input in finance review tab
+    const columnLegalReviewInputList = value.length > 0 ? props.type.excel_config.legal_review?.map(k => {
+        return (
+            <Column key={k.field} field={k.field}
+                headerStyle={{ width: '75px' }}
+                headerClassName="header-word-wrap user-input-header"
+                header={getColumnHeader(k.field,k.header)}
+                editor={null}
+                filter={k.filterby === undefined ? false : true}
+                body = {(rowData)=>{
+                    return numberFormatter(rowData[k.field],k.type)
+                }}
+            />)
+    }) : null;
+
     const onEditorValueChange = (props, val) => {
         //update the table records after editing
         let upd = [...props.value];
@@ -696,7 +711,6 @@ function ViewDataTable(props) {
             p['discount_to_clp'] = p['net_contract_price'] === 0 || p['list_price'] === null || p['list_price'] === 0 ? null : parseFloat(((1 - (p['net_contract_price'] / p['list_price'])) * 100).toFixed(2));
             p['fts_risk'] = p['discount_to_clp'] > 40 ? "Yes" : "No";
             p['bid_kam'] = p['net_contract_price'] >= p['kams_floor_price'] ? "Yes" : "No";
-
             if ( p['net_contract_price'] !== null && p['cost_gmx_current_year'] !== null && p['net_contract_price'] < p['cost_gmx_current_year']) {
                 p['ncp_cogs'] = "Red";
             }
@@ -715,7 +729,6 @@ function ViewDataTable(props) {
             else if (p['net_contract_price'] >= p['msp'] && p['net_contract_price'] > p['cost_gmx_current_year']) {
                 p['ncp_cogs'] = "Green";
             }
-            
         })
         return productData;
     }
@@ -781,7 +794,6 @@ function ViewDataTable(props) {
             else if (upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['msp'] && upd[editorProps.rowIndex]['net_contract_price'] > upd[editorProps.rowIndex]['cost_gmx_current_year']) {
                 upd[editorProps.rowIndex]['ncp_cogs'] = "Green";
             }
-
             setMainData(upd);
             setValue(upd);
             dispatch(updateKPIStateToDispatchData(upd));
@@ -790,7 +802,8 @@ function ViewDataTable(props) {
         }
         else if (editorProps.field === 'comments' || editorProps.field === 'line_status' ||
             editorProps.field === 'product_rebate' || editorProps.field === 'rebate_type' ||
-            editorProps.field === 'intent_to_bid' || editorProps.field === 'bid_category') {
+            editorProps.field === 'intent_to_bid' || editorProps.field === 'bid_category' ||
+            editorProps.field === 'further_details' || editorProps.field === 'approved') {
             let upd = [...editorProps.value];
             if (editorProps.field === 'intent_to_bid' && val === 'No') {
                 upd[editorProps.rowIndex]['new_contract_price'] = upd[editorProps.rowIndex]['list_price'];
@@ -816,7 +829,6 @@ function ViewDataTable(props) {
         }
 
         else if (editorProps.field === 'new_contract_price') {
-
             let upd = [...editorProps.value];
             let newContractValue;
             if (isNaN(parseFloat(val)) === true && upd[editorProps.rowIndex]['list_price'] !== null){
@@ -981,6 +993,19 @@ function ViewDataTable(props) {
                     return <span className={`product-badge status-${option.value.toLowerCase()}`}>{option.label}</span>
                 }} />
         }
+        else if (props.field === "further_details") {
+            return <InputText className="p-inputtext-sm p-d-block p-mb-2" type="text" value={props.rowData[props.field]}
+                onBlur={(e) => onEditorComplete(props, e.target.value)}
+                onKeyPress={(e) => { if (e.key === 'Enter') { onEditorComplete(props, e.target.value) } }}
+                onChange={(e) => onEditorValueChange(props, e.target.value)} />
+        }
+        else if (props.field === "approved") {
+            return <Dropdown value={props.rowData[props.field]} options={statuses} optionLabel="label" optionValue="value"
+            onChange={(e) => onEditorComplete(props, e.value)} style={{ width: '100%' }} placeholder="Select a Status"
+            itemTemplate={(option) => {
+                return <span className={`product-badge status-${option.value.toLowerCase()}`}>{option.label}</span>
+            }} />
+        }
     }
 
     const codeEditor = (props) => {
@@ -1024,13 +1049,12 @@ function ViewDataTable(props) {
         <Row>
             {
 
-                tab_name === "Finance Review" ? null : (
+                tab_name === "Finance Review"? null : (
                     <Column selectionMode='multiple' headerClassName="product-detail-header"
                         headerStyle={{ width: '1.8em', textAlign: 'center' }}></Column>
                 )
 
             }
-
             {columnProductDetailList}
             {columnCurrentBidDetailList}
             {columnUserInputDetailList}
@@ -1286,7 +1310,7 @@ function ViewDataTable(props) {
                         sortOrder={defaultSelectionSorting.sortOrder}
                         onSort={(e) => { onSorting(e) }}
                         className="p-datatable-sm editable-cells-table" scrollHeight="65vh" showGridlines 
-                        headerColumnGroup={props.type.tab_name === "Finance Review" ? null : headerGroup}
+                        headerColumnGroup={props.type.tab_name === "Finance Review" || props.type.tab_name === "Legal Template" ? null : headerGroup}
                         cellClassName={cellStyleRow}
                         loading={isloading}
                         selectionMode='checkbox'
@@ -1294,7 +1318,7 @@ function ViewDataTable(props) {
                     >
                         {
 
-                            tab_name === "Finance Review" ? null : (<Column selectionMode='multiple' headerStyle={{ width: '1.8em', textAlign: 'center' }}>
+                            tab_name === "Finance Review" ? null : (<Column selectionMode='multiple' headerClassName="user-input-header" headerStyle={{ width: '1.8em', textAlign: 'center' }}>
 
                             </Column>)
 
@@ -1304,6 +1328,7 @@ function ViewDataTable(props) {
                         {columnUserInputDetailList}
                         {columnCalculatedDetailList}
                         {columnUserCommentDetailList}
+                        {columnLegalReviewInputList}
                     </DataTable>
                 </div>
             </div>

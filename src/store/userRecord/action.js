@@ -56,9 +56,7 @@ export const updateInfoRecords = (data) => (dispatch, getState) => {
                 'Accept': 'application/json, text/plain',
                 'Content-Type': 'application/json;charset=UTF-8'
             },
-
             body: JSON.stringify(data)
-
         }
 
         // fetch(window.getWebAppBackendUrl('update'), content)
@@ -89,9 +87,7 @@ export const resetData = (data) => (dispatch, getState) => {
                 'Accept': 'application/json, text/plain',
                 'Content-Type': 'application/json;charset=UTF-8'
             },
-
             body: JSON.stringify(data)
-
         }
 
         // fetch(window.getWebAppBackendUrl('reset'), content)
@@ -150,9 +146,10 @@ export const getUserInfo = () => (dispatch, getState) => {
 }
 
 export const ExportGTCSTemplateFile = (id) => (dispatch, getState) => {
+    //API call to fetch data to be exported as a template for GTCS in .csv format
     return new Promise((resolve, reject) => {
         // fetch(window.getWebAppBackendUrl('getgtcstemplatecsv/' + id)).
-        fetch(`${REACT_APP_URL}/getcsv/${id}`). //comment for local run
+        fetch(`${REACT_APP_URL}/getgtcstemplatecsv/${id}`). //comment for local run
             then(response => response.blob()).then(blob => {
                 const url = window.URL.createObjectURL(blob)
                 const a = document.createElement('a')
@@ -170,14 +167,36 @@ export const ExportGTCSTemplateFile = (id) => (dispatch, getState) => {
 }
 
 export const ExportFinanceReviewFile = (id) => (dispatch, getState) => {
+    //API call to fetch data to be exported as a template for Finance review tab in .csv format
     return new Promise((resolve, reject) => {
         // fetch(window.getWebAppBackendUrl('getfinancereviewcsv/' + id)).
-        fetch(`${REACT_APP_URL}/getcsv/${id}`). //comment for local run
+        fetch(`${REACT_APP_URL}/getfinancereviewcsv/${id}`). //comment for local run
             then(response => response.blob()).then(blob => {
                 const url = window.URL.createObjectURL(blob)
                 const a = document.createElement('a')
                 a.href = url;
                 a.download = 'Finance Review.csv'
+                document.body.appendChild(a)
+                a.click();
+                a.remove();
+            }).
+            catch(err => {
+                console.log("ERROR:", err)
+                reject();
+            })
+    })
+}
+
+export const ExportLegalReviewFile = (id) => (dispatch, getState) => {
+    //API call to fetch data to be exported as a template for Legal review tab in .csv format
+    return new Promise((resolve, reject) => {
+        // fetch(window.getWebAppBackendUrl('getfinancereviewcsv/' + id)).
+        fetch(`${REACT_APP_URL}/getlegalreviewcsv/${id}`). //comment for local run
+            then(response => response.blob()).then(blob => {
+                const url = window.URL.createObjectURL(blob)
+                const a = document.createElement('a')
+                a.href = url;
+                a.download = 'Legal Review.csv'
                 document.body.appendChild(a)
                 a.click();
                 a.remove();
