@@ -16,6 +16,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import ViewDataTable from '../ViewTable/ViewDataTable';
 import { filterColumnDropDown, filteringColumnSelection,filteringColumnSelectionGlobal, KPICalculation } from '../../utility/util'
 import { MultiSelect } from 'primereact/multiselect'
+import PnLAnalysis from '../P&L Analysis'
 
 
 var selectedResetValues = []; //rows selected to reset
@@ -630,215 +631,220 @@ function ViewTabs() {
                 </div>
             </div>
 
-            <div>
-                <div className="main-filter-section">
-                    <div className="main-filter-container">
-                        <div>Business Unit</div>
-                        <div>
-                            <MultiSelect value={selectedBUList} options={mainFilterList.business_unit_name}
-                                maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px' }} optionLabel="header"
-                                filter onChange={(e) => filterFunction(e, 'business_unit_name')} />
-                        </div>
-                    </div>
-                    <div className="main-filter-container">
-                        <div>F Code</div>
-                        <div>
-
-                            <MultiSelect value={selectedFCodeList} options={mainFilterList.local_item_code}
-                                maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px' }} optionLabel="header"
-                                filter onChange={(e) => filterFunction(e, 'local_item_code')} />
-                        </div>
-                    </div>
-                    <div className="main-filter-container">
-                        <div>Product Description</div>
-                        <div>
-                            <MultiSelect value={selectedProductDescriptionList} options={mainFilterList.local_product_description}
-                                scrollHeight='40vh' placeholder={"All"} maxSelectedLabels={1} style={{ width: '12rem', height: '30px' }} optionLabel="header"
-                                filter onChange={(e) => filterFunction(e, 'local_product_description')} />
-                        </div>
-                    </div>
-                    <div className="main-filter-container">
-                        <div>Market Status</div>
-                        <div>
-
-                            <MultiSelect value={selectedMarketStatusList} options={mainFilterList.market_status}
-                                maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px', }} optionLabel="header"
-                                filter onChange={(e) => filterFunction(e, 'market_status')} />
-                        </div>
-                    </div>
-                    <div className="main-filter-container">
-                        <div>Brand Manager</div>
-                        <div>
-
-                            <MultiSelect value={selectedBrandMangerList} options={mainFilterList.brand_manager}
-                                maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px', padding: '0px' }} optionLabel="header"
-                                filter onChange={(e) => filterFunction(e, 'brand_manager')} />
-                        </div>
-                    </div>
-                    <div className="main-filter-container">
-                        <div>Intent To Bid</div>
-                        <div>
-
-                            <MultiSelect value={selectedIntentToBidList} options={mainFilterList.intent_to_bid}
-                                maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px' }} optionLabel="header"
-                                filter onChange={(e) => filterFunction(e, 'intent_to_bid')} />
-                        </div>
-                    </div>
-                    <div className="main-filter-container-buttons" style={{ color: '#7f6c6c', marginTop:"1rem" }} >
-                        <span onClick={() => clearFilter()}>
-                            <Button variant='outlined' style={{ color:"#000484", borderColor:"#000484", paddingInline:"0.5rem" }}>
-                                <i className="pi pi-filter-slash" style={{ marginLeft: '0rem', marginRight: '0.5rem' }} />
-                                Clear All Filters
-                            </Button>
-                        </span>
-                        <span onClick={() => checkValidation()} style={{marginLeft:"1rem"}}>
-                            <Button variant='outlined' style={{ color:"#000484", borderColor:"#000484", paddingInline:"0.5rem" }}>
-                                <i className="pi pi-question-circle" style={{ marginLeft: '0rem', marginRight: '0.5rem' }} />
-                                Validate
-                            </Button>
-                        </span>
-                    </div>
+            
+            {value === 3 ? (
+                <div>
+                    <PnLAnalysis data={opportunityProductList}/>
                 </div>
-
-                <div className="info-section">
-                    <div className="opportunity-info-section">
-                        <div style={{display:"flex"}}>
-                            <div style={{width:"60%"}}>
-                                <label>
-                                    <span style={{ color: '#7f6c6c', fontSize:"0.9rem" }}>Opportunity Name:</span> {opportunityInfo?.opportunity_name}
-                                </label> <br/>
-                                <label>
-                                    <span style={{ color: '#7f6c6c', fontSize:"0.9rem" }}>Customer Name:</span> {opportunityInfo?.customer_name}
-                                </label>
+            ): (
+                <div>
+                    <div className="main-filter-section">
+                        <div className="main-filter-container">
+                            <div>Business Unit</div>
+                            <div>
+                                <MultiSelect value={selectedBUList} options={mainFilterList.business_unit_name}
+                                    maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px' }} optionLabel="header"
+                                    filter onChange={(e) => filterFunction(e, 'business_unit_name')} />
                             </div>
-                            <div style={{width:"40%"}}>
-                                {opportunityInfo?.opportunity_name === undefined ? null : (
-                                    <>
-                                        {value === 0 ? (
-                                            <span style={{ cursor: 'pointer' }} onClick={() => exportGTCSTemplateCSV(false)}>
-                                                <span style={{ color: '#7f6c6c' }}>GTCS Template:</span>
-                                                <i className="pi pi-download" style={{ marginLeft: '0.5rem', fontSize:"0.9rem" }} />
-                                            </span>
-                                        ): value === 1 ? (
-                                            <span style={{ cursor: 'pointer' }} onClick={() => exportFinanceReviewCSV(false)}>
-                                                <span style={{ color: '#7f6c6c' }}>Finance Review Template:</span>
+                        </div>
+                        <div className="main-filter-container">
+                            <div>F Code</div>
+                            <div>
+
+                                <MultiSelect value={selectedFCodeList} options={mainFilterList.local_item_code}
+                                    maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px' }} optionLabel="header"
+                                    filter onChange={(e) => filterFunction(e, 'local_item_code')} />
+                            </div>
+                        </div>
+                        <div className="main-filter-container">
+                            <div>Product Description</div>
+                            <div>
+                                <MultiSelect value={selectedProductDescriptionList} options={mainFilterList.local_product_description}
+                                    scrollHeight='40vh' placeholder={"All"} maxSelectedLabels={1} style={{ width: '12rem', height: '30px' }} optionLabel="header"
+                                    filter onChange={(e) => filterFunction(e, 'local_product_description')} />
+                            </div>
+                        </div>
+                        <div className="main-filter-container">
+                            <div>Market Status</div>
+                            <div>
+
+                                <MultiSelect value={selectedMarketStatusList} options={mainFilterList.market_status}
+                                    maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px', }} optionLabel="header"
+                                    filter onChange={(e) => filterFunction(e, 'market_status')} />
+                            </div>
+                        </div>
+                        <div className="main-filter-container">
+                            <div>Brand Manager</div>
+                            <div>
+
+                                <MultiSelect value={selectedBrandMangerList} options={mainFilterList.brand_manager}
+                                    maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px', padding: '0px' }} optionLabel="header"
+                                    filter onChange={(e) => filterFunction(e, 'brand_manager')} />
+                            </div>
+                        </div>
+                        <div className="main-filter-container">
+                            <div>Intent To Bid</div>
+                            <div>
+
+                                <MultiSelect value={selectedIntentToBidList} options={mainFilterList.intent_to_bid}
+                                    maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px' }} optionLabel="header"
+                                    filter onChange={(e) => filterFunction(e, 'intent_to_bid')} />
+                            </div>
+                        </div>
+                        <div className="main-filter-container-buttons" style={{ color: '#7f6c6c', marginTop:"1rem" }} >
+                            <span onClick={() => clearFilter()}>
+                                <Button variant='outlined' style={{ color:"#000484", borderColor:"#000484", paddingInline:"0.5rem" }}>
+                                    <i className="pi pi-filter-slash" style={{ marginLeft: '0rem', marginRight: '0.5rem' }} />
+                                    Clear All Filters
+                                </Button>
+                            </span>
+                            <span onClick={() => checkValidation()} style={{marginLeft:"1rem"}}>
+                                <Button variant='outlined' style={{ color:"#000484", borderColor:"#000484", paddingInline:"0.5rem" }}>
+                                    <i className="pi pi-question-circle" style={{ marginLeft: '0rem', marginRight: '0.5rem' }} />
+                                    Validate
+                                </Button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div className="info-section">
+                        <div className="opportunity-info-section">
+                            <div style={{display:"flex"}}>
+                                <div style={{width:"60%"}}>
+                                    <label>
+                                        <span style={{ color: '#7f6c6c', fontSize:"0.9rem" }}>Opportunity Name:</span> {opportunityInfo?.opportunity_name}
+                                    </label> <br/>
+                                    <label>
+                                        <span style={{ color: '#7f6c6c', fontSize:"0.9rem" }}>Customer Name:</span> {opportunityInfo?.customer_name}
+                                    </label>
+                                </div>
+                                <div style={{width:"40%"}}>
+                                    {opportunityInfo?.opportunity_name === undefined ? null : (
+                                        <>
+                                            {value === 0 ? (
+                                                <span style={{ cursor: 'pointer' }} onClick={() => exportGTCSTemplateCSV(false)}>
+                                                    <span style={{ color: '#7f6c6c' }}>GTCS Template:</span>
+                                                    <i className="pi pi-download" style={{ marginLeft: '0.5rem', fontSize:"0.9rem" }} />
+                                                </span>
+                                            ): value === 1 ? (
+                                                <span style={{ cursor: 'pointer' }} onClick={() => exportFinanceReviewCSV(false)}>
+                                                    <span style={{ color: '#7f6c6c' }}>Finance Review Template:</span>
+                                                    <i className="pi pi-download" style={{ marginLeft: '0.5rem', fontSize:"0.9rem"  }} />
+                                                </span>
+                                            ): value === 2 ? (
+                                                <span style={{ cursor: 'pointer' }} onClick={() => exportLegalReviewCSV(false)}>
+                                                <span style={{ color: '#7f6c6c' }}>Legal Template:</span>
                                                 <i className="pi pi-download" style={{ marginLeft: '0.5rem', fontSize:"0.9rem"  }} />
                                             </span>
-                                        ): value === 2 ? (
-                                            <span style={{ cursor: 'pointer' }} onClick={() => exportLegalReviewCSV(false)}>
-                                            <span style={{ color: '#7f6c6c' }}>Legal Template:</span>
-                                            <i className="pi pi-download" style={{ marginLeft: '0.5rem', fontSize:"0.9rem"  }} />
-                                        </span>
-                                        ) : null}
-                                        {/* <br/> */}
-                                    </>
-                                )}
+                                            ) : null}
+                                            {/* <br/> */}
+                                        </>
+                                    )}
+                                </div>
+                            </div>
+                            
+                        </div>
+                        <div className="product-info-section">
+                            <div className="product-info-container">
+                                <div>
+                                    <span className="product-info-number">AU{productInfo.total_revenue}</span>
+                                    <br />
+                                    <span className="product-info-title">Total  Revenue</span>
+                                </div>
+                                <div>
+                                    <span className="product-info-number">AU{productInfo.total_margin}</span>
+                                    <br />
+                                    <span className="product-info-title">Total Margin</span>
+                                </div>
+                                <div>
+                                    <span className="product-info-number">{productInfo.overall_percentage} %</span>
+                                    <br />
+                                    <span className="product-info-title">Overall % Margin from MSP</span>
+                                </div >
+                                <div>
+                                    <span className="product-info-number">{productInfo.discount} %</span>
+                                    <br />
+                                    <span className="product-info-title">Discount</span>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '5px', marginInline:"1rem" }}>
+                        {/* <div style={{ color: '#7f6c6c', cursor: 'pointer' }} onClick={() => clearFilter()}>
+                            <i className="pi pi-filter-slash" style={{ marginLeft: '1.5rem', marginRight: '0.5rem' }} />
+                            Clear Filter
+                        </div> */}
+                        <div style={{width:"50% "}}>
+                            <span style={{display:"flex", alignItems:"center"}}>
+                                <i className="pi pi-info-circle" style={{ marginRight: '2px', fontSize:"0.9rem" }} />
+                                <p style={{fontSize:"0.85rem", margin:"0.3rem"}}>Please click on 'Save' button every few minutes, to avoid losing your progress. Changes are not auto saved.</p>
+                            </span>
+                            <Tooltip
+                            title={
+                                <>
+                                <ul style={{listStyle:"disc", paddingLeft:"0rem"}}>
+                                    <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>By default, Net Bid Price is set to Chemist List Price. Please enter 'Bid Price' to reset it. </li>
+                                    <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If Intent to Bid is set to No, Bid Price is automatically set to Chemist List Price and rebates are locked. Any previously entered Rebates are removed.</li>
+                                    <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>Bid Price should always be less than Chemist List Price. If user
+                                        accidentally enters a Bid Price greater
+                                        than Chemist List Price, Bid Price is automatically set to Chemist List Price.</li>
+                                    <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.</li>
+                                    <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If TGA Shortages is Yes (Yellow), please refer TGA Shortages Tab for details.</li>
+                                </ul>
+                                    {/* <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                                    <span>*</span>By default, Net Bid Price is set to Chemist List Price. Please enter 'Bid Price' to reset it. 
+                                    </span>
+                                    <br></br>
+                                    <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                                    
+                                    <span>*</span>If Intent to Bid is set to No, Bid Price is automatically set to Chemist List Price and rebates are locked. Any previously entered Rebates are removed.
+                                    
+                                    </span>
+                                    <br></br>
+                                    
+                                    <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                                        <span>*</span>Bid Price should always be less than Chemist List Price. If user
+                                        accidentally enters a Bid Price greater
+                                        than Chemist List Price, Bid Price is automatically set to Chemist List Price.
+                                    </span>
+                                    <br></br>
+                                    <br></br>
+                                    <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                                        <span>*</span>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.
+                                    </span>
+                                    <br></br>
+                                    <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
+                                        <span>*</span>If TGA Shortages is Yes (Yellow), please refer TGA Shortages Tab for details.
+                                    </span> */}
+                                </>
+                            }
+                            overlayInnerStyle={{backgroundColor:"#ececec", width:"40rem", color:"black", fontSize:"0.85rem",opacity:0.95}}
+                            placement="right"
+                            color={"#ececec"}
+                            className="tooltip-instructions"
+                            >
+                                <i className="pi pi-question-circle" style={{ marginRight: '5px', fontSize:"0.9rem" }} />
+                                Hover here for general instructions
+                            </Tooltip>
+                        </div>
+                        <div style={{ color: '#7f6c6c', fontSize: '12px', paddingLeft:"2rem", width:"50%" }}>
+                            <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(146,207,137)' }}> </span>NBP &ge; MSP and NBP &gt; COGS  </span>
+                            <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(242,226,136)' }}></span> NBP &ge; COGS and NBP &lt; MSP </span>
+                            <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(248,138,140)' }}></span> NBP  &lt; COGS  </span>
+                            <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(211,211,211)' }}></span> Insufficient info (Either CoGS or MSP could not be found)</span>
+                            {/* <span>
+                                <i className="pi pi-info-circle" style={{ marginRight: '10px' }} />
+                                Please click on 'Save' button every few minutes, to avoid losing your progress. Changes are not auto saved.
+                            </span> */}
                         
-                    </div>
-                    <div className="product-info-section">
-                        <div className="product-info-container">
-                            <div>
-                                <span className="product-info-number">AU{productInfo.total_revenue}</span>
-                                <br />
-                                <span className="product-info-title">Total  Revenue</span>
-                            </div>
-                            <div>
-                                <span className="product-info-number">AU{productInfo.total_margin}</span>
-                                <br />
-                                <span className="product-info-title">Total Margin</span>
-                            </div>
-                            <div>
-                                <span className="product-info-number">{productInfo.overall_percentage} %</span>
-                                <br />
-                                <span className="product-info-title">Overall % Margin from MSP</span>
-                            </div >
-                            <div>
-                                <span className="product-info-number">{productInfo.discount} %</span>
-                                <br />
-                                <span className="product-info-title">Discount</span>
-                            </div>
                         </div>
                     </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: '5px', marginInline:"1rem" }}>
-                    {/* <div style={{ color: '#7f6c6c', cursor: 'pointer' }} onClick={() => clearFilter()}>
-                        <i className="pi pi-filter-slash" style={{ marginLeft: '1.5rem', marginRight: '0.5rem' }} />
-                        Clear Filter
-                    </div> */}
-                    <div style={{width:"50% "}}>
-                        <span style={{display:"flex", alignItems:"center"}}>
-                            <i className="pi pi-info-circle" style={{ marginRight: '2px', fontSize:"0.9rem" }} />
-                            <p style={{fontSize:"0.85rem", margin:"0.3rem"}}>Please click on 'Save' button every few minutes, to avoid losing your progress. Changes are not auto saved.</p>
-                        </span>
-                        <Tooltip
-                        title={
-                            <>
-                            <ul style={{listStyle:"disc", paddingLeft:"0rem"}}>
-                                <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>By default, Net Bid Price is set to Chemist List Price. Please enter 'Bid Price' to reset it. </li>
-                                <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If Intent to Bid is set to No, Bid Price is automatically set to Chemist List Price and rebates are locked. Any previously entered Rebates are removed.</li>
-                                <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>Bid Price should always be less than Chemist List Price. If user
-                                    accidentally enters a Bid Price greater
-                                    than Chemist List Price, Bid Price is automatically set to Chemist List Price.</li>
-                                <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.</li>
-                                <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If TGA Shortages is Yes (Yellow), please refer TGA Shortages Tab for details.</li>
-                            </ul>
-                                {/* <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                                <span>*</span>By default, Net Bid Price is set to Chemist List Price. Please enter 'Bid Price' to reset it. 
-                                </span>
-                                <br></br>
-                                <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                                
-                                <span>*</span>If Intent to Bid is set to No, Bid Price is automatically set to Chemist List Price and rebates are locked. Any previously entered Rebates are removed.
-                                
-                                </span>
-                                <br></br>
-                                
-                                <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                                    <span>*</span>Bid Price should always be less than Chemist List Price. If user
-                                    accidentally enters a Bid Price greater
-                                    than Chemist List Price, Bid Price is automatically set to Chemist List Price.
-                                </span>
-                                <br></br>
-                                <br></br>
-                                <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                                    <span>*</span>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.
-                                </span>
-                                <br></br>
-                                <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                                    <span>*</span>If TGA Shortages is Yes (Yellow), please refer TGA Shortages Tab for details.
-                                </span> */}
-                            </>
-                        }
-                        overlayInnerStyle={{backgroundColor:"#ececec", width:"40rem", color:"black", fontSize:"0.85rem",opacity:0.95}}
-                        placement="right"
-                        color={"#ececec"}
-                        className="tooltip-instructions"
-                        >
-                            <i className="pi pi-question-circle" style={{ marginRight: '5px', fontSize:"0.9rem" }} />
-                            Hover here for general instructions
-                        </Tooltip>
-                    </div>
-                    <div style={{ color: '#7f6c6c', fontSize: '12px', paddingLeft:"2rem", width:"50%" }}>
-                        <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(146,207,137)' }}> </span>NBP &ge; MSP and NBP &gt; COGS  </span>
-                        <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(242,226,136)' }}></span> NBP &ge; COGS and NBP &lt; MSP </span>
-                        <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(248,138,140)' }}></span> NBP  &lt; COGS  </span>
-                        <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(211,211,211)' }}></span> Insufficient info (Either CoGS or MSP could not be found)</span>
-                        {/* <span>
-                            <i className="pi pi-info-circle" style={{ marginRight: '10px' }} />
-                            Please click on 'Save' button every few minutes, to avoid losing your progress. Changes are not auto saved.
-                        </span> */}
-                    
-                    </div>
-                </div>
-
-                {
-                    TabConfigJson['Tabs'].map((t, i) => (<TabPanel key={i} value={value} index={i} type={t} />))
-                }
-
-                <ToastContainer />
-            </div>
+            )}
+            {
+                TabConfigJson['Tabs'].map((t, i) => (<TabPanel key={i} value={value} index={i} type={t} />))
+            }
+            <ToastContainer />
         </div >
     )
 }

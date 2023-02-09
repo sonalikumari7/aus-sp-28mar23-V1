@@ -1,4 +1,3 @@
-
 // This function returns column filter dropdowns based on input data
 export const filterColumnDropDown = (list, keyName) => {
     let resultFilter = [...new Set((list)
@@ -132,4 +131,74 @@ export const CurrencyConversion = (value) => {
         currency: 'USD'
     });
     return formatter.format(value)
+}
+
+export const getPnLData = (data) => {
+
+    
+
+    let revenue = {
+        award_value:0,prior_actual_value:0, variance_price:0,variance_percent:0,pvm_price:0,pvm_volume:0,
+    };
+    let msp = {
+        award_value:0,prior_actual_value:0, variance_price:0,variance_percent:0,pvm_price:0,pvm_volume:0
+    };
+    let gross_margin = {
+        award_value:0,prior_actual_value:0, variance_price:0,variance_percent:0,pvm_price:0,pvm_volume:0
+    };
+    let gross_margin_percent = {
+        award_value:0,prior_actual_value:0, variance_price:0,variance_percent:0,pvm_price:0,pvm_volume:0
+    };
+
+    data.map((row) => {
+        let contractPrice;
+        if (row['list_price'] !== row['new_contract_price'] && row['new_contract_price'] !== null) {
+            contractPrice = row['new_contract_price'];
+        } else if(row['list_price'] !== null){
+            contractPrice = row['list_price'];
+        } else{
+            contractPrice = 0;
+        }
+        revenue.award_value += parseFloat((contractPrice * row['annual_usage_volume']).toFixed(2));
+        msp.award_value += parseFloat((row['msp'] * row['annual_usage_volume']).toFixed(2));
+        revenue.prior_actual_value += parseFloat((row['prior_asp'] * row['prior_actual_qty']).toFixed(2));
+        msp.prior_actual_value += parseFloat((row['msp'] * row['prior_actual_qty']).toFixed(2));
+        revenue.pvm_volume += parseFloat(((row['annual_usage_volume'] - row['prior_actual_qty']) * row['prior_asp']).toFixed(2));
+        revenue.pvm_price += parseFloat(((contractPrice - row['prior_asp']) * row['annual_usage_volume']).toFixed(2));
+        msp.pvm_volume += parseFloat(((row['annual_usage_volume'] - row['prior_actual_qty']) * row['msp']).toFixed(2)); //confirm   
+        msp.pvm_price += parseFloat(((contractPrice - row['msp']) * row['annual_usage_volume']).toFixed(2)); //confirm
+    });
+
+    gross_margin.award_value = parseFloat(revenue.award_value - msp.award_value).toFixed(2);
+    gross_margin.prior_actual_value = parseFloat(revenue.prior_actual_value - msp.prior_actual_value).toFixed(2);
+    gross_margin_percent.award_value = parseFloat((gross_margin.award_value / revenue.award_value).toFixed(2)) * 100;
+    gross_margin_percent.prior_actual_value = parseFloat((gross_margin.prior_actual_value / revenue.prior_actual_value).toFixed(2)) * 100;
+    gross_margin.pvm_volume = parseFloat((revenue.pvm_volume - msp.pvm_volume).toFixed(2));
+    gross_margin.pvm_price = parseFloat((revenue.pvm_price - msp.pvm_price).toFixed(2));
+    msp.award_value = Math.round(msp.award_value * 100) / 100;
+    msp.pvm_price = Math.round(msp.pvm_price * 100) / 100;
+
+    let returnData = [
+        {
+            a:"Revenue",...revenue
+        },
+        {
+            a:"MSP", ...msp
+        },
+        {
+            a:"GM$",...gross_margin
+        },
+        {
+            a:"GM%", ...gross_margin_percent
+        }
+    ]
+
+    returnData.map((row)=>{
+        if (row.a !== "GM%"){
+            row.variance_price = parseFloat(row.award_value - row.prior_actual_value).toFixed(2);
+            row.variance_percent = parseFloat(((row.award_value - row.prior_actual_value)/row.award_value).toFixed(2)) * 100;
+        }
+    })
+
+    return returnData;
 }

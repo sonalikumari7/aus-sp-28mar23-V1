@@ -557,8 +557,49 @@ function ViewDataTable(props) {
         else if (type === "currency"){
             result = cellValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
         }
+        else if (type === "revenue"){
+            result = Math.round(cellValue).toLocaleString('en-US', { style: 'currency', currency: 'USD',maximumFractionDigits: 0 });
+        }
         else if (type === "quantity"){
             result = Math.round(cellValue).toLocaleString('en-US');
+        }
+        else if (type === "percent"){
+            result = String(cellValue)+"%";
+        }
+
+        if (isNegative){
+            result = result.slice(1);
+            result = "("+result+")";
+        }
+        return result;
+    }
+
+    function numberFormatterPVM(cellValue,type) {
+        // returns formatted string of number based on its type- currency, quantity, percent or negative
+        if (cellValue === null || cellValue === undefined || cellValue === "")
+            return cellValue;
+
+        let result = "";
+        let isNegative = cellValue < 0 ? true : false;
+
+        const formatter = Intl.NumberFormat("en-US", {
+            notation: "compact",
+            compactDisplay: "short",
+        });
+
+        if (type === undefined){
+            return cellValue;
+        }
+        else if (type === "currency"){
+            result = formatter.format(cellValue);
+            if (isNegative){
+                result = "-$" + result.slice(1);
+            }
+            else result = '$' + result;
+        }
+        else if (type === "quantity"){
+            result = Math.round(cellValue)
+            result = formatter.format(result);
         }
         else if (type === "percent"){
             result = String(cellValue)+"%";
@@ -683,6 +724,20 @@ function ViewDataTable(props) {
             />)
     }) : null;
 
+    const columnPVMList = value.length > 0 ? props.type.excel_config.pvm?.map(k => {
+        return (
+            <Column key={k.field} field={k.field}
+                headerStyle={{ width: '75px' }}
+                headerClassName="header-word-wrap user-input-header"
+                header={getColumnHeader(k.field,k.header)}
+                editor={null}
+                filter={k.filterby === undefined ? false : true}
+                body = {(rowData)=>{
+                    return numberFormatterPVM(rowData[k.field],k.type)
+                }}
+            />)
+    }) : null;
+
     const onEditorValueChange = (props, val) => {
         //update the table records after editing
         let upd = [...props.value];
@@ -729,6 +784,14 @@ function ViewDataTable(props) {
             else if (p['net_contract_price'] >= p['msp'] && p['net_contract_price'] > p['cost_gmx_current_year']) {
                 p['ncp_cogs'] = "Green";
             }
+
+            //add logic for calculating fields for pnl review tab
+            p['gross_revenue'] = parseFloat((contractPrice * p['annual_usage_volume']).toFixed(2));
+            p['gross_revenue_percent'] = parseFloat((((p['gross_revenue'] - p['total_cost_msp']) * 100)/p['gross_revenue']).toFixed(2));
+            p['gross_revenue_percent'] = isFinite(p['gross_revenue_percent']) ? p['gross_revenue_percent'] : 0;
+            p['difference'] = parseFloat((p['prior_actual_revenue'] - p['gross_revenue']).toFixed(2));
+            p['pvm_due_to_qty'] = parseFloat(((p['prior_actual_qty'] - p['annual_usage_volume']) * p['prior_asp']).toFixed(2));
+            p['pvm_due_to_price'] = parseFloat(((p['prior_asp'] - contractPrice) * p['annual_usage_volume']).toFixed(2));
         })
         return productData;
     }
@@ -1048,8 +1111,36 @@ function ViewDataTable(props) {
         </Row>
         <Row>
             {
+                tab_name === "Finance Review" || tab_name === "P&L Review" ? null : (
+                    <Column selectionMode='multiple' headerClassName="product-detail-header"
+                        headerStyle={{ width: '1.8em', textAlign: 'center' }}></Column>
+                )
+            }
+            {columnProductDetailList}
+            {columnCurrentBidDetailList}
+            {columnUserInputDetailList}
+            {columnCalculatedDetailList}
+            {columnUserCommentDetailList}
+        </Row>
+    </ColumnGroup>;
 
-                tab_name === "Finance Review"? null : (
+    let pnLHeaderGroup = <ColumnGroup>
+        <Row >
+            <Column style={{ textAlign: 'center' }} headerClassName="product-detail-header"
+                header="Product Details" colSpan={props.type.excel_config.product_details.selected_list.length}
+                // filter filterElement={filterStatus}
+            />
+            <Column style={{ textAlign: 'center' }} headerClassName="current-bid-header"
+                header="Bid Details" colSpan={props.type.excel_config.current_bid_details.length}
+            />
+            <Column style={{ textAlign: 'center' }} headerClassName="comment-header"
+                header="Price Volume Movement" colSpan={props.type.excel_config.pvm.length}
+            />
+        </Row>
+        <Row>
+            {
+
+                tab_name === "Finance Review" || tab_name === "P&L Review" ? null : (
                     <Column selectionMode='multiple' headerClassName="product-detail-header"
                         headerStyle={{ width: '1.8em', textAlign: 'center' }}></Column>
                 )
@@ -1057,9 +1148,7 @@ function ViewDataTable(props) {
             }
             {columnProductDetailList}
             {columnCurrentBidDetailList}
-            {columnUserInputDetailList}
-            {columnCalculatedDetailList}
-            {columnUserCommentDetailList}
+            {columnPVMList}
         </Row>
     </ColumnGroup>;
 
@@ -1081,12 +1170,31 @@ function ViewDataTable(props) {
 
     const cellStyleRow = (rowData, options) => {
         //return the styles for cells of different columns
+        if (tab_name === "P&L Review"){
+            if (options.rowData['difference'] < 0 && options.field === 'difference') {
+                    return {
+                        'error-show': true
+                    }
+            }
+            if (options.rowData['pvm_due_to_price'] < 0 && options.field === 'pvm_due_to_price') {
+                    return {
+                        'error-show': true
+                    }
+            }
+            if (options.rowData['pvm_due_to_qty'] < 0 && options.field === 'pvm_due_to_qty') {
+                    return {
+                        'error-show': true
+                    }
+                }
+            }
+        
+        
         if (options.rowData['net_contract_price'] <= 0) {
             if (options.field === 'net_contract_price' || 
                 options.field === 'total_revenue' ||
                 options.field === 'total_margin'|| 
                 options.field === 'margin_msp' ||
-                options.field === 'discount_to_clp' ) {
+                options.field === 'discount_to_clp') {
                 return {
                     'error-show': true
                 }
@@ -1310,7 +1418,7 @@ function ViewDataTable(props) {
                         sortOrder={defaultSelectionSorting.sortOrder}
                         onSort={(e) => { onSorting(e) }}
                         className="p-datatable-sm editable-cells-table" scrollHeight="65vh" showGridlines 
-                        headerColumnGroup={props.type.tab_name === "Finance Review" || props.type.tab_name === "Legal Template" ? null : headerGroup}
+                        headerColumnGroup={props.type.tab_name === "Scenario Planning" ? headerGroup : props.type.tab_name === "P&L Review" ? pnLHeaderGroup : null}
                         cellClassName={cellStyleRow}
                         loading={isloading}
                         selectionMode='checkbox'
@@ -1318,7 +1426,7 @@ function ViewDataTable(props) {
                     >
                         {
 
-                            tab_name === "Finance Review" ? null : (<Column selectionMode='multiple' headerClassName="user-input-header" headerStyle={{ width: '1.8em', textAlign: 'center' }}>
+                            tab_name === "Finance Review" || tab_name === "P&L Review" ? null : (<Column selectionMode='multiple' headerClassName="user-input-header" headerStyle={{ width: '1.8em', textAlign: 'center' }}>
 
                             </Column>)
 
@@ -1329,6 +1437,7 @@ function ViewDataTable(props) {
                         {columnCalculatedDetailList}
                         {columnUserCommentDetailList}
                         {columnLegalReviewInputList}
+                        {columnPVMList}
                     </DataTable>
                 </div>
             </div>

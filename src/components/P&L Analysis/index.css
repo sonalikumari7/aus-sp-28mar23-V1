@@ -1,0 +1,31 @@
+.card{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 0.5rem;
+    background-color: #efefef;
+    min-height: 10rem;
+    box-shadow: 0 25px 50px -2px rgb(0 0 0 / 0.25);
+    margin: 0.5rem;
+    /* padding: 0.5rem; */
+}
+.dark-header {
+    background-color: #b0c6ff !important;
+    padding: 0.2rem !important;
+}
+
+.light-header {
+    background-color: #cedcff !important;
+}
+
+.error-show-pnl {
+    color      : rgb(248, 23, 26) !important;
+    text-align : right !important;
+    font-size  : 13px !important;
+    font-weight: 600 !important;
+}
+
+.pnl-table td{
+    text-align: center !important;
+    font-size  : 13px !important;
+}
