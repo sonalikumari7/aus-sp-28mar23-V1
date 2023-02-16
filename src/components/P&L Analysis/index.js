@@ -3,21 +3,35 @@ import { ColumnGroup } from "primereact/columngroup";
 import { DataTable } from "primereact/datatable";
 import { Row } from "primereact/row";
 import { useRef, useState, useEffect } from "react";
-import { getPnLData } from "../../utility/util";
-import "./index.css"
+import { filteringColumnSelectionGlobal, getPnLData } from "../../utility/util";
+import "./index.css";
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Tab, Tabs } from '@material-ui/core'
+import TabConfigJson from '../../assets/json/config.json';
 
 export default function PnLAnalysis(props){
 
-    const [tableData, setTableData] = useState([]);
-    const [loading, SetLoading] = useState(true);
+    const [summaryTableData, setSummaryTableData] = useState([]);
+    const [loading, setLoading] = useState(true);
     const dt = useRef(null);
 
     useEffect(()=>{
-        let tempData = getPnLData(props.data);
-        setTableData(tempData);
-        SetLoading(false);
-        console.log(tempData);
-    },[])
+        setLoading(false);
+        let filterData = getPnLData(filteringColumnSelectionGlobal(props.mainData, props.filterSelectionList));
+        let filterPnLData = getPnLData(filterData);
+        setSummaryTableData([...filterPnLData]);
+    },[]);
+
+    useEffect(()=>{
+        let tempFilterList = props.filterSelectionList;
+        if (JSON.stringify(tempFilterList) === '{}'){
+            sessionStorage.removeItem("filterGlobal");
+            sessionStorage.removeItem("filter");
+            tempFilterList = [];
+        }
+        let tempData = filteringColumnSelectionGlobal(props.mainData, tempFilterList);
+        let tempPnLData = getPnLData(tempData);
+        setSummaryTableData([...tempPnLData]);
+    },[JSON.stringify(props.filterSelectionList)]);
 
     const cellStyleRow = (rowData, options) => {
         //return the styles for cells of different columns
@@ -38,23 +52,28 @@ export default function PnLAnalysis(props){
         // returns formatted string of number based on its type- currency, quantity, percent or negative
         if (cellValue === null || cellValue === undefined || cellValue === "")
             return cellValue;
-        if (cellValue === 0)
-            return null;
+
         let result = "";
         let isNegative = cellValue < 0 ? true : false;
+
+        const formatter = Intl.NumberFormat("en-US", {
+            notation: "compact",
+            compactDisplay: "short",
+        });
 
         if (type === undefined){
             return cellValue;
         }
-        else if (type === "currency"){
-            result = cellValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-            console.log(result)
-        }
         else if (type === "revenue"){
-            result = Math.round(cellValue).toLocaleString('en-US', { style: 'currency', currency: 'USD',maximumFractionDigits: 0 });
+            result = formatter.format(cellValue);
+            if (isNegative){
+                result = "-$" + result.slice(1);
+            }
+            else result = '$' + result;
         }
         else if (type === "quantity"){
-            result = Math.round(cellValue).toLocaleString('en-US');
+            result = Math.round(cellValue)
+            result = formatter.format(result);
         }
         else if (type === "percent"){
             result = String(cellValue)+"%";
@@ -93,8 +112,9 @@ export default function PnLAnalysis(props){
 
     return (
         <div style={{padding:"1rem"}}>
-            <div className="card" style={{width:"60%"}}>
-                <DataTable ref={dt} value={tableData}
+
+            <div className="card bu-level-results" style={{width:"60%"}}>
+                <DataTable ref={dt} value={summaryTableData}
                 rowClassName={colRowStyle}
                 style={{ width: '100%' }}
                 className="p-datatable-sm pnl-table"
@@ -103,22 +123,34 @@ export default function PnLAnalysis(props){
                 cellClassName={cellStyleRow}>
                     <Column field="a" />
                     <Column field="award_value" body = {(rowData)=>{
-                            return numberFormatter(rowData["award_value"],"revenue")
+                            if (rowData['a'] === "GM%")
+                                return numberFormatter(rowData["award_value"],"percent");
+                            return numberFormatter(rowData["award_value"],"revenue");
                         }} />
                     <Column field="prior_actual_value" body = {(rowData)=>{
-                            return numberFormatter(rowData["prior_actual_value"],"revenue")
+                            if (rowData['a'] === "GM%")
+                                return numberFormatter(rowData["prior_actual_value"],"percent");
+                            return numberFormatter(rowData["prior_actual_value"],"revenue");
                         }} />
                     <Column field="variance_price" body = {(rowData)=>{
-                            return numberFormatter(rowData["variance_price"],"revenue")
+                            if (rowData['a'] === "GM%")
+                                return null;
+                            return numberFormatter(rowData["variance_price"],"revenue");
                         }} />
                     <Column field="variance_percent" body = {(rowData)=>{
-                            return numberFormatter(rowData["variance_percent"],"percent")
+                            if (rowData['a'] === "GM%")
+                                return null;
+                            return numberFormatter(rowData["variance_percent"],"percent");
                         }} />
                     <Column field="pvm_price" body = {(rowData)=>{
-                            return numberFormatter(rowData["pvm_price"],"revenue")
+                            if (rowData['a'] === "GM%")
+                                return null;
+                            return numberFormatter(rowData["pvm_price"],"revenue");
                         }} />
                     <Column field="pvm_volume" body = {(rowData)=>{
-                            return numberFormatter(rowData["pvm_volume"],"revenue")
+                            if (rowData['a'] === "GM%")
+                                return null;
+                            return numberFormatter(rowData["pvm_volume"],"revenue");
                         }} />
                 </DataTable>
             </div>

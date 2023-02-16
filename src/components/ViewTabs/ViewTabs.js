@@ -1,23 +1,22 @@
-import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Tab, Tabs } from '@material-ui/core'
-import React, { useEffect, useRef, useState } from 'react'
-import TabConfigJson from '../../assets/json/config.json'
-import logo from '../../assets/images/logo.png'
-import './ViewTabs.css'
-import { Tooltip } from "antd"
+import { Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Tab, Tabs } from '@material-ui/core';
+import React, { useEffect, useRef, useState } from 'react';
+import TabConfigJson from '../../assets/json/config.json';
+import logo from '../../assets/images/logo.png';
+import './ViewTabs.css';
+import { Tooltip } from "antd";
 import RotateLeftIcon from '@material-ui/icons/RotateLeft';
-import HighlightIcon from '@material-ui/icons/HighlightOff'
+import HighlightIcon from '@material-ui/icons/HighlightOff';
 import ErrorOutlineOutlinedIcon from '@material-ui/icons/ErrorOutlineOutlined';
-import CheckCircleOutlineOutlinedIcon from '@material-ui/icons/CheckCircleOutlineOutlined'
+import CheckCircleOutlineOutlinedIcon from '@material-ui/icons/CheckCircleOutlineOutlined';
 import SaveOutlinedIcon from '@material-ui/icons/SaveOutlined';
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux';
 import { resetData, resetFlag, updateInfoRecords, getUserInfo, LoadOpportunityClient, LoadUserRecord, ExportGTCSTemplateFile, ExportFinanceReviewFile, ExportLegalReviewFile, refreshData } from '../../store/userRecord/action';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import ViewDataTable from '../ViewTable/ViewDataTable';
-import { filterColumnDropDown, filteringColumnSelection,filteringColumnSelectionGlobal, KPICalculation } from '../../utility/util'
-import { MultiSelect } from 'primereact/multiselect'
-import PnLAnalysis from '../P&L Analysis'
-
+import { filterColumnDropDown, filteringColumnSelection,filteringColumnSelectionGlobal, KPICalculation } from '../../utility/util';
+import { MultiSelect } from 'primereact/multiselect';
+import PnLAnalysis from '../P&L Analysis';
 
 var selectedResetValues = []; //rows selected to reset
 var filterSelectionList = {}; //filters selected
@@ -42,7 +41,8 @@ function ViewTabs() {
     const [selectedMarketStatusList, setSelectedMarketStatuslist] = useState([]);
     const [selectedBrandMangerList, setSelectedBrandManagerlist] = useState([]);
     const [selectedIntentToBidList, setSelectedIntentToBidlist] = useState([]);
-    const [countValidationError, setCountValidationError] = useState({ "bidErrorCount": null, "rebateValueErrorCount": null });
+    const [countValidationError, setCountValidationError] = useState({ "bidErrorCount": null, "rebateValueErrorCount": null, 
+                                                            "commentNotFoundCount": null, "bidCategoryNotFoundCount":null });
 
     const [intentToBidUpdateCounter, setIntentToBidUpdateCounter] = useState(0); //counter to update intent to bid dropdown values
 
@@ -250,12 +250,14 @@ function ViewTabs() {
         setProductInfo(info);
     }
 
-    function handleClose(value) {
-        if (value === "yes") {
+    function handleClose(modalValue) {
+        if (modalValue === "yes") {
             //reset the selected records
+            let tab_name = value === 0 ? "Scenario Planning" : value === 1 ? "Finance Review" : value === 2 ? "Legal Template" : 0;
             const resetInfo = {
                 "id": selectedOpportunityName,
-                "data": selectedResetValues
+                "data": selectedResetValues,
+                "tab_name": tab_name,
             };
 
             setIsloading(true);
@@ -479,6 +481,8 @@ function ViewTabs() {
         let validArray = uniqueList.length > 0 ? uniqueList : updateStateInfo.UserRecord.userRecord;
         let countBidPriceValueMissing = 0;
         let countRebateValueMissing = 0;
+        let bidCategoryNotFoundCount = 0;
+        let commentNotFoundCount = 0;
         validArray.forEach(r => {
             if (r['new_contract_price'] === null) {
                 countBidPriceValueMissing = countBidPriceValueMissing + 1;
@@ -486,8 +490,15 @@ function ViewTabs() {
             if (r['new_contract_price'] !== null && r['product_rebate'] === 'Yes' && r['rebate_value'] === null) {
                 countRebateValueMissing = countRebateValueMissing + 1;
             }
+            if (r['intent_to_bid'] === "No" && r['bid_category'] === null){
+                bidCategoryNotFoundCount += 1;
+            }
+            if (r['comments'] === null){
+                commentNotFoundCount += 1;
+            }
         })
-        setCountValidationError({ bidErrorCount: countBidPriceValueMissing, rebateValueErrorCount: countRebateValueMissing });
+        setCountValidationError({ bidErrorCount: countBidPriceValueMissing, rebateValueErrorCount: countRebateValueMissing,
+                                bidCategoryNotFoundCount: bidCategoryNotFoundCount, commentNotFoundCount: commentNotFoundCount });
         setIsValidation(true);
     }
 
@@ -533,7 +544,8 @@ function ViewTabs() {
                 >
                     <div className="validation-section" id="alert-dialog-description-validation-info">
                         {
-                            countValidationError.bidErrorCount === 0 && countValidationError.rebateValueErrorCount === 0
+                            countValidationError.bidErrorCount === 0 && countValidationError.rebateValueErrorCount === 0 &&
+                            countValidationError.commentNotFoundCount === 0 && countValidationError.bidCategoryNotFoundCount === 0
                                 ?
                                 (
                                     <div>
@@ -562,6 +574,13 @@ function ViewTabs() {
                                                 </li>
                                                 <li>There are <span style={{ color: 'rgb(248,138,140)', fontSize: '1.3rem' }}>{countValidationError.rebateValueErrorCount} </span>
                                                     records with rebate = Yes, but no rebate value assigned</li>
+                                                <li>There are <span style={{ color: 'rgb(248,138,140)', fontSize: '1.3rem' }}>{countValidationError.bidCategoryNotFoundCount} </span>
+                                                records with 'Intent to Bid' = No, but no GTCS Bid Category assigned</li>
+                                                <li>Tender Manager Comments are missing for <span style={{ color: 'rgb(248,138,140)', fontSize: '1.3rem' }}>
+                                                    {countValidationError.commentNotFoundCount}</span> out of
+                                                    <span style={{ fontSize: '1.rem' }}> {opportunityProductList.length}</span>
+                                                </li>
+                                                        
                                             </ul>
                                         </div>
                                     </div>
@@ -634,7 +653,75 @@ function ViewTabs() {
             
             {value === 3 ? (
                 <div>
-                    <PnLAnalysis data={opportunityProductList}/>
+                    <div className="main-filter-section">
+                        <div className="main-filter-container">
+                            <div>Business Unit</div>
+                            <div>
+                                <MultiSelect value={selectedBUList} options={mainFilterList.business_unit_name}
+                                    maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px' }} optionLabel="header"
+                                    filter onChange={(e) => filterFunction(e, 'business_unit_name')} />
+                            </div>
+                        </div>
+                        <div className="main-filter-container">
+                            <div>F Code</div>
+                            <div>
+
+                                <MultiSelect value={selectedFCodeList} options={mainFilterList.local_item_code}
+                                    maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px' }} optionLabel="header"
+                                    filter onChange={(e) => filterFunction(e, 'local_item_code')} />
+                            </div>
+                        </div>
+                        <div className="main-filter-container">
+                            <div>Product Description</div>
+                            <div>
+                                <MultiSelect value={selectedProductDescriptionList} options={mainFilterList.local_product_description}
+                                    scrollHeight='40vh' placeholder={"All"} maxSelectedLabels={1} style={{ width: '12rem', height: '30px' }} optionLabel="header"
+                                    filter onChange={(e) => filterFunction(e, 'local_product_description')} />
+                            </div>
+                        </div>
+                        <div className="main-filter-container">
+                            <div>Market Status</div>
+                            <div>
+
+                                <MultiSelect value={selectedMarketStatusList} options={mainFilterList.market_status}
+                                    maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px', }} optionLabel="header"
+                                    filter onChange={(e) => filterFunction(e, 'market_status')} />
+                            </div>
+                        </div>
+                        <div className="main-filter-container">
+                            <div>Brand Manager</div>
+                            <div>
+
+                                <MultiSelect value={selectedBrandMangerList} options={mainFilterList.brand_manager}
+                                    maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px', padding: '0px' }} optionLabel="header"
+                                    filter onChange={(e) => filterFunction(e, 'brand_manager')} />
+                            </div>
+                        </div>
+                        <div className="main-filter-container">
+                            <div>Intent To Bid</div>
+                            <div>
+
+                                <MultiSelect value={selectedIntentToBidList} options={mainFilterList.intent_to_bid}
+                                    maxSelectedLabels={1} placeholder={"All"} style={{ width: '12rem', height: '30px' }} optionLabel="header"
+                                    filter onChange={(e) => filterFunction(e, 'intent_to_bid')} />
+                            </div>
+                        </div>
+                        <div className="main-filter-container-buttons" style={{ color: '#7f6c6c', marginTop:"1rem" }} >
+                            <span onClick={() => clearFilter()}>
+                                <Button variant='outlined' style={{ color:"#000484", borderColor:"#000484", paddingInline:"0.5rem" }}>
+                                    <i className="pi pi-filter-slash" style={{ marginLeft: '0rem', marginRight: '0.5rem' }} />
+                                    Clear All Filters
+                                </Button>
+                            </span>
+                            <span onClick={() => checkValidation()} style={{marginLeft:"1rem"}}>
+                                <Button disabled variant='outlined' style={{ color:"#000484", borderColor:"#000484", paddingInline:"0.5rem" }}>
+                                    <i className="pi pi-question-circle" style={{ marginLeft: '0rem', marginRight: '0.5rem' }} />
+                                    Validate
+                                </Button>
+                            </span>
+                        </div>
+                    </div>
+                    <PnLAnalysis mainData={opportunityProductList} filterSelectionList={filterSelectionList} />
                 </div>
             ): (
                 <div>

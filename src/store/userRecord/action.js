@@ -13,8 +13,8 @@ const REACT_APP_URL = "http://localhost:5000"; //comment for local run
 export const LoadUserRecord = (status, id) => (dispatch, getState) => {
     //API to fetch data
     return new Promise((resolve, reject) => {
-        fetch(window.getWebAppBackendUrl('getData/' + id)).
-        // fetch(`${REACT_APP_URL}/getData/${id}`).    //comment for local run
+        // fetch(window.getWebAppBackendUrl('getData/' + id)).
+        fetch(`${REACT_APP_URL}/getData/${id}`).    //comment for local run
             then(async (response) => {
                 if (response.ok) {
                     const json = await response.json()
@@ -32,8 +32,8 @@ export const LoadUserRecord = (status, id) => (dispatch, getState) => {
 
 export const LoadOpportunityClient = () => (dispatch, getState) => {
     return new Promise((resolve, reject) => {
-        fetch(window.getWebAppBackendUrl('filterlist')).
-        // fetch(`${REACT_APP_URL}/filterlist`). //comment for local run
+        // fetch(window.getWebAppBackendUrl('filterlist')).
+        fetch(`${REACT_APP_URL}/filterlist`). //comment for local run
             then(async (response) => {
                 if (response.ok) {
                     const json = await response.json()
@@ -59,8 +59,8 @@ export const updateInfoRecords = (data) => (dispatch, getState) => {
             body: JSON.stringify(data)
         }
 
-        fetch(window.getWebAppBackendUrl('update'), content)
-        // fetch(`${REACT_APP_URL}/update`, content) //comment for local run
+        // fetch(window.getWebAppBackendUrl('update'), content)
+        fetch(`${REACT_APP_URL}/update`, content) //comment for local run
             .then(async (response) => {
                 if (response.ok) {
                     const json = await response.json();
@@ -90,8 +90,8 @@ export const resetData = (data) => (dispatch, getState) => {
             body: JSON.stringify(data)
         }
 
-        fetch(window.getWebAppBackendUrl('reset'), content)
-        // fetch(`${REACT_APP_URL}/reset`, content) //comment for local run
+        // fetch(window.getWebAppBackendUrl('reset'), content)
+        fetch(`${REACT_APP_URL}/reset`, content) //comment for local run
             .then(async (response) => {
                 if (response.ok) {
                     const json = await response.json();
@@ -110,8 +110,8 @@ export const resetData = (data) => (dispatch, getState) => {
 export const refreshData = (id) => (dispatch, getState) => {
     //API to refresh data
     return new Promise((resolve, reject) => {
-        fetch(window.getWebAppBackendUrl('refresh/' + id)).
-        // fetch(`${REACT_APP_URL}/refresh/${id}`). //comment for local run
+        // fetch(window.getWebAppBackendUrl('refresh/' + id)).
+        fetch(`${REACT_APP_URL}/refresh/${id}`). //comment for local run
             then(async (response) => {
                 if (response.ok) {
                     const json = await response.json()
@@ -130,8 +130,8 @@ export const refreshData = (id) => (dispatch, getState) => {
 export const getUserInfo = () => (dispatch, getState) => {
     //API to get user info
     return new Promise((resolve, reject) => {
-        fetch(window.getWebAppBackendUrl('info')).
-        // fetch(`${REACT_APP_URL}/info`). //comment for local run
+        // fetch(window.getWebAppBackendUrl('info')).
+        fetch(`${REACT_APP_URL}/info`). //comment for local run
             then(async (response) => {
                 if (response.ok) {
                     const json = await response.json()
@@ -148,8 +148,8 @@ export const getUserInfo = () => (dispatch, getState) => {
 export const ExportGTCSTemplateFile = (id) => (dispatch, getState) => {
     //API call to fetch data to be exported as a template for GTCS in .csv format
     return new Promise((resolve, reject) => {
-        fetch(window.getWebAppBackendUrl('getgtcstemplatecsv/' + id)).
-        // fetch(`${REACT_APP_URL}/getgtcstemplatecsv/${id}`). //comment for local run
+        // fetch(window.getWebAppBackendUrl('getgtcstemplatecsv/' + id)).
+        fetch(`${REACT_APP_URL}/getgtcstemplatecsv/${id}`). //comment for local run
             then(response => response.blob()).then(blob => {
                 const url = window.URL.createObjectURL(blob)
                 const a = document.createElement('a')
@@ -169,8 +169,8 @@ export const ExportGTCSTemplateFile = (id) => (dispatch, getState) => {
 export const ExportFinanceReviewFile = (id) => (dispatch, getState) => {
     //API call to fetch data to be exported as a template for Finance review tab in .csv format
     return new Promise((resolve, reject) => {
-        fetch(window.getWebAppBackendUrl('getfinancereviewcsv/' + id)).
-        // fetch(`${REACT_APP_URL}/getfinancereviewcsv/${id}`). //comment for local run
+        // fetch(window.getWebAppBackendUrl('getfinancereviewcsv/' + id)).
+        fetch(`${REACT_APP_URL}/getfinancereviewcsv/${id}`). //comment for local run
             then(response => response.blob()).then(blob => {
                 const url = window.URL.createObjectURL(blob)
                 const a = document.createElement('a')
@@ -190,8 +190,8 @@ export const ExportFinanceReviewFile = (id) => (dispatch, getState) => {
 export const ExportLegalReviewFile = (id) => (dispatch, getState) => {
     //API call to fetch data to be exported as a template for Legal review tab in .csv format
     return new Promise((resolve, reject) => {
-        fetch(window.getWebAppBackendUrl('getfinancereviewcsv/' + id)).
-        // fetch(`${REACT_APP_URL}/getlegalreviewcsv/${id}`). //comment for local run
+        // fetch(window.getWebAppBackendUrl('getfinancereviewcsv/' + id)).
+        fetch(`${REACT_APP_URL}/getlegalreviewcsv/${id}`). //comment for local run
             then(response => response.blob()).then(blob => {
                 const url = window.URL.createObjectURL(blob)
                 const a = document.createElement('a')

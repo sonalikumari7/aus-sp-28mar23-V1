@@ -26,8 +26,8 @@ function App() {
 
   useEffect(() => {
     setTimeout(() => {
-      setDataikuValue(window.dataiku.defaultAPIKey)
-      // setDataikuValue("testingOnLocal") // comment this line for deploying on DSS and uncomment the above one.
+      // setDataikuValue(window.dataiku.defaultAPIKey)
+      setDataikuValue("testingOnLocal") // comment this line for deploying on DSS and uncomment the above one.
     }, 1000);
 
   }, [])

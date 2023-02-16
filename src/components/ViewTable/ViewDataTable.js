@@ -633,7 +633,7 @@ function ViewDataTable(props) {
     const columnProductDetailList = value.length > 0 ? selectedColumns?.map(k => {
         return (
             <Column key={k.field} field={k.field}
-                headerStyle={{ width: '79px', height: props.type.tab_name === "Finance Review" ? '100px' : null }}
+                headerStyle={{ width: '75px', height: props.type.tab_name === "Finance Review" ? '100px' : null }}
                 headerClassName="header-word-wrap product-detail-header"
                 header={getColumnHeader(k.field,k.header)}
                 sortable={k.sortable === undefined ? false : true}
@@ -696,7 +696,7 @@ function ViewDataTable(props) {
     const columnUserCommentDetailList = value.length > 0 ? props.type.excel_config.user_comments?.map(k => {
         return (
             <Column key={k.field} field={k.field}
-                headerStyle={{ width: '55px' }}
+                headerStyle={tab_name === "Finance Review" ? { width: '80px' } : { width: '55px' }}
                 headerClassName="header-word-wrap comment-header"
                 // header={k.header.toUpperCase()}
                 header={getColumnHeader(k.field,k.header)}
@@ -709,8 +709,51 @@ function ViewDataTable(props) {
             />)
     }) : null;
 
-    //columns for legal review input in finance review tab
-    const columnLegalReviewInputList = value.length > 0 ? props.type.excel_config.legal_review?.map(k => {
+    //columns for financial inputs in finance review tab
+    const columnFinanceInputDetailList = value.length > 0 ? props.type.excel_config.finance_input?.map(k => {
+        return (
+            <Column key={k.field} field={k.field}
+                headerStyle={{ width: '75px' }}
+                headerClassName="header-word-wrap current-bid-header"
+                header={getColumnHeader(k.field,k.header)}
+                editor={props.type.tab_name === "Legal Template" ? null : (props) => codeEditor(props)}
+                filter={k.filterby === undefined ? false : true}
+                body = {(rowData)=>{
+                    return numberFormatter(rowData[k.field],k.type)
+                }}
+            />)
+    }) : null;
+
+    //columns for legal inputs in legal template tab
+    const columnLegalInputDetailList = value.length > 0 ? props.type.excel_config.legal_input?.map(k => {
+        return (
+            <Column key={k.field} field={k.field}
+                headerStyle={{ width: '100px' }}
+                headerClassName="header-word-wrap current-bid-header"
+                header={getColumnHeader(k.field,k.header)}
+                editor={props.type.tab_name === "Finance Review" ? null : (props) => codeEditor(props)}
+                filter={k.filterby === undefined ? false : true}
+                body = {(rowData)=>{
+                    return numberFormatter(rowData[k.field],k.type)
+                }}
+            />)
+    }) : null;
+
+    const columnFinancialOverviewDetailList = value.length > 0 ? props.type.excel_config.financial_overview?.map(k => {
+        return (
+            <Column key={k.field} field={k.field}
+                headerStyle={{ width: '75px' }}
+                headerClassName="header-word-wrap current-bid-header"
+                header={getColumnHeader(k.field,k.header)}
+                editor={null}
+                filter={k.filterby === undefined ? false : true}
+                body = {(rowData)=>{
+                    return numberFormatter(rowData[k.field],k.type)
+                }}
+            />)
+    }) : null;
+
+    const columnFinancialsDetailList = value.length > 0 ? props.type.excel_config.financials?.map(k => {
         return (
             <Column key={k.field} field={k.field}
                 headerStyle={{ width: '75px' }}
@@ -730,6 +773,7 @@ function ViewDataTable(props) {
                 headerStyle={{ width: '75px' }}
                 headerClassName="header-word-wrap user-input-header"
                 header={getColumnHeader(k.field,k.header)}
+                sortable={k.sortable === undefined ? false : true}
                 editor={null}
                 filter={k.filterby === undefined ? false : true}
                 body = {(rowData)=>{
@@ -786,13 +830,23 @@ function ViewDataTable(props) {
             }
 
             //add logic for calculating fields for pnl review tab
-            p['gross_revenue'] = parseFloat((contractPrice * p['annual_usage_volume']).toFixed(2));
-            p['gross_revenue_percent'] = parseFloat((((p['gross_revenue'] - p['total_cost_msp']) * 100)/p['gross_revenue']).toFixed(2));
+            p['net_revenue'] = parseFloat(( p['net_contract_price'] * p['annual_usage_volume']).toFixed(2));
+            p['gross_revenue_percent'] = parseFloat((((p['net_revenue'] - p['total_cost_msp']) * 100)/p['net_revenue']).toFixed(2));
             p['gross_revenue_percent'] = isFinite(p['gross_revenue_percent']) ? p['gross_revenue_percent'] : 0;
-            p['difference'] = parseFloat((p['prior_actual_revenue'] - p['gross_revenue']).toFixed(2));
+            p['difference'] = parseFloat((p['prior_actual_revenue'] - p['net_revenue']).toFixed(2));
             p['pvm_due_to_qty'] = parseFloat(((p['prior_actual_qty'] - p['annual_usage_volume']) * p['prior_asp']).toFixed(2));
-            p['pvm_due_to_price'] = parseFloat(((p['prior_asp'] - contractPrice) * p['annual_usage_volume']).toFixed(2));
-        })
+            p['pvm_due_to_price'] = parseFloat(((p['prior_asp'] -  p['net_contract_price']) * p['annual_usage_volume']).toFixed(2));
+            let prob = 0;
+            if (p['market_status'] === "Single Source")
+                prob = 1;
+            else if (p['gross_revenue_percent'] >= 50)
+                prob = 0.75;
+            else if (p['gross_revenue_percent'] >= 20)
+                prob = 0.5;
+            else prob = 0.25;
+            p['probable_volume'] = parseFloat(( prob * p['annual_usage_volume']).toFixed(2));
+            p['probable_revenue'] = parseFloat(( p['net_contract_price'] * p['probable_volume']).toFixed(2));            
+        });
         return productData;
     }
 
@@ -866,7 +920,8 @@ function ViewDataTable(props) {
         else if (editorProps.field === 'comments' || editorProps.field === 'line_status' ||
             editorProps.field === 'product_rebate' || editorProps.field === 'rebate_type' ||
             editorProps.field === 'intent_to_bid' || editorProps.field === 'bid_category' ||
-            editorProps.field === 'further_details' || editorProps.field === 'approved') {
+            editorProps.field === 'finance_comments' || editorProps.field === 'finance_approved' ||
+            editorProps.field === 'legal_comments' || editorProps.field === 'legal_approved') {
             let upd = [...editorProps.value];
             if (editorProps.field === 'intent_to_bid' && val === 'No') {
                 upd[editorProps.rowIndex]['new_contract_price'] = upd[editorProps.rowIndex]['list_price'];
@@ -1046,23 +1101,19 @@ function ViewDataTable(props) {
                 }} />
         }
         else if (props.field === "comments") {
-            // return <InputText className="p-inputtext-sm p-d-block p-mb-2" type="text" value={props.rowData[props.field]}
-            //     onBlur={(e) => onEditorComplete(props, e.target.value)}
-            //     onKeyPress={(e) => { if (e.key === 'Enter') { onEditorComplete(props, e.target.value) } }}
-            //     onChange={(e) => onEditorValueChange(props, e.target.value)} />
             return <Dropdown value={props.rowData['comments']} options={commentOptions} optionLabel="label" optionValue="value"
                 onChange={(e) => onEditorComplete(props, e.value)} style={{ width: '100%' }} placeholder="Select a Comment"
                 itemTemplate={(option) => {
                     return <span className={`product-badge status-${option.value.toLowerCase()}`}>{option.label}</span>
                 }} />
         }
-        else if (props.field === "further_details") {
+        else if (props.field === "finance_comments" || props.field === "legal_comments") {
             return <InputText className="p-inputtext-sm p-d-block p-mb-2" type="text" value={props.rowData[props.field]}
                 onBlur={(e) => onEditorComplete(props, e.target.value)}
                 onKeyPress={(e) => { if (e.key === 'Enter') { onEditorComplete(props, e.target.value) } }}
                 onChange={(e) => onEditorValueChange(props, e.target.value)} />
         }
-        else if (props.field === "approved") {
+        else if (props.field === "finance_approved" || props.field === "legal_approved") {
             return <Dropdown value={props.rowData[props.field]} options={statuses} optionLabel="label" optionValue="value"
             onChange={(e) => onEditorComplete(props, e.value)} style={{ width: '100%' }} placeholder="Select a Status"
             itemTemplate={(option) => {
@@ -1090,7 +1141,7 @@ function ViewDataTable(props) {
         />
     </>;
 
-    let headerGroup = <ColumnGroup>
+    let scenarioPlanningHeaderGroup = <ColumnGroup>
         <Row >
             <Column style={{ textAlign: 'center' }} headerClassName="product-detail-header"
                 header="Product Details" colSpan={selectedColumns.length + 1}
@@ -1110,12 +1161,8 @@ function ViewDataTable(props) {
 
         </Row>
         <Row>
-            {
-                tab_name === "Finance Review" || tab_name === "P&L Review" ? null : (
-                    <Column selectionMode='multiple' headerClassName="product-detail-header"
-                        headerStyle={{ width: '1.8em', textAlign: 'center' }}></Column>
-                )
-            }
+            <Column selectionMode='multiple' headerClassName="product-detail-header"
+                headerStyle={{ width: '1.8em', textAlign: 'center' }}></Column>
             {columnProductDetailList}
             {columnCurrentBidDetailList}
             {columnUserInputDetailList}
@@ -1124,11 +1171,69 @@ function ViewDataTable(props) {
         </Row>
     </ColumnGroup>;
 
+    let financeReviewHeaderGroup = <ColumnGroup>
+        <Row >
+            <Column style={{ textAlign: 'center' }} headerClassName="current-bid-header"
+                    header="Finance Inputs" colSpan={props.type.excel_config.finance_input.length + 1} />
+            <Column style={{ textAlign: 'center' }} headerClassName="product-detail-header"
+            header="Product Details" colSpan={selectedColumns.length }
+            filter filterElement={filterStatus}
+            />
+            <Column style={{ textAlign: 'center' }} headerClassName="current-bid-header"
+                header="Bid Details" colSpan={props.type.excel_config.current_bid_details.length}
+            />
+            <Column style={{ textAlign: 'center' }} headerClassName="user-input-header"
+                header="User Inputs" colSpan={props.type.excel_config.user_input.length} />
+            <Column style={{ textAlign: 'center' }} headerClassName="calculated-field-header"
+                header="Calculated Fields" colSpan={props.type.excel_config.calculated_fields.length}
+            />
+            <Column style={{ textAlign: 'center' }} headerClassName="comment-header"
+                header="User Comments" colSpan={props.type.excel_config.user_comments.length}
+            />
+        </Row>
+        <Row>
+            <Column selectionMode='multiple' headerClassName="current-bid-header"
+                headerStyle={{ width: '1.8em', textAlign: 'center' }}></Column>
+            {columnFinanceInputDetailList}
+            {columnProductDetailList}
+            {columnCurrentBidDetailList}
+            {columnUserInputDetailList}
+            {columnCalculatedDetailList}
+            {columnUserCommentDetailList}
+        </Row>
+    </ColumnGroup>;
+
+    let legalTemplateHeaderGroup = <ColumnGroup>
+        <Row >
+            <Column style={{ textAlign: 'center' }} headerClassName="current-bid-header"
+                    header="Legal Inputs" colSpan={props.type.excel_config.legal_input.length + 1}
+                />
+            <Column style={{ textAlign: 'center' }} headerClassName="product-detail-header"
+                header="Product Details" colSpan={selectedColumns.length}
+                filter filterElement={filterStatus}
+            />
+            <Column style={{ textAlign: 'center' }} headerClassName="current-bid-header"
+                header="Financial Overview" colSpan={props.type.excel_config.financial_overview.length}
+            />
+            <Column style={{ textAlign: 'center' }} headerClassName="comment-header"
+                header="Financials" colSpan={props.type.excel_config.financials.length}
+            />
+        </Row>
+        <Row>
+            <Column selectionMode='multiple' headerClassName="current-bid-header"
+                headerStyle={{ width: '1.8em', textAlign: 'center' }}></Column>
+            {columnLegalInputDetailList}
+            {columnProductDetailList}
+            {columnFinancialOverviewDetailList}
+            {columnFinancialsDetailList}
+        </Row>
+    </ColumnGroup>;
+
+
     let pnLHeaderGroup = <ColumnGroup>
         <Row >
             <Column style={{ textAlign: 'center' }} headerClassName="product-detail-header"
                 header="Product Details" colSpan={props.type.excel_config.product_details.selected_list.length}
-                // filter filterElement={filterStatus}
             />
             <Column style={{ textAlign: 'center' }} headerClassName="current-bid-header"
                 header="Bid Details" colSpan={props.type.excel_config.current_bid_details.length}
@@ -1418,7 +1523,10 @@ function ViewDataTable(props) {
                         sortOrder={defaultSelectionSorting.sortOrder}
                         onSort={(e) => { onSorting(e) }}
                         className="p-datatable-sm editable-cells-table" scrollHeight="65vh" showGridlines 
-                        headerColumnGroup={props.type.tab_name === "Scenario Planning" ? headerGroup : props.type.tab_name === "P&L Review" ? pnLHeaderGroup : null}
+                        headerColumnGroup={props.type.tab_name === "Scenario Planning" ? scenarioPlanningHeaderGroup : 
+                            props.type.tab_name === "Finance Review" ? financeReviewHeaderGroup : 
+                            props.type.tab_name === "Legal Template" ? legalTemplateHeaderGroup : 
+                            props.type.tab_name === "P&L Review" ? pnLHeaderGroup : null}
                         cellClassName={cellStyleRow}
                         loading={isloading}
                         selectionMode='checkbox'
@@ -1426,17 +1534,20 @@ function ViewDataTable(props) {
                     >
                         {
 
-                            tab_name === "Finance Review" || tab_name === "P&L Review" ? null : (<Column selectionMode='multiple' headerClassName="user-input-header" headerStyle={{ width: '1.8em', textAlign: 'center' }}>
+                            tab_name === "P&L Review" ? null : (<Column selectionMode='multiple' headerClassName="user-input-header" headerStyle={{ width: '1.8em', textAlign: 'center' }}>
 
                             </Column>)
 
                         }
+                        {columnLegalInputDetailList}
+                        {columnFinanceInputDetailList}
                         {columnProductDetailList}
                         {columnCurrentBidDetailList}
                         {columnUserInputDetailList}
                         {columnCalculatedDetailList}
                         {columnUserCommentDetailList}
-                        {columnLegalReviewInputList}
+                        {columnFinancialOverviewDetailList}
+                        {columnFinancialsDetailList}
                         {columnPVMList}
                     </DataTable>
                 </div>
