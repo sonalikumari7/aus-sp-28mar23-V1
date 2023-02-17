@@ -25,7 +25,42 @@
     font-weight: 600 !important;
 }
 
-.pnl-table td{
+.pnl-table .p-datatable-tbody >tr>td {
     text-align: center !important;
     font-size  : 13px !important;
+    font-weight: 600 !important;
+}
+
+.download-summary{
+    color : black;
+    text-decoration: none !important;
+}
+
+.header-word-wrap {
+    word-wrap : break-word;
+    font-size : 10px !important;
+    text-align: center !important;
+    color     : white !important;
+}
+
+.product-detail-header {
+    /* background-color: rgb(13, 189, 186) !important; */
+    background-color: #b0c6ff !important;
+}
+
+.current-bid-header {
+    /* background-color: rgb(10, 142, 139) !important; */
+    background-color: #cedcff !important;
+}
+
+.p-datatable-tbody >tr>td {
+    font-size: 10px !important;
+}
+
+.download-card{
+    margin-left: 1rem;
+    padding: 1rem;
+    width: 15%;
+    display: flex;
+    align-items: flex-end;
 }

@@ -878,31 +878,6 @@ function ViewTabs() {
                                     <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.</li>
                                     <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If TGA Shortages is Yes (Yellow), please refer TGA Shortages Tab for details.</li>
                                 </ul>
-                                    {/* <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                                    <span>*</span>By default, Net Bid Price is set to Chemist List Price. Please enter 'Bid Price' to reset it. 
-                                    </span>
-                                    <br></br>
-                                    <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                                    
-                                    <span>*</span>If Intent to Bid is set to No, Bid Price is automatically set to Chemist List Price and rebates are locked. Any previously entered Rebates are removed.
-                                    
-                                    </span>
-                                    <br></br>
-                                    
-                                    <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                                        <span>*</span>Bid Price should always be less than Chemist List Price. If user
-                                        accidentally enters a Bid Price greater
-                                        than Chemist List Price, Bid Price is automatically set to Chemist List Price.
-                                    </span>
-                                    <br></br>
-                                    <br></br>
-                                    <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                                        <span>*</span>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.
-                                    </span>
-                                    <br></br>
-                                    <span style={{ color: '#7f6c6c', fontSize: '12px' }}>
-                                        <span>*</span>If TGA Shortages is Yes (Yellow), please refer TGA Shortages Tab for details.
-                                    </span> */}
                                 </>
                             }
                             overlayInnerStyle={{backgroundColor:"#ececec", width:"40rem", color:"black", fontSize:"0.85rem",opacity:0.95}}
@@ -919,18 +894,16 @@ function ViewTabs() {
                             <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(242,226,136)' }}></span> NBP &ge; COGS and NBP &lt; MSP </span>
                             <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(248,138,140)' }}></span> NBP  &lt; COGS  </span>
                             <span style={{ marginRight: '10px' }}><span className="legends-item" style={{ backgroundColor: 'rgb(211,211,211)' }}></span> Insufficient info (Either CoGS or MSP could not be found)</span>
-                            {/* <span>
-                                <i className="pi pi-info-circle" style={{ marginRight: '10px' }} />
-                                Please click on 'Save' button every few minutes, to avoid losing your progress. Changes are not auto saved.
-                            </span> */}
-                        
                         </div>
                     </div>
+                    {
+                        TabConfigJson['Tabs'].map((t, i) => (<TabPanel key={i} value={value} index={i} type={t} />))
+                    }
                 </div>
             )}
-            {
+            {/* {
                 TabConfigJson['Tabs'].map((t, i) => (<TabPanel key={i} value={value} index={i} type={t} />))
-            }
+            } */}
             <ToastContainer />
         </div >
     )

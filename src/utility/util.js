@@ -160,10 +160,10 @@ export const getPnLData = (data) => {
         msp.award_value += parseFloat((row['msp'] * row['probable_volume']).toFixed(2)) || 0;
         revenue.prior_actual_value += parseFloat((row['prior_asp'] * row['prior_actual_qty']).toFixed(2)) || 0;
         msp.prior_actual_value += parseFloat((row['msp'] * row['prior_actual_qty']).toFixed(2)) || 0;
-        revenue.pvm_volume += parseFloat(((row['probable_volume'] - row['prior_actual_qty']) * row['prior_asp']).toFixed(2)) || 0;
-        revenue.pvm_price += parseFloat(((contractPrice - row['prior_asp']) * row['probable_volume']).toFixed(2)) || 0;
-        msp.pvm_volume += parseFloat(((row['probable_volume'] - row['prior_actual_qty']) * row['msp']).toFixed(2)) || 0;   
-        msp.pvm_price += parseFloat(((contractPrice - row['msp']) * row['probable_volume']).toFixed(2)) || 0;
+        revenue.pvm_volume += parseFloat(((row['prior_actual_qty'] -row['probable_volume']) * row['prior_asp']).toFixed(2)) || 0;
+        revenue.pvm_price += parseFloat(((row['prior_asp'] - contractPrice) * row['probable_volume']).toFixed(2)) || 0;
+        msp.pvm_volume += parseFloat(((row['prior_actual_qty'] -row['probable_volume']) * row['msp']).toFixed(2)) || 0;   
+        msp.pvm_price += parseFloat((( row['msp'] - row['msp']) * row['probable_volume']).toFixed(2)) || 0;
     });
 
     gross_margin.award_value = parseFloat(revenue.award_value - msp.award_value).toFixed(2) || 0;
@@ -177,7 +177,7 @@ export const getPnLData = (data) => {
 
     let returnData = [
         {
-            a:"Net Revenue",...revenue
+            a:"Probable Revenue",...revenue
         },
         {
             a:"MSP", ...msp

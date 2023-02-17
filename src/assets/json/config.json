@@ -527,8 +527,7 @@
             "tab_name": "P&L Review",
             "excel_name": "excel1.csv",
             "excel_config": {
-                "product_details": {
-                    "selected_list": [
+                "product_details": [
                         {
                             "field": "local_item_code",
                             "header": "F Code"
@@ -544,8 +543,6 @@
                             "sortable": true
                         }
                     ],
-                    "list":[]
-                },
                 "current_bid_details": [
                     {
                         "field": "annual_usage_volume",
@@ -559,7 +556,7 @@
                         "type": "currency"
                     },
                     {
-                        "field": "net_revenue",
+                        "field": "total_revenue",
                         "header": "Net Revenue",
                         "type": "revenue"
                     },
@@ -607,20 +604,20 @@
                     {
                         "field": "difference",
                         "header": "Difference",
-                        "type": "currency"
+                        "type": "revenue"
                     }
                 ],
                 "pvm":[
                     {
                         "field": "pvm_due_to_qty",
                         "header": "Due to Quantity",
-                        "type": "currency",
+                        "type": "revenue",
                         "sortable":true
                     },
                     {
                         "field": "pvm_due_to_price",
                         "header": "Due to Price",
-                        "type": "currency",
+                        "type": "revenue",
                         "sortable":true
                     }
                 ],

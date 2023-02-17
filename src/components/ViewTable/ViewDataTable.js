@@ -590,7 +590,7 @@ function ViewDataTable(props) {
         if (type === undefined){
             return cellValue;
         }
-        else if (type === "currency"){
+        else if (type === "revenue"){
             result = formatter.format(cellValue);
             if (isNegative){
                 result = "-$" + result.slice(1);
@@ -830,22 +830,23 @@ function ViewDataTable(props) {
             }
 
             //add logic for calculating fields for pnl review tab
-            p['net_revenue'] = parseFloat(( p['net_contract_price'] * p['annual_usage_volume']).toFixed(2));
-            p['gross_revenue_percent'] = parseFloat((((p['net_revenue'] - p['total_cost_msp']) * 100)/p['net_revenue']).toFixed(2));
-            p['gross_revenue_percent'] = isFinite(p['gross_revenue_percent']) ? p['gross_revenue_percent'] : 0;
-            p['difference'] = parseFloat((p['prior_actual_revenue'] - p['net_revenue']).toFixed(2));
-            p['pvm_due_to_qty'] = parseFloat(((p['prior_actual_qty'] - p['annual_usage_volume']) * p['prior_asp']).toFixed(2));
-            p['pvm_due_to_price'] = parseFloat(((p['prior_asp'] -  p['net_contract_price']) * p['annual_usage_volume']).toFixed(2));
-            let prob = 0;
-            if (p['market_status'] === "Single Source")
-                prob = 1;
-            else if (p['gross_revenue_percent'] >= 50)
-                prob = 0.75;
-            else if (p['gross_revenue_percent'] >= 20)
-                prob = 0.5;
-            else prob = 0.25;
-            p['probable_volume'] = parseFloat(( prob * p['annual_usage_volume']).toFixed(2));
-            p['probable_revenue'] = parseFloat(( p['net_contract_price'] * p['probable_volume']).toFixed(2));            
+            // p['gross_revenue_percent'] = parseFloat((((p['total_revenue'] - p['total_cost_msp']) * 100)/p['total_revenue']).toFixed(2));
+            // p['gross_revenue_percent'] = isFinite(p['gross_revenue_percent']) ? p['gross_revenue_percent'] : 0;
+
+            // let prob = 0;
+            // if (p['market_status'] === "Single Source")
+            //     prob = 1;
+            // else if (p['gross_revenue_percent'] >= 50)
+            //     prob = 0.75;
+            // else if (p['gross_revenue_percent'] >= 20)
+            //     prob = 0.5;
+            // else prob = 0.25;
+
+            // p['probable_volume'] = parseFloat(( prob * p['annual_usage_volume']).toFixed(2));
+            // p['probable_revenue'] = parseFloat(( p['net_contract_price'] * p['probable_volume']).toFixed(2));
+            // p['difference'] = parseFloat((p['prior_actual_revenue'] - p['probable_revenue']).toFixed(2));
+            // p['pvm_due_to_qty'] = parseFloat(((p['prior_actual_qty'] - p['probable_volume']) * p['prior_asp']).toFixed(2));
+            // p['pvm_due_to_price'] = parseFloat(((p['prior_asp'] -  p['net_contract_price']) * p['probable_volume']).toFixed(2));
         });
         return productData;
     }
@@ -1291,9 +1292,8 @@ function ViewDataTable(props) {
                         'error-show': true
                     }
                 }
-            }
-        
-        
+        }
+                
         if (options.rowData['net_contract_price'] <= 0) {
             if (options.field === 'net_contract_price' || 
                 options.field === 'total_revenue' ||
