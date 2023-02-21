@@ -4,10 +4,9 @@
   src: local('NotoSans'), url(./assets/font/NotoSans-Regular.ttf) format('opentype');
 }
 
-
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'NotoSans';
+  font-family: -apple-system, BlinkMacSystemFont, 'NotoSans' !important;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 1rem;

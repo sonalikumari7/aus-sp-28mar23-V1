@@ -877,6 +877,8 @@ function ViewTabs() {
                                         than Chemist List Price, Bid Price is automatically set to Chemist List Price.</li>
                                     <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If Pfish Supply Constraint is Yes (Yellow), please refer Supply Overview Tab for details.</li>
                                     <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>If TGA Shortages is Yes (Yellow), please refer TGA Shortages Tab for details.</li>
+                                    <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>Make sure to save the changes before any reset or export.</li>
+                                    <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>Make sure to validate the changes before exporting data.</li>
                                 </ul>
                                 </>
                             }

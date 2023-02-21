@@ -237,7 +237,7 @@ function ViewDataTable(props) {
         if (stateObj.UserRecord.isFetching) {
             clearCustomFilter();
         }
-    }, [stateObj])
+    }, [stateObj]);
 
     const setFilterColumSelection = () => { 
         //sets the selected values for columns on which filters are applied

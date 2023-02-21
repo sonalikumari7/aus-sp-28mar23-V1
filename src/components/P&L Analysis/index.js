@@ -5,18 +5,17 @@ import { Row } from "primereact/row";
 import { useRef, useState, useEffect } from "react";
 import { filteringColumnSelectionGlobal, getPnLData } from "../../utility/util";
 import "./index.css";
-import { Button } from "antd";
+import { Button, Tooltip } from "antd";
 import TabConfigJson from '../../assets/json/config.json';
 import { CSVLink } from "react-csv";
 import { Modal } from "antd";
 
 export default function PnLAnalysis(props){
 
-    const [summaryTableData, setSummaryTableData] = useState([]);
-    const [mainData, setMainData] = useState([]);
+    const [summaryTableData, setSummaryTableData] = useState([]); //state to store the data for summary table
+    const [mainData, setMainData] = useState([]); //state which stores the original data
     const [loading, setLoading] = useState(true);
-    const [pnlTableData, setPnlTableData] = useState([]);
-    const [pnlTableHeaders, setPnlTableHeaders] = useState([]);
+    const [pnlTableHeaders, setPnlTableHeaders] = useState([]); //state to store the headers for csv export of main data table
     const [isModalOpen, setIsModalOpen] = useState(false);
     const dt = useRef(null);
 
@@ -28,9 +27,10 @@ export default function PnLAnalysis(props){
         {label:"Variance %", key:"variance_percent"},
         {label:"PVM Due to Price", key:"pvm_price"},
         {label:"PVM Due to Volume", key:"pvm_volume"},
-    ]
+    ]; //stores the headers for csv export of summary table
 
     useEffect(()=>{
+        //update the summary table data on initial render and populate the calculation fields like probable volume
         setLoading(false);
         let filterData = getPnLData(filteringColumnSelectionGlobal(props.mainData, props.filterSelectionList));
         let filterPnLData = getPnLData(filterData);
@@ -70,6 +70,7 @@ export default function PnLAnalysis(props){
     },[]);
 
     useEffect(()=>{
+        //updated summary table data on every filter change
         let tempFilterList = props.filterSelectionList;
         if (JSON.stringify(tempFilterList) === '{}'){
             sessionStorage.removeItem("filterGlobal");
@@ -174,6 +175,8 @@ export default function PnLAnalysis(props){
     };
 
     function getPnlTableData(){
+        //function to be called on clicking download button in the modal
+        //updates the headers for csv export for the table
         let columns;
         TabConfigJson['Tabs'].map((t, i) => {
             if (t.tab_name === "P&L Review")
@@ -362,6 +365,27 @@ export default function PnLAnalysis(props){
                         </CSVLink>
                     </div>
                 </div>
+            </div>
+            <div style={{marginTop:"1rem"}}>
+                <Tooltip
+                title={
+                    <>
+                    <ul style={{listStyle:"disc", paddingLeft:"0rem"}}>
+                        <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>By default, winning probability for <b>"Single Source"</b> products is <b>100%</b>.</li>
+                        <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>For products with <b>Gross Margin &gt;= 50%</b>, winning probability is <b>75%</b>.</li>
+                        <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>For products with <b>Gross Margin &gt;= 20%</b>, winning probability is <b>50%</b>.</li>
+                        <li style={{marginLeft:"1.2rem", marginTop:"0.5rem"}}>For products with <b>Gross Margin &lt; 20%</b>, winning probability is <b>25%</b>.</li>
+                    </ul>
+                    </>
+                }
+                overlayInnerStyle={{backgroundColor:"#ececec", width:"40rem", color:"black", fontSize:"0.85rem",opacity:0.95}}
+                placement="right"
+                color={"#ececec"}
+                className="tooltip-instructions"
+                >
+                    <i className="pi pi-question-circle" style={{ marginRight: '5px', fontSize:"0.9rem" }} />
+                    Logic for probability calculations
+                </Tooltip>
             </div>
         </div>
     )

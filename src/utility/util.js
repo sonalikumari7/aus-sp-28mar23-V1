@@ -134,6 +134,7 @@ export const CurrencyConversion = (value) => {
 }
 
 export const getPnLData = (data) => {
+    //return the data for summary table on the P&L tab
     let revenue = {
         award_value:0,prior_actual_value:0, variance_price:0,variance_percent:0,pvm_price:0,pvm_volume:0,
     };
@@ -177,7 +178,7 @@ export const getPnLData = (data) => {
 
     let returnData = [
         {
-            a:"Probable Revenue",...revenue
+            a:"Net Revenue",...revenue
         },
         {
             a:"MSP", ...msp
