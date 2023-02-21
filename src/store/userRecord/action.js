@@ -191,7 +191,7 @@ export const ExportLegalReviewFile = (id) => (dispatch, getState) => {
     //API call to fetch data to be exported as a template for Legal review tab in .csv format
     return new Promise((resolve, reject) => {
         fetch(window.getWebAppBackendUrl('getlegaltemplatecsv/' + id)).
-        // fetch(`${REACT_APP_URL}/getlegalreviewcsv/${id}`). //comment for local run
+        // fetch(`${REACT_APP_URL}/getlegaltemplatecsv/${id}`). //comment for local run
             then(response => response.blob()).then(blob => {
                 const url = window.URL.createObjectURL(blob)
                 const a = document.createElement('a')
