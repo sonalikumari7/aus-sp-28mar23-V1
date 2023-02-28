@@ -72,7 +72,8 @@ export const filteringColumnSelectionGlobal = (data, filtercolumnlist) => {
     }
 
     if (expression.length === 0) {
-        const tempExpression = sessionStorage.getItem("filterGlobal");
+        sessionStorage.removeItem("filterGlobal");
+        const tempExpression = sessionStorage.getItem("filter");
         if (tempExpression === null) {
             filterList = data;
             return filterList;

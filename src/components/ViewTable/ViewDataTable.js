@@ -239,6 +239,15 @@ function ViewDataTable(props) {
         }
     }, [stateObj]);
 
+    useEffect(() => {
+        //scroll the data table to the stored value from session
+        //this useEffect will run on every render, but only update the div property if its undefined or has some other value
+        let scroll = Number(sessionStorage.getItem("scrollTop")) ? Number(sessionStorage.getItem("scrollTop")) : 0;
+        let div = document.getElementsByClassName("p-datatable-scrollable-body");
+        if (div[0].scrollTop !== scroll)
+            div[0].scrollTop = scroll;
+    });
+
     const setFilterColumSelection = () => { 
         //sets the selected values for columns on which filters are applied
         for (let i in filterSelectionList) {
@@ -853,6 +862,7 @@ function ViewDataTable(props) {
 
     const onEditorComplete = (editorProps, val) => {
         //function that is executed after enter key is pressed after the edit
+        sessionStorage.setItem("scrollTop",JSON.stringify(document.getElementsByClassName("p-datatable-scrollable-body")[0].scrollTop)); //save the scroll value in the session
         if (editorProps.field === 'rebate_value' || editorProps.field === 'rebate_percentage') {
             let upd = [...value];
             let contractPrice;
@@ -1395,6 +1405,7 @@ function ViewDataTable(props) {
     }
 
     const onSelectedResetValue = (val) => {
+        sessionStorage.setItem("scrollTop",JSON.stringify(document.getElementsByClassName("p-datatable-scrollable-body")[0].scrollTop)); //save the scroll value in the session
         setSelectedValue(val); //update selected rows which can be reset
         props.onSelectedResetItem(val);
     }
@@ -1522,7 +1533,7 @@ function ViewDataTable(props) {
                         sortField={defaultSelectionSorting.sortField}
                         sortOrder={defaultSelectionSorting.sortOrder}
                         onSort={(e) => { onSorting(e) }}
-                        className="p-datatable-sm editable-cells-table" scrollHeight="65vh" showGridlines 
+                        className="p-datatable-sm editable-cells-table" scrollHeight="48vh" showGridlines 
                         headerColumnGroup={props.type.tab_name === "Scenario Planning" ? scenarioPlanningHeaderGroup : 
                             props.type.tab_name === "Finance Review" ? financeReviewHeaderGroup : 
                             props.type.tab_name === "Legal Template" ? legalTemplateHeaderGroup : 

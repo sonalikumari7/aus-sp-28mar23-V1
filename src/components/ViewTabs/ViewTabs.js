@@ -165,6 +165,11 @@ function ViewTabs() {
     }, [updateStateInfo])
 
     useEffect(() => {
+        //remove the table scroll value stored on every tab change
+        sessionStorage.removeItem("scrollTop");
+    }, [value]);
+
+    useEffect(() => {
         let opp_id = window.location.pathname.split("/").pop();
         if (opp_id !== 'view') {
             setSelectedOpportunityName(opp_id);
