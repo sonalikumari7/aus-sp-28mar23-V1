@@ -118,8 +118,8 @@ export const KPICalculation = (list) => {
     const calculateProduct = {
         "total_revenue": CurrencyConversion(total_revenue_count).replace(".00", " ").replace("$", "$ "),
         "total_margin": CurrencyConversion(total_margin_count.toFixed(0)).replace(".00", " ").replace("$", "$ "),
-        "overall_percentage": ((total_margin_count / total_revenue_count) * 100).toFixed(1),
-        "discount": ((discount1 / discount2) * 100).toFixed(1)
+        "overall_percentage": (((total_margin_count / total_revenue_count) || 0) * 100).toFixed(1),
+        "discount": (((discount1 / discount2) || 0) * 100).toFixed(1)
     }
     return calculateProduct;
 }

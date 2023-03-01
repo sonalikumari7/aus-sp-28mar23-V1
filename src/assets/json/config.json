@@ -335,13 +335,12 @@
                 ],
                 "finance_input":[{
                     "field": "finance_comments",
-                    "header": "Finance Comments",
-                    "sortable": true
+                    "header": "Finance Comments"
                 },
                 {
                     "field": "finance_approved",
                     "header": "Approved (Yes/No)",
-                    "sortable": true
+                    "filterby": true
                 }],
                 "pvm":[],
                 "financial_overview":[],
@@ -411,13 +410,12 @@
                 "user_input": [],
                 "legal_input": [{
                     "field": "legal_comments",
-                    "header": "Legal Comments",
-                    "sortable": true
+                    "header": "Legal Comments"
                 },
                 {
                     "field": "legal_approved",
                     "header": "Approved (Yes/No)",
-                    "sortable": true
+                    "filterby": true
                 }],
                 "calculated_fields": [],
                 "user_comments": [],

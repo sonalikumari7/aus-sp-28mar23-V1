@@ -43,6 +43,18 @@ function ViewDataTable(props) {
         { field: 'No', header: 'No', 'keyName': 'shortage' }
     ];
 
+    const finance_approved_list = [
+        { field: 'Yes', header: 'Yes', 'keyName': 'shortage' },
+        { field: 'Blank', header: 'Blank', 'keyName': 'shortage' },
+        { field: 'No', header: 'No', 'keyName': 'shortage' }
+    ];
+
+    const legal_approved_list = [
+        { field: 'Yes', header: 'Yes', 'keyName': 'shortage' },
+        { field: 'Blank', header: 'Blank', 'keyName': 'shortage' },
+        { field: 'No', header: 'No', 'keyName': 'shortage' }
+    ];
+
     const line_status_list = [
         { field: 'New Business', header: 'New Business', keyName: 'line_status' },
         { field: 'Incumbent', header: 'Incumbent', keyName: 'line_status' },
@@ -153,6 +165,8 @@ function ViewDataTable(props) {
     const [selectedNCPList, setSelectedNCPList] = useState([]);
     const [selectedSupplyStatusList, setSelectedSupplyStatusList] = useState([]);
     const [selectedShortageList, setSelectedShortageList] = useState([]);
+    const [selectedFinanceApprovedList, setSelectedFinanceApprovedList] = useState([]);
+    const [selectedLegalApprovedList, setSelectedLegalApprovedList] = useState([]);
 
     const [buList, setBuList] = useState(props?.filterBULists?.BUList);
     const [localItemList, setLocalItemList] = useState(props?.filterBULists?.LocalList);
@@ -278,6 +292,11 @@ function ViewDataTable(props) {
             else if (i === 'shortage'){
                 setSelectedShortageList(filterSelectionList[i]);
             }
+            else if (i === 'finance_approved'){
+                setSelectedFinanceApprovedList(filterSelectionList[i]);
+            }else if (i === 'legal_approved'){
+                setSelectedLegalApprovedList(filterSelectionList[i]);
+            }
         }
     }
 
@@ -391,6 +410,30 @@ function ViewDataTable(props) {
             setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
             setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
+        else if (val === 'finance_approved') {
+            setSelectedFinanceApprovedList(e.value);
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+        }
+        else if (val === 'legal_approved') {
+            setSelectedLegalApprovedList(e.value);
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+        }
         props.handleFilterProductCalculation(KPICalculation([...filterList]));
     }
 
@@ -486,6 +529,28 @@ function ViewDataTable(props) {
             setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
             setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
         }
+        else if (currenFilterSelection === 'finance_approved') {
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+        }
+        else if (currenFilterSelection === 'finance_approved') {
+            setLocalItemList(filterColumnDropDown(filterList, 'local_item_code'));
+            setMarketStatusList(filterColumnDropDown(filterList, 'market_status'));
+            setBuList(filterColumnDropDown(filterList, 'business_unit_name'));
+            setProductRebatelist(filterColumnDropDown(filterList, 'product_rebate'));
+            setFtsList(filterColumnDropDown(filterList, 'fts_risk'));
+            setLineStatuslist(filterColumnDropDown(filterList, 'line_status'));
+            setNCPList(filterColumnDropDown(filterList, 'ncp_cogs'));
+            setSupplyList(filterColumnDropDown(filterList, 'supply_status'));
+            setShortageList(filterColumnDropDown(filterList, 'shortage'));
+        }
     }
 
     const customColumFilter = (info) => {
@@ -508,46 +573,52 @@ function ViewDataTable(props) {
                 filter onChange={(e) => columnFilterFunction(e, 'business_unit_name')} className="filter-dropdown" />
             )
         }
-
         else if (info['field'] === "product_rebate") {
             return (<MultiSelect value={selectedProductRebatelist} options={productRebatelist}
                 maxSelectedLabels={1} style={{ width: '2px', height: '44px' }} optionLabel="header"
                 filter onChange={(e) => columnFilterFunction(e, 'product_rebate')} className="filter-dropdown" />
             )
         }
-
         else if (info['field'] === "line_status") {
             return (<MultiSelect value={selectedLineStatuslist} options={lineStatuslist}
                 maxSelectedLabels={1} style={{ width: '2px', height: '44px' }} optionLabel="header"
                 filter onChange={(e) => columnFilterFunction(e, 'line_status')} className="filter-dropdown" />
             )
         }
-
         else if (info['field'] === "fts_risk") {
             return (<MultiSelect value={selectedFTSList} options={ftsList}
                 maxSelectedLabels={1} style={{ width: '2px', height: '44px' }} optionLabel="header"
                 filter onChange={(e) => columnFilterFunction(e, 'fts_risk')} className="filter-dropdown" />
             )
         }
-
         else if (info['field'] === "ncp_cogs") {
             return (<MultiSelect value={selectedNCPList} options={ncpList}
                 maxSelectedLabels={1} style={{ width: '2px', height: '44px' }} optionLabel="header"
                 filter onChange={(e) => columnFilterFunction(e, 'ncp_cogs')} className="filter-dropdown" />
             )
         }
-
         else if (info['field'] === "supply_status") {
             return (<MultiSelect value={selectedSupplyStatusList} options={supplyList}
                 maxSelectedLabels={1} style={{ width: '2px', height: '44px' }} optionLabel="header"
                 filter onChange={(e) => columnFilterFunction(e, 'supply_status')} className="filter-dropdown" />
             )
         }
-
         else if (info['field'] === "shortage") {
             return (<MultiSelect value={selectedShortageList} options={shortageList}
                 maxSelectedLabels={1} style={{ width: '2px', height: '44px' }} optionLabel="header"
                 filter onChange={(e) => columnFilterFunction(e, 'shortage')} className="filter-dropdown" />
+            )
+        }
+        else if (info['field'] === "finance_approved") {
+            return (<MultiSelect value={selectedFinanceApprovedList} options={finance_approved_list}
+                maxSelectedLabels={1} style={{ width: '2px', height: '44px' }} optionLabel="header"
+                filter onChange={(e) => columnFilterFunction(e, 'finance_approved')} className="filter-dropdown" />
+            )
+        }
+        else if (info['field'] === "legal_approved") {
+            return (<MultiSelect value={selectedLegalApprovedList} options={legal_approved_list}
+                maxSelectedLabels={1} style={{ width: '2px', height: '44px' }} optionLabel="header"
+                filter onChange={(e) => columnFilterFunction(e, 'legal_approved')} className="filter-dropdown" />
             )
         }
     }
@@ -727,6 +798,7 @@ function ViewDataTable(props) {
                 header={getColumnHeader(k.field,k.header)}
                 editor={props.type.tab_name === "Legal Template" ? null : (props) => codeEditor(props)}
                 filter={k.filterby === undefined ? false : true}
+                filterElement={k.filterby === undefined ? null : customColumFilter(k)}
                 body = {(rowData)=>{
                     return numberFormatter(rowData[k.field],k.type)
                 }}
@@ -742,6 +814,7 @@ function ViewDataTable(props) {
                 header={getColumnHeader(k.field,k.header)}
                 editor={props.type.tab_name === "Finance Review" ? null : (props) => codeEditor(props)}
                 filter={k.filterby === undefined ? false : true}
+                filterElement={k.filterby === undefined ? null : customColumFilter(k)}
                 body = {(rowData)=>{
                     return numberFormatter(rowData[k.field],k.type)
                 }}
