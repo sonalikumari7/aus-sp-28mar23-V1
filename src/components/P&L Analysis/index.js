@@ -5,10 +5,11 @@ import { Row } from "primereact/row";
 import { useRef, useState, useEffect } from "react";
 import { filteringColumnSelectionGlobal, getPnLData } from "../../utility/util";
 import "./index.css";
-import { Button, Tooltip } from "antd";
+import { Tooltip } from "antd";
 import TabConfigJson from '../../assets/json/config.json';
 import { CSVLink } from "react-csv";
 import { Modal } from "antd";
+import ReactExport from 'react-data-export';
 
 export default function PnLAnalysis(props){
 
@@ -138,6 +139,38 @@ export default function PnLAnalysis(props){
         return result;
     }
 
+    function numberFormatterExport(cellValue,type) {
+        //for the excel exports only
+        // returns formatted string of number based on its type- currency, quantity, percent or negative
+        if (cellValue === null || cellValue === undefined || cellValue === "")
+            return cellValue;
+
+        let result = "";
+        let isNegative = cellValue < 0 ? true : false;
+
+        let formatter = new Intl.NumberFormat('en-US', {
+            style: 'currency',
+            currency: 'USD'
+        });
+
+        if (type === undefined){
+            return cellValue;
+        }
+        else if (type === "revenue"){
+            result = formatter.format(cellValue);
+        }
+        else if (type === "currency"){
+            result = cellValue.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+        }
+        else if (type === "quantity"){
+            result = Math.round(cellValue).toLocaleString('en-US');
+        }
+        else if (type === "percent"){
+            result = String(cellValue)+"%";
+        }
+        return result;
+    }
+
     const headerGroup = <ColumnGroup>
         <Row>
             <Column style={{ textAlign: 'center' }} headerClassName="dark-header"
@@ -195,15 +228,141 @@ export default function PnLAnalysis(props){
         setPnlTableHeaders([...headers])
     }
 
+    function ExportPnlSummary(){
+        //function component to export the summary table data in a formatted excel file format. We need to convert our data to the format accepted by this library like the multiDataSet.
+        //by default this function is called every time the page is re-rendered (since this component gets re rendered every time a state changes in viewTabs)
+        const ExcelFile = ReactExport.ExcelFile;
+        const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
+        const multiDataSet = [  
+            {
+                columns: [
+                    {title: "A$"},
+                    {title: "Award Value"},
+                    {title: "Prior Value"},
+                    {title: "Variance $"},
+                    {title: "Variance %"},
+                    {title: "PVM Due to Price"}, 
+                    {title: "PVM Due to Volume"}
+                ],
+                data: []
+            }
+        ];
+        let keys = [
+            {key:"a"},
+            {key:"award_value", type:"revenue"},
+            {key:"prior_actual_value", type:"revenue"},
+            {key:"variance_price", type:"revenue"},
+            {key:"variance_percent", type:"percent"},
+            {key:"pvm_price", type:"revenue"},
+            {key:"pvm_volume", type:"revenue"},
+        ];
+        summaryTableData.map((row)=>{
+            let tempRow = [];
+            keys.map((obj) => {
+                let type = '';
+                if (row.a === 'GM%' && obj.key !== 'a')
+                    type = "percent";
+                else type = obj.type;
+                let formattedValue = numberFormatterExport(row[obj.key],type);
+                tempRow.push({
+                    value:formattedValue,
+                    style:{
+                        font:{
+                            color:{
+                                rgb: row[obj.key] < 0 ? "FFFF0000":"00000000"
+                            }
+                        }
+                    }
+                });
+            });
+            multiDataSet[0]["data"].push(tempRow);
+        });
+        
+        return (
+            <ExcelFile filename = "P&L Summary" element={<div className="download-summary">
+                <i className="pi pi-download" style={{ marginRight: '0.2rem', fontSize:"0.9rem" }} /> Download Summary
+            </div>}>
+                <ExcelSheet dataSet={multiDataSet} name="Summary"/>
+            </ExcelFile>
+        )
+    }
+
+    function ExportDataTable(){
+        //functional component for data table export.
+        const ExcelFile = ReactExport.ExcelFile;
+        const ExcelSheet = ReactExport.ExcelFile.ExcelSheet;
+        const multiDataSet = [  
+            {
+                columns: [],
+                data: []
+            }
+        ];
+        let keys = [];
+        TabConfigJson['Tabs'].map((t) => {
+            if (t.tab_name === "P&L Review"){
+                t.excel_config.product_details.map((col) => {
+                    multiDataSet[0]["columns"].push({
+                        title:col.header
+                    });
+                    keys.push({
+                        key:col.field,
+                        type:col.type
+                    });
+                });
+                t.excel_config.current_bid_details.map((col) => {
+                    multiDataSet[0]["columns"].push({
+                        title:col.header
+                    });
+                    keys.push({
+                        key:col.field,
+                        type:col.type
+                    });
+                });
+                t.excel_config.pvm.map((col) => {
+                    multiDataSet[0]["columns"].push({
+                        title:col.header
+                    });
+                    keys.push({
+                        key:col.field,
+                        type:col.type
+                    });
+                });
+            }
+        });
+        mainData.map((row)=>{
+            let tempRow = [];
+            keys.map((obj) => {
+                let formattedValue = numberFormatterExport(row[obj.key],obj.type);
+                tempRow.push({
+                    value:formattedValue || '',
+                    style:{
+                        font:{
+                            color:{
+                                rgb: row[obj.key] < 0 ? "FFFF0000":"00000000"
+                            }
+                        }
+                    }
+                });
+            });
+            multiDataSet[0]["data"].push(tempRow);
+        });
+
+        return (
+            <ExcelFile filename="P&L Calculation Table" element={<div className="download-summary">
+                <i className="pi pi-download" style={{ marginRight: '0.2rem', fontSize:"0.9rem" }} /> Download Summary
+            </div>}>
+                <ExcelSheet dataSet={multiDataSet} name="Revenue Calcuations"/>
+            </ExcelFile>
+        )
+    }
+
     return (
         <div style={{padding:"1rem"}}>
             <Modal title="Product Level Details"
             open={isModalOpen} onOk={handleOk} 
             onCancel={handleCancel} width={"85%"}
             footer={<div>
-                <CSVLink filename={"P&LData.csv"} data={mainData} headers={pnlTableHeaders} className="download-summary" onClick={getPnlTableData}>
-                    <Button>Download <i className="pi pi-download" style={{ marginLeft: '0.5rem', fontSize:"0.9rem" }} /></Button>
-                </CSVLink>
+                <ExportDataTable />
             </div>} >
                 {
                     TabConfigJson['Tabs'].map((t, i) => {
@@ -214,7 +373,7 @@ export default function PnLAnalysis(props){
                                 style={{ width: '100%' }}
                                 className="p-datatable-sm pnl-table"
                                 headerColumnGroup={<ColumnGroup>
-                                    <Row >
+                                    <Row>
                                         <Column style={{ textAlign: 'center' }} headerClassName="product-detail-header"
                                             header="Product Details" colSpan={t.excel_config.product_details.length}
                                         />
@@ -360,9 +519,7 @@ export default function PnLAnalysis(props){
                         <p onClick={showModal} style={{marginTop:"0.4rem", cursor:"pointer", width:"max-content"}}>
                         <i className="pi pi-table" style={{ marginRight: '0.2rem', fontSize:"0.9rem" }} /> View Data Table 
                         </p>
-                        <CSVLink filename={"Summary.csv"} data={summaryTableData} className="download-summary" headers={summaryTableHeader}>
-                        <i className="pi pi-download" style={{ marginRight: '0.2rem', fontSize:"0.9rem" }} /> Download Summary 
-                        </CSVLink>
+                        <ExportPnlSummary />
                     </div>
                 </div>
             </div>

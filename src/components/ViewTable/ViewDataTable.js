@@ -710,7 +710,7 @@ function ViewDataTable(props) {
     }
 
     //columns for product details header
-    const columnProductDetailList = value.length > 0 ? selectedColumns?.map(k => {
+    const columnProductDetailList =  selectedColumns?.map(k => {
         return (
             <Column key={k.field} field={k.field}
                 headerStyle={{ width: '75px', height: props.type.tab_name === "Finance Review" ? '100px' : null }}
@@ -724,10 +724,10 @@ function ViewDataTable(props) {
                 }}
             />
         )
-    }) : null;
+    })
 
     //columns for bid details header
-    const columnCurrentBidDetailList = value.length > 0 ? props.type.excel_config.current_bid_details?.map(k => {
+    const columnCurrentBidDetailList =  props.type.excel_config.current_bid_details?.map(k => {
         return (
             <Column key={k.field} field={k.field}
                 headerStyle={{ width: '60px' }}
@@ -738,10 +738,10 @@ function ViewDataTable(props) {
                 }}
                 sortable={k.sortable === undefined ? false : true}
             />)
-    }) : null;
+    })
 
     //columns for user input header
-    const columnUserInputDetailList = value.length > 0 ? props.type.excel_config.user_input?.map(k => {
+    const columnUserInputDetailList =  props.type.excel_config.user_input?.map(k => {
         return (
             <Column key={k.field} field={k.field}
                 headerStyle={{ width: '60px' }}
@@ -754,10 +754,10 @@ function ViewDataTable(props) {
                     return numberFormatter(rowData[k.field],k.type)
                 }}
             />)
-    }) : null;
+    })
 
     //columns for calculated fields header
-    const columnCalculatedDetailList = value.length > 0 ? props.type.excel_config.calculated_fields?.map(k => {
+    const columnCalculatedDetailList =  props.type.excel_config.calculated_fields?.map(k => {
         return (
             <Column key={k.field} field={k.field}
                 headerStyle={{ width: '65px' }}
@@ -770,10 +770,10 @@ function ViewDataTable(props) {
                     return numberFormatter(rowData[k.field],k.type)
                 }}
             />)
-    }) : null;
+    })
 
     //columns for user comments header
-    const columnUserCommentDetailList = value.length > 0 ? props.type.excel_config.user_comments?.map(k => {
+    const columnUserCommentDetailList =  props.type.excel_config.user_comments?.map(k => {
         return (
             <Column key={k.field} field={k.field}
                 headerStyle={tab_name === "Finance Review" ? { width: '80px' } : { width: '55px' }}
@@ -787,10 +787,10 @@ function ViewDataTable(props) {
                     return numberFormatter(rowData[k.field],k.type)
                 }}
             />)
-    }) : null;
+    })
 
     //columns for financial inputs in finance review tab
-    const columnFinanceInputDetailList = value.length > 0 ? props.type.excel_config.finance_input?.map(k => {
+    const columnFinanceInputDetailList =  props.type.excel_config.finance_input?.map(k => {
         return (
             <Column key={k.field} field={k.field}
                 headerStyle={{ width: '75px' }}
@@ -803,10 +803,10 @@ function ViewDataTable(props) {
                     return numberFormatter(rowData[k.field],k.type)
                 }}
             />)
-    }) : null;
+    })
 
     //columns for legal inputs in legal template tab
-    const columnLegalInputDetailList = value.length > 0 ? props.type.excel_config.legal_input?.map(k => {
+    const columnLegalInputDetailList =  props.type.excel_config.legal_input?.map(k => {
         return (
             <Column key={k.field} field={k.field}
                 headerStyle={{ width: '100px' }}
@@ -819,9 +819,9 @@ function ViewDataTable(props) {
                     return numberFormatter(rowData[k.field],k.type)
                 }}
             />)
-    }) : null;
+    })
 
-    const columnFinancialOverviewDetailList = value.length > 0 ? props.type.excel_config.financial_overview?.map(k => {
+    const columnFinancialOverviewDetailList =  props.type.excel_config.financial_overview?.map(k => {
         return (
             <Column key={k.field} field={k.field}
                 headerStyle={{ width: '75px' }}
@@ -833,9 +833,9 @@ function ViewDataTable(props) {
                     return numberFormatter(rowData[k.field],k.type)
                 }}
             />)
-    }) : null;
+    })
 
-    const columnFinancialsDetailList = value.length > 0 ? props.type.excel_config.financials?.map(k => {
+    const columnFinancialsDetailList =  props.type.excel_config.financials?.map(k => {
         return (
             <Column key={k.field} field={k.field}
                 headerStyle={{ width: '75px' }}
@@ -847,9 +847,9 @@ function ViewDataTable(props) {
                     return numberFormatter(rowData[k.field],k.type)
                 }}
             />)
-    }) : null;
+    })
 
-    const columnPVMList = value.length > 0 ? props.type.excel_config.pvm?.map(k => {
+    const columnPVMList =  props.type.excel_config.pvm?.map(k => {
         return (
             <Column key={k.field} field={k.field}
                 headerStyle={{ width: '75px' }}
@@ -862,7 +862,7 @@ function ViewDataTable(props) {
                     return numberFormatterPVM(rowData[k.field],k.type)
                 }}
             />)
-    }) : null;
+    })
 
     const onEditorValueChange = (props, val) => {
         //update the table records after editing
