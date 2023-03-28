@@ -18,9 +18,11 @@ var filterListGlobal = [];
 
 function ViewDataTable(props) {
     const listcol = props.type.excel_config.product_details.selected_list; //default selected product details columns
+    const listPfizerLowestBidDetailscol = props.type.excel_config.pfizer_lowest_price_details.selected_list; //default selected PfizerLowestBidDetails columns
     const { type: { tab_name } } = props;
     const selectResetList = props.selectedResetList; //selected rows for reset purpose
     const [selectedColumns, setSelectedColumns] = useState(listcol);
+    const [selectedPfizerLowestBidDetailsColumns, setSelectedPfizerLowestBidDetailsColumns] = useState(listPfizerLowestBidDetailscol);
 
     //defining default values for filter dropdowns of different columns
     const statuses = [
@@ -243,6 +245,12 @@ function ViewDataTable(props) {
         let tempSelectedProductDetailsColumns = JSON.parse(sessionStorage.getItem("selectedProductDetailsColumns"));
         if (tempSelectedProductDetailsColumns && tempSelectedProductDetailsColumns.length !== 0){
             setSelectedColumns([...tempSelectedProductDetailsColumns]);
+        }
+
+        // always keep selected PfizerLowestBidDetails column in memory
+        let tempSelectedPfizerLowestBidDetailsColumns = JSON.parse(sessionStorage.getItem("selectedPfizerLowestBidDetailsColumns"));
+        if (tempSelectedPfizerLowestBidDetailsColumns && tempSelectedPfizerLowestBidDetailsColumns.length !== 0){
+            setSelectedPfizerLowestBidDetailsColumns([...tempSelectedPfizerLowestBidDetailsColumns]);
         }
     }, []);
 
@@ -847,6 +855,20 @@ function ViewDataTable(props) {
                     return numberFormatter(rowData[k.field],k.type)
                 }}
             />)
+    });
+
+    const columnPfizerLowestPriceDetailsList = selectedPfizerLowestBidDetailsColumns?.map(k => {
+        return (
+            <Column key={k.field} field={k.field}
+                headerStyle={{ width: '75px' }}
+                headerClassName="header-word-wrap current-bid-header"
+                header={getColumnHeader(k.field,k.header)}
+                editor={null}
+                filter={k.filterby === undefined ? false : true}
+                body = {(rowData)=>{
+                    return numberFormatter(rowData[k.field],k.type)
+                }}
+            />)
     })
 
     const columnPVMList =  props.type.excel_config.pvm?.map(k => {
@@ -892,6 +914,8 @@ function ViewDataTable(props) {
             p['discount_to_clp'] = p['net_contract_price'] === 0 || p['list_price'] === null || p['list_price'] === 0 ? null : parseFloat(((1 - (p['net_contract_price'] / p['list_price'])) * 100).toFixed(2));
             p['fts_risk'] = p['discount_to_clp'] > 40 ? "Yes" : "No";
             p['bid_kam'] = p['net_contract_price'] >= p['kams_floor_price'] ? "Yes" : "No";
+            p['bid_price_greater_than_msp'] = p['net_contract_price'] > p['msp'] ? "Yes" : "No";
+            p['wlp_discount'] = p['net_contract_price'] === 0 || p['wlp_price'] === null || p['wlp_price'] === 0 ? null : parseFloat(((1 - (p['net_contract_price'] / p['wlp_price'])) * 100).toFixed(2));
             if ( p['net_contract_price'] !== null && p['cost_gmx_current_year'] !== null && p['net_contract_price'] < p['cost_gmx_current_year']) {
                 p['ncp_cogs'] = "Red";
             }
@@ -976,6 +1000,8 @@ function ViewDataTable(props) {
             upd[editorProps.rowIndex]['discount_to_clp'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['list_price'] === null || upd[editorProps.rowIndex]['list_price'] === 0 ? null : parseFloat(((1 - (upd[editorProps.rowIndex]['net_contract_price'] / upd[editorProps.rowIndex]['list_price'])) * 100).toFixed(2));
             upd[editorProps.rowIndex]['fts_risk'] = upd[editorProps.rowIndex]['discount_to_clp'] > 40 ? "Yes" : "No";
             upd[editorProps.rowIndex]['bid_kam'] = upd[editorProps.rowIndex]['net_contract_price'] >= upd[editorProps.rowIndex]['kams_floor_price'] ? "Yes" : "No";
+            upd[editorProps.rowIndex]['bid_price_greater_than_msp'] = upd[editorProps.rowIndex]['net_contract_price'] > upd[editorProps.rowIndex]['msp'] ? "Yes" : "No";
+            upd[editorProps.rowIndex]['wlp_discount'] = upd[editorProps.rowIndex]['net_contract_price'] === 0 || upd[editorProps.rowIndex]['wlp_price'] === null || upd[editorProps.rowIndex]['wlp_price'] === 0 ? null : parseFloat(((1 - (upd[editorProps.rowIndex]['net_contract_price'] / upd[editorProps.rowIndex]['wlp_price'])) * 100).toFixed(2));
 
             if ( upd[editorProps.rowIndex]['net_contract_price'] !== null && upd[editorProps.rowIndex]['cost_gmx_current_year'] !== null && upd[editorProps.rowIndex]['net_contract_price'] < upd[editorProps.rowIndex]['cost_gmx_current_year']) {
                 upd[editorProps.rowIndex]['ncp_cogs'] = "Red";
@@ -1218,12 +1244,27 @@ function ViewDataTable(props) {
         setSelectedColumns(orderedSelectedColumns);
     }
 
+    const filterPfizerLowestBidDetailsColumns = (e) => {
+        //filter function to update the selected product details columns
+        let selectedColumns = e.value;
+        let orderedSelectedColumns = props.type.excel_config.pfizer_lowest_price_details.list.filter(col => selectedColumns.some(sCol => sCol.field === col.field));
+        sessionStorage.setItem("selectedPfizerLowestBidDetailsColumns",JSON.stringify(orderedSelectedColumns));
+        setSelectedPfizerLowestBidDetailsColumns(orderedSelectedColumns);
+    }
+
     const filterStatus = <>
         <MultiSelect value={selectedColumns} options={props.type.excel_config.product_details.list}
             maxSelectedLabels={1} optionLabel="header" onChange={filterColumns}
             filter className="filter-dropdown"
         />
     </>;
+
+    const filterStatusPfizerLowestBidDetails = <>
+    <MultiSelect value={selectedPfizerLowestBidDetailsColumns} options={props.type.excel_config.pfizer_lowest_price_details.list}
+        maxSelectedLabels={1} optionLabel="header" onChange={filterPfizerLowestBidDetailsColumns}
+        filter className="filter-dropdown"
+    />
+</>;
 
     let scenarioPlanningHeaderGroup = <ColumnGroup>
         <Row >
@@ -1302,6 +1343,10 @@ function ViewDataTable(props) {
             <Column style={{ textAlign: 'center' }} headerClassName="comment-header"
                 header="Financials" colSpan={props.type.excel_config.financials.length}
             />
+            <Column style={{ textAlign: 'center'}} headerClassName="current-bid-header"
+                header="Pfizer Lowest Bid Price Details L12M" colSpan={selectedPfizerLowestBidDetailsColumns.length}
+                filter filterElement={filterStatusPfizerLowestBidDetails}
+            />
         </Row>
         <Row>
             <Column selectionMode='multiple' headerClassName="current-bid-header"
@@ -1310,6 +1355,7 @@ function ViewDataTable(props) {
             {columnProductDetailList}
             {columnFinancialOverviewDetailList}
             {columnFinancialsDetailList}
+            {columnPfizerLowestPriceDetailsList}
         </Row>
     </ColumnGroup>;
 
@@ -1632,6 +1678,8 @@ function ViewDataTable(props) {
                         {columnUserCommentDetailList}
                         {columnFinancialOverviewDetailList}
                         {columnFinancialsDetailList}
+                        {/* since it is a filterable column list, it can be visible on other tabs, hence we set a condition here */}
+                        {props.type.tab_name === "Legal Template" && columnPfizerLowestPriceDetailsList} 
                         {columnPVMList}
                     </DataTable>
                 </div>

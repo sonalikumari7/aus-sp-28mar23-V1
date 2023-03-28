@@ -193,7 +193,11 @@
                 "financial_overview":[],
                 "financials":[],
                 "legal_input":[],
-                "finance_input":[]
+                "finance_input":[],
+                "pfizer_lowest_price_details":{
+                    "list":[],
+                    "selected_list":[]
+                }
             }
         },
         {
@@ -345,7 +349,11 @@
                 "pvm":[],
                 "financial_overview":[],
                 "financials":[],
-                "legal_input":[]
+                "legal_input":[],
+                "pfizer_lowest_price_details":{
+                    "list":[],
+                    "selected_list":[]
+                }
             }
         },
         {
@@ -428,7 +436,8 @@
                     {
                         "field": "ims_pfizer_market_share",
                         "header": "IMS Pfizer Market Share",
-                        "sortable": true
+                        "sortable": true,
+                        "type":"percent"
                     },
                     {
                         "field": "intent_to_bid",
@@ -436,7 +445,7 @@
                         "sortable": true
                     },
                     {
-                        "field": "incumbent_new_business",
+                        "field": "line_status",
                         "header": "Incumbent/New Business",
                         "sortable": true
                     },
@@ -447,7 +456,7 @@
                     },
                     {
                         "field": "competitor_name",
-                        "header": "Competitor offering IMS Loweat Price",
+                        "header": "Competitor offering IMS Lowest Price",
                         "sortable": true
                     },
                     {
@@ -505,18 +514,65 @@
                         "type":"currency"
                     },
                     {
-                        "field": "pfizer_lowest_price",
-                        "header": "Pfizer's lowest bid price in last 12 months",
-                        "sortable": true,
-                        "type":"currency"
-                    },
-                    {
                         "field": "ims_lowest_price",
                         "header": "IMS Lowest Price",
                         "sortable": true,
                         "type":"currency"
                     }
                 ],
+                "pfizer_lowest_price_details": {
+                    "selected_list":[
+                        {
+                            "field": "pfizer_lowest_price",
+                            "header": "Bid Price",
+                            "sortable": true,
+                            "type":"currency"
+                        },
+                        {
+                            "field": "pfizer_lowest_price_outcome",
+                            "header": "Outcome",
+                            "sortable": true
+                        }                        
+                    ],
+                    "list":[
+                        {
+                            "field": "pfizer_lowest_price",
+                            "header": "Bid Price",
+                            "sortable": true,
+                            "type":"currency"
+                        },
+                        {
+                            "field": "pfizer_lowest_price_outcome",
+                            "header": "Outcome",
+                            "sortable": true
+                        },
+                        {
+                            "field": "pfizer_lowest_price_opp_name",
+                            "header": "Opportunity Name",
+                            "sortable": true
+                        },
+                        {
+                            "field": "pfizer_lowest_price_customer_name",
+                            "header": "Customer Name",
+                            "sortable": true
+                        },
+                        {
+                            "field": "pfizer_lowest_price_sdd",
+                            "header": "Submission Due Date",
+                            "sortable": true
+                        },
+                        {
+                            "field": "pfizer_lowest_price_ssd",
+                            "header": "Supply Start Date",
+                            "sortable": true
+                        },
+                        {
+                            "field": "pfizer_lowest_price_oed",
+                            "header": "Supply End Date",
+                            "sortable": true
+                        }  
+                    ]
+                },
                 "pvm":[],
                 "finance_input":[]
             }
@@ -588,6 +644,11 @@
                         "field": "prior_actual_qty",
                         "header": "Prior Actual Quantity",
                         "type": "quantity"
+                    },
+                    {
+                        "field": "prior_msp",
+                        "header": "Prior MSP",
+                        "type": "currency"
                     },
                     {
                         "field": "prior_asp",
